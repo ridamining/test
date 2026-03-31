@@ -1,347 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RIDA NETWORK</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RIDA PROMAX v14.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #7c3aed; --accent: #00f2ff; --bg: #03040b; }
+        body { background: var(--bg); color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
+        
+        /* Glassmorphism Pro */
+        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 28px; }
+        .neon-glow { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
+        
+        /* Mining Animation */
+        .node-pulse { position: relative; width: 180px; height: 180px; }
+        .node-pulse::after { content: ''; position: absolute; inset: -10px; border: 2px solid var(--primary); border-radius: 50%; animation: pulse 2s infinite; opacity: 0; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.3); opacity: 0; } }
 
-<style>
-body{
-background:linear-gradient(135deg,#020617,#0f172a);
-color:white;
-font-family:sans-serif;
-overflow-x:hidden;
-}
-
-/* Glow */
-.glow{
-box-shadow:0 0 20px #6366f1,0 0 40px #6366f1;
-}
-
-/* Cards */
-.card{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(15px);
-border-radius:18px;
-padding:14px;
-margin-top:12px;
-}
-
-/* Nav */
-.nav{
-position:fixed;bottom:0;width:100%;
-display:flex;justify-content:space-around;
-background:#020617;padding:10px;
-}
-.nav div{opacity:.5;transition:.3s}
-.nav .on{opacity:1;color:#6366f1;transform:scale(1.2)}
-
-/* Drawer */
-.drawer{
-position:fixed;
-left:-260px;top:0;
-width:260px;height:100%;
-background:#020617;
-padding:15px;
-transition:.3s;
-z-index:999;
-}
-.drawer.open{left:0}
-
-/* Avatar */
-.avatar{
-width:45px;height:45px;border-radius:50%;
-background:#6366f1;
-display:flex;align-items:center;justify-content:center;
-font-weight:bold;
-}
-
-/* Chat */
-.msgL{text-align:left;margin:5px}
-.msgR{text-align:right;margin:5px}
-
-</style>
+        /* Navigation & Drawer */
+        .drawer { position: fixed; top: 0; left: -100%; width: 80%; height: 100%; background: #090a16; z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-right: 1px solid var(--primary); }
+        .drawer.open { left: 0; }
+        .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; }
+        
+        .tab-btn.active { color: var(--accent); border-top: 2px solid var(--accent); }
+        .page { display: none; }
+        .page.active { display: block; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
 </head>
+<body class="safe-area-inset">
 
-<body class="p-3">
+    <div id="drawerOverlay" class="overlay" onclick="toggleDrawer()"></div>
+    
+    <div id="sideDrawer" class="drawer p-6 flex flex-col">
+        <h2 class="text-2xl font-bold text-accent mb-8">RIDA <span class="text-white">GUIDE</span></h2>
+        <div class="space-y-6 flex-grow overflow-y-auto">
+            <div class="p-4 glass-card">
+                <h4 class="text-xs font-bold text-primary uppercase mb-2">How to Join</h4>
+                <p class="text-[11px] text-slate-400">Initialize your unique node ID via the dashboard. Your identity is tied to your BSC BEP20 address.</p>
+            </div>
+            <div class="p-4 glass-card">
+                <h4 class="text-xs font-bold text-primary uppercase mb-2">Verification (KYC)</h4>
+                <p class="text-[11px] text-slate-400">Admin manually audits nodes. Only verified users can use P2P systems and earn referral rewards.</p>
+            </div>
+            <div class="p-4 glass-card">
+                <h4 class="text-xs font-bold text-primary uppercase mb-2">P2P Transfers</h4>
+                <p class="text-[11px] text-slate-400">Minimum transfer is 10 RIDA. Receiver must be a verified user in the network.</p>
+            </div>
+            <a href="#" onclick="switchTab('profile')" class="block p-3 border-l-2 border-primary text-sm">Support Chat</a>
+        </div>
+        <p class="text-[10px] text-slate-600 mt-4">RIDA NETWORK v14.0 PROMAX</p>
+    </div>
 
-<!-- DRAWER -->
-<div id="drawer" class="drawer">
-<h2 class="text-lg mb-3">RIDA GUIDE</h2>
-<p><b>How to Join:</b><br>Register → Start Mining</p><br>
-<p><b>How to Verify:</b><br>Complete tasks → Admin verifies</p><br>
-<p><b>P2P:</b><br>Only verified users, min 10 RIDA</p><br>
-<p><b>Support:</b><br>Use chat section</p>
-</div>
+    <div id="app" class="p-4 max-w-lg mx-auto">
+        
+        <header class="flex justify-between items-center mb-6">
+            <button onclick="toggleDrawer()" class="p-3 glass-card text-xl">☰</button>
+            <div class="text-center">
+                <p class="text-[10px] tracking-widest text-slate-500 uppercase font-bold">Total Assets</p>
+                <h2 id="mainBal" class="text-3xl font-bold">0.00 <span class="text-primary text-sm">RIDA</span></h2>
+            </div>
+            <img id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=user" class="w-12 h-12 rounded-2xl glass-card border-2 border-primary">
+        </header>
 
-<!-- AUTH -->
-<div id="auth">
-<div class="card text-center">
-<h2 class="text-xl mb-2">🚀 RIDA NETWORK</h2>
-<input id="name" placeholder="Name" class="w-full p-2 bg-black mb-2">
-<input id="email" placeholder="Email" class="w-full p-2 bg-black mb-2">
-<input id="pass" placeholder="Password" class="w-full p-2 bg-black mb-2">
-<input id="ref" placeholder="Referral UID" class="w-full p-2 bg-black mb-2">
-<button onclick="login()" class="w-full bg-indigo-600 p-2 rounded">ENTER</button>
-</div>
-</div>
+        <section class="glass-card p-4 mb-6 relative overflow-hidden">
+            <div class="flex justify-between items-start mb-2">
+                <span class="bg-primary/20 text-primary text-[9px] px-2 py-1 rounded font-bold uppercase">System Update</span>
+                <button onclick="showArchive()" class="text-[10px] text-accent underline">Archive</button>
+            </div>
+            <p id="latestAnnouncement" class="text-sm font-medium">Connect your node daily to maximize Rida yields.</p>
+        </section>
 
-<!-- APP -->
-<div id="app" class="hidden">
+        <div id="page-home" class="page active space-y-6">
+            <div class="flex flex-col items-center py-10">
+                <div class="node-pulse flex flex-col items-center justify-center glass-card neon-glow">
+                    <span id="miningSpeed" class="text-[10px] text-accent font-bold">0.20 R/DAILY</span>
+                    <h3 id="miningValue" class="text-4xl font-bold">0.20</h3>
+                    <p id="countdownDisplay" class="text-xs text-slate-500 mt-1">Ready</p>
+                </div>
+                
+                <button id="mineBtn" onclick="startMiningCycle()" class="mt-10 w-full py-5 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-3xl font-bold shadow-lg active:scale-95 transition-all">
+                    ACTIVATE NODE
+                </button>
+                <p class="text-[10px] text-slate-500 mt-4 italic text-center">Nodes must be manually verified to unlock P2P</p>
+            </div>
+        </div>
 
-<!-- HEADER -->
-<div class="card flex justify-between items-center">
-<div class="flex gap-2 items-center">
-<div class="avatar" id="avatar"></div>
-<div>
-<b id="uname"></b><br>
-<small id="uid"></small><br>
-<span id="status"></span>
-</div>
-</div>
+        <div id="page-profile" class="page space-y-4">
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <span class="text-primary">⇄</span> P2P Transfer
+                </h3>
+                <div class="space-y-3">
+                    <input id="p2pTarget" type="text" placeholder="Receiver UID" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 text-sm">
+                    <input id="p2pAmount" type="number" placeholder="Min 10 RIDA" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 text-sm">
+                    <button onclick="handleP2P()" class="w-full py-4 bg-primary rounded-2xl font-bold text-xs">SEND ASSETS</button>
+                </div>
+            </div>
 
-<button onclick="toggleDrawer()">☰</button>
+            <div class="glass-card p-6">
+                <h3 class="text-sm font-bold text-accent mb-4">Support Direct Chat</h3>
+                <div id="chatDisplay" class="h-48 overflow-y-auto mb-4 space-y-2 text-xs"></div>
+                <div class="flex gap-2">
+                    <input id="chatInput" type="text" placeholder="Type message..." class="flex-grow p-3 bg-white/5 rounded-xl text-xs">
+                    <button onclick="sendMessage()" class="px-4 bg-primary rounded-xl">➤</button>
+                </div>
+            </div>
+        </div>
 
-<div>
-<b id="bal"></b><br>
-<small>RIDA</small>
-</div>
-</div>
+        <div id="page-admin" class="page space-y-6">
+            <div class="glass-card p-4">
+                <h3 class="font-bold text-red-500 mb-4">Network Management</h3>
+                <input type="text" id="userSearch" placeholder="Search UID/Email..." class="w-full p-3 bg-black/40 rounded-xl mb-4 text-xs">
+                <div id="adminUserList" class="space-y-2 max-h-80 overflow-y-auto">
+                    </div>
+            </div>
+            
+            <div class="glass-card p-4">
+                <h3 class="font-bold text-accent mb-2">New Broadcast</h3>
+                <textarea id="annInput" class="w-full bg-black/40 p-3 rounded-xl text-xs mb-2" placeholder="Announcement..."></textarea>
+                <button onclick="postAnnouncement()" class="w-full py-2 bg-accent text-black font-bold rounded-lg text-xs">POST SYSTEM WIDE</button>
+            </div>
+        </div>
 
-<!-- HOME -->
-<div id="home" class="page active">
+        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] glass-card p-2 flex justify-between neon-glow">
+            <button onclick="switchTab('home')" class="tab-btn active flex-1 py-3 text-xs font-bold uppercase tracking-widest">Mining</button>
+            <button onclick="switchTab('profile')" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest">Assets</button>
+            <button id="adminTab" onclick="switchTab('admin')" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest hidden">Admin</button>
+        </nav>
+    </div>
 
-<div class="card text-center">
-<button id="mineBtn" onclick="mine()" class="glow bg-indigo-600 px-4 py-2 rounded">
-Start Mining
-</button>
-<p id="timer" class="mt-2 text-indigo-400"></p>
-</div>
+    <div id="archiveModal" class="overlay flex items-center justify-center p-6">
+        <div class="glass-card p-6 w-full max-w-sm">
+            <h2 class="text-sm font-bold text-accent mb-2">Network Archives</h2>
+            <p class="text-primary text-[10px] font-bold mb-4">"You must be fullfil all the tasks given below to get 100% from the system."</p>
+            <div id="archiveList" class="space-y-2 max-h-60 overflow-y-auto text-xs text-slate-400"></div>
+            <button onclick="closeArchive()" class="w-full mt-4 py-3 border border-white/10 rounded-xl">Close</button>
+        </div>
+    </div>
 
-<div class="card">
-<h3>📢 Announcements</h3>
-<div id="ann"></div>
-<button onclick="openAnn()">View All</button>
-</div>
+    <script>
+        // CORE LOGIC & MOCK DATA (Integrate with your API)
+        let currentUser = {
+            uid: "RIDA-8821",
+            role: "ADMIN", // Toggle for testing
+            verified: true,
+            balance: 145.20,
+            status: "active",
+            lastMined: 0
+        };
 
-</div>
+        function toggleDrawer() {
+            document.getElementById('sideDrawer').classList.toggle('open');
+            document.getElementById('drawerOverlay').style.display = 
+                document.getElementById('sideDrawer').classList.contains('open') ? 'block' : 'none';
+        }
 
-<!-- ASSETS -->
-<div id="asset" class="page">
+        function switchTab(tabId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
 
-<div class="card">
-<h3>Referral</h3>
-<input id="refLink" readonly class="w-full p-2 bg-black">
-</div>
+        // MINING SYSTEM
+        function startMiningCycle() {
+            const btn = document.getElementById('mineBtn');
+            const display = document.getElementById('countdownDisplay');
+            
+            // Logic: 0.20 Daily, must stop after 24h
+            let startTime = new Date().getTime();
+            btn.disabled = true;
+            btn.innerText = "MINING ACTIVE...";
+            
+            // Simulate 24h cycle
+            let timer = setInterval(() => {
+                let now = new Date().getTime();
+                let diff = now - startTime;
+                let remaining = 86400000 - diff;
 
-<div class="card">
-<h3>P2P Transfer</h3>
-<input id="to" placeholder="UID" class="w-full p-2 bg-black mb-2">
-<input id="amt" placeholder="Amount" class="w-full p-2 bg-black mb-2">
-<button onclick="sendP2P()" class="bg-indigo-600 w-full p-2 rounded">Send</button>
-</div>
+                if(remaining <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = "CLAIM 0.20 RIDA";
+                    display.innerText = "Cycle Complete";
+                } else {
+                    let h = Math.floor(remaining / 3600000);
+                    let m = Math.floor((remaining % 3600000) / 60000);
+                    let s = Math.floor((remaining % 60000) / 1000);
+                    display.innerText = `${h}h ${m}m ${s}s left`;
+                }
+            }, 1000);
+        }
 
-<div class="card">
-<h3>Chat</h3>
-<div id="chatBox" style="height:150px;overflow:auto"></div>
-<input id="msg" class="w-full p-2 bg-black mt-2">
-<button onclick="sendMsg()" class="bg-indigo-600 w-full p-2 mt-2 rounded">Send</button>
-</div>
+        // P2P LOGIC
+        function handleP2P() {
+            if(!currentUser.verified) return alert("Only Verified Nodes can P2P.");
+            let amount = document.getElementById('p2pAmount').value;
+            if(amount < 10) return alert("Minimum transfer is 10 RIDA");
+            
+            alert("Transfer Request Initiated to Node.");
+        }
 
-</div>
+        // ADMIN FUNCTIONS
+        function showArchive() {
+            document.getElementById('archiveModal').style.display = 'flex';
+        }
+        function closeArchive() {
+            document.getElementById('archiveModal').style.display = 'none';
+        }
 
-<!-- ADMIN -->
-<div id="admin" class="page">
-<div class="card">
-<input id="search" placeholder="Search UID" class="w-full p-2 bg-black">
-<button onclick="searchUser()" class="bg-indigo-600 w-full mt-2 p-2">Search</button>
-</div>
-<div id="users"></div>
-</div>
-
-<!-- ANN MODAL -->
-<div id="annModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:black;padding:20px;overflow:auto">
-<h2>You must be fullfil all the tasks given below to get 100% from the system.</h2>
-<div id="allAnn"></div>
-<button onclick="closeAnn()">Close</button>
-</div>
-
-<!-- NAV -->
-<div class="nav">
-<div onclick="tab('home',this)" class="on">🏠</div>
-<div onclick="tab('asset',this)">💼</div>
-<div id="adminBtn" onclick="tab('admin',this)" class="hidden">⚙️</div>
-</div>
-
-</div>
-
-<script>
-
-const API="https://script.google.com/macros/s/AKfycbxRRJfvA6I1w5qWvlocU8Gcke_a19i_p7czfIQTYJPfEvs-b-imFxT9CPMmPbAifv4E2g/exec";
-
-let user=JSON.parse(localStorage.getItem("user"));
-let allAnnouncements=[];
-
-function call(a,d,cb){
-fetch(API+"?action="+a+"&payload="+encodeURIComponent(JSON.stringify(d)))
-.then(r=>r.json()).then(cb);
-}
-
-// LOGIN
-function login(){
-call("login",{name:name.value,email:email.value,pass:pass.value,ref:ref.value},res=>{
-if(res.success){
-if(res.user){
-localStorage.setItem("user",JSON.stringify(res.user));
-sync();
-}else alert("Created, login again");
-}
-});
-}
-
-// SYNC
-function sync(){
-call("sync",{uid:user.uid},res=>{
-user=res.user;
-localStorage.setItem("user",JSON.stringify(user));
-
-auth.style.display="none";
-app.classList.remove("hidden");
-
-uname.innerText=user.name;
-uid.innerText=user.uid;
-bal.innerText=user.bal;
-
-status.innerText=user.verified=="YES"?"✔ Verified":"⏳ Pending";
-
-avatar.innerText=user.name.charAt(0);
-
-refLink.value=location.origin+"?ref="+user.uid;
-
-allAnnouncements=res.announcements;
-loadAnn(res.announcements);
-
-if(user.role=="ADMIN"){
-adminBtn.classList.remove("hidden");
-loadUsers(res.allUsers);
-}
-
-startTimer();
-loadChat();
-});
-}
-
-if(user) sync();
-
-// DRAWER
-function toggleDrawer(){
-drawer.classList.toggle("open");
-}
-
-// MINING
-function mine(){
-if(user.miningStart){
-call("claimMining",{uid:user.uid},sync);
-}else{
-call("startMining",{uid:user.uid},sync);
-}
-}
-
-function startTimer(){
-setInterval(()=>{
-if(!user.miningStart) return;
-
-let rate=0.2/86400;
-let elapsed=(Date.now()-user.miningStart)/1000;
-
-let mined=(elapsed*rate).toFixed(5);
-
-timer.innerText="Mining: "+mined+" RIDA";
-
-if(elapsed>=86400){
-timer.innerText="Claim Ready";
-}
-
-},1000);
-}
-
-// ANN
-function loadAnn(a){
-ann.innerHTML=a.slice(0,3).map(x=>`
-<div class="mt-2 p-2 bg-black rounded">${x[0]}</div>
-`).join("");
-}
-
-function openAnn(){
-annModal.style.display="block";
-allAnn.innerHTML=allAnnouncements.map(x=>`
-<div class="card">${x[0]}<br>${x[1]}</div>
-`).join("");
-}
-function closeAnn(){
-annModal.style.display="none";
-}
-
-// CHAT
-function sendMsg(){
-call("sendMsg",{from:user.uid,to:"ADMIN",msg:msg.value},()=>{
-msg.value="";
-loadChat();
-});
-}
-
-function loadChat(){
-call("getMsg",{uid:user.uid},res=>{
-chatBox.innerHTML=res.msgs.map(m=>`
-<div class="${m[0]==user.uid?'msgR':'msgL'}">${m[2]}</div>
-`).join("");
-});
-}
-
-// P2P
-function sendP2P(){
-call("p2p",{from:user.uid,to:to.value,amount:Number(amt.value)},sync);
-}
-
-// ADMIN
-function loadUsers(list){
-users.innerHTML=list.map(u=>`
-<div class="card">
-${u.name} (${u.uid})<br>
-Bal:${u.bal}<br>
-<input id="b_${u.uid}" placeholder="Balance">
-<button onclick="setBal('${u.uid}')">Set</button>
-<button onclick="verifyU('${u.uid}')">Verify</button>
-<button onclick="banU('${u.uid}')">Ban</button>
-</div>
-`).join("");
-}
-
-function searchUser(){
-call("sync",{uid:user.uid},res=>{
-loadUsers(res.allUsers.filter(u=>u.uid.includes(search.value)));
-});
-}
-
-function setBal(id){
-call("adminAction",{uid:id,type:"setBalance",value:document.getElementById("b_"+id).value},sync);
-}
-function verifyU(id){
-call("adminAction",{uid:id,type:"verify"},sync);
-}
-function banU(id){
-call("adminAction",{uid:id,type:"ban"},sync);
-}
-
-// NAV
-function tab(id,el){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-
-document.querySelectorAll('.nav div').forEach(n=>n.classList.remove('on'));
-el.classList.add('on');
-}
-
-</script>
+        // Initialize
+        window.onload = () => {
+            if(currentUser.role === 'ADMIN') document.getElementById('adminTab').classList.remove('hidden');
+            document.getElementById('mainBal').innerText = currentUser.balance.toFixed(2) + " RIDA";
+            document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`;
+        };
+    </script>
 </body>
 </html>
