@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RIDA NETWORK</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body{background:#050508;color:#fff;font-family:sans-serif}
-.glass{background:rgba(255,255,255,0.05);padding:12px;border-radius:14px}
-.page{display:none}
-.active{display:block}
-.nav{position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;background:#0b0f1a;padding:10px}
-.nav div{font-size:12px;opacity:.6}
+body{
+background:linear-gradient(135deg,#0a0f1f,#050508);
+color:white;
+font-family:sans-serif;
+}
+.card{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+border-radius:16px;
+padding:14px;
+margin-top:12px;
+}
+.nav{
+position:fixed;bottom:0;width:100%;
+display:flex;justify-content:space-around;
+background:#0b0f1a;padding:10px;
+}
+.nav div{opacity:.6}
 .nav .on{color:#6366f1;opacity:1}
+.avatar{
+width:40px;height:40px;border-radius:50%;
+background:#6366f1;display:flex;align-items:center;justify-content:center;
+}
 </style>
 </head>
 
@@ -22,41 +37,48 @@ body{background:#050508;color:#fff;font-family:sans-serif}
 
 <!-- AUTH -->
 <div id="auth">
-<input id="name" placeholder="Name"><br><br>
-<input id="email" placeholder="Email"><br><br>
-<input id="pass" placeholder="Password"><br><br>
-<input id="ref" placeholder="Referral UID (optional)"><br><br>
-<button onclick="login()">Login / Signup</button>
+<div class="card">
+<h2 class="text-xl mb-2">RIDA NETWORK</h2>
+<input id="name" placeholder="Name" class="w-full p-2 bg-black mb-2">
+<input id="email" placeholder="Email" class="w-full p-2 bg-black mb-2">
+<input id="pass" placeholder="Password" class="w-full p-2 bg-black mb-2">
+<input id="ref" placeholder="Referral UID" class="w-full p-2 bg-black mb-2">
+<button onclick="login()" class="w-full bg-indigo-600 p-2 rounded">Enter</button>
+</div>
 </div>
 
 <!-- APP -->
 <div id="app" class="hidden">
 
 <!-- HEADER -->
-<div class="glass flex justify-between">
+<div class="card flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="avatar" id="avatar"></div>
 <div>
-<h3 id="uname"></h3>
-<p id="uid"></p>
-<p id="verify"></p>
+<b id="uname"></b><br>
+<small id="uid"></small>
 </div>
-<div>
-<h2 id="bal">0</h2>
-<p>RIDA</p>
+</div>
+
+<div class="text-right">
+<b id="bal">0</b><br>
+<small>RIDA</small>
 </div>
 </div>
 
 <!-- HOME -->
 <div id="home" class="page active">
 
-<div class="glass mt-3 text-center">
-<button id="mineBtn" onclick="mineAction()">Start Mining</button>
-<p id="timer"></p>
+<div class="card text-center">
+<button id="mineBtn" onclick="mine()" class="bg-indigo-600 px-4 py-2 rounded">
+Start Mining
+</button>
+<p id="timer" class="mt-2 text-indigo-400"></p>
 </div>
 
-<div class="glass mt-3">
+<div class="card">
 <h3>📢 Announcements</h3>
 <div id="ann"></div>
-<button onclick="showAllAnn()">More</button>
 </div>
 
 </div>
@@ -64,48 +86,41 @@ body{background:#050508;color:#fff;font-family:sans-serif}
 <!-- ASSETS -->
 <div id="asset" class="page">
 
-<div class="glass">
-<input id="refLink">
+<div class="card">
+<h3>Referral</h3>
+<input id="refLink" readonly class="w-full p-2 bg-black">
 </div>
 
-<div class="glass mt-2">
-<h3>Referrals</h3>
-<div id="refs"></div>
-</div>
-
-<div class="glass mt-2">
+<div class="card">
 <h3>P2P Transfer</h3>
-<input id="to" placeholder="Receiver UID"><br><br>
-<input id="amt" placeholder="Amount"><br><br>
-<button onclick="sendP2P()">Send</button>
+<input id="to" placeholder="Receiver UID" class="w-full p-2 bg-black mb-2">
+<input id="amt" placeholder="Amount" class="w-full p-2 bg-black mb-2">
+<button onclick="sendP2P()" class="bg-indigo-600 w-full p-2 rounded">Send</button>
 </div>
 
-<div class="glass mt-2">
+<div class="card">
 <h3>Chat</h3>
 <div id="chatBox" style="height:150px;overflow:auto"></div>
-<input id="msg">
-<button onclick="sendMsg()">Send</button>
+<input id="msg" class="w-full p-2 bg-black mt-2">
+<button onclick="sendMsg()" class="bg-indigo-600 w-full p-2 mt-2 rounded">Send</button>
 </div>
 
 </div>
 
 <!-- ADMIN -->
 <div id="admin" class="page">
-
-<div class="glass">
-<input id="search" placeholder="Search UID">
-<button onclick="loadUsers()">Search</button>
+<div class="card">
+<input id="search" placeholder="Search UID" class="w-full p-2 bg-black">
+<button onclick="searchUser()" class="bg-indigo-600 w-full mt-2 p-2">Search</button>
 </div>
-
 <div id="users"></div>
-
 </div>
 
 <!-- NAV -->
 <div class="nav">
-<div onclick="tab('home',this)" class="on">Home</div>
-<div onclick="tab('asset',this)">Assets</div>
-<div id="adminBtn" onclick="tab('admin',this)" class="hidden">Admin</div>
+<div onclick="tab('home',this)" class="on">🏠</div>
+<div onclick="tab('asset',this)">💼</div>
+<div id="adminBtn" onclick="tab('admin',this)" class="hidden">⚙️</div>
 </div>
 
 </div>
@@ -114,7 +129,7 @@ body{background:#050508;color:#fff;font-family:sans-serif}
 
 const API="https://script.google.com/macros/s/AKfycbxRRJfvA6I1w5qWvlocU8Gcke_a19i_p7czfIQTYJPfEvs-b-imFxT9CPMmPbAifv4E2g/exec";
 
-let user=JSON.parse(localStorage.getItem("u"));
+let user=JSON.parse(localStorage.getItem("user"));
 
 function call(a,d,cb){
 fetch(API+"?action="+a+"&payload="+encodeURIComponent(JSON.stringify(d)))
@@ -123,23 +138,21 @@ fetch(API+"?action="+a+"&payload="+encodeURIComponent(JSON.stringify(d)))
 
 // LOGIN
 function login(){
-call("login",{
-name:name.value,email:email.value,pass:pass.value,ref:ref.value
-},res=>{
+call("login",{name:name.value,email:email.value,pass:pass.value,ref:ref.value},res=>{
 if(res.success){
-localStorage.setItem("u",JSON.stringify(res.user));
-location.reload();
-}else alert(res.msg);
+if(res.user){
+localStorage.setItem("user",JSON.stringify(res.user));
+sync();
+}else alert("Account created. Login again");
+}
 });
 }
 
-// LOAD
-if(user) sync();
-
+// SYNC
 function sync(){
 call("sync",{uid:user.uid},res=>{
 user=res.user;
-localStorage.setItem("u",JSON.stringify(user));
+localStorage.setItem("user",JSON.stringify(user));
 
 auth.style.display="none";
 app.classList.remove("hidden");
@@ -147,11 +160,12 @@ app.classList.remove("hidden");
 uname.innerText=user.name;
 uid.innerText=user.uid;
 bal.innerText=user.bal;
-verify.innerText=user.verified;
+
+// avatar
+avatar.innerText=user.name.charAt(0).toUpperCase();
 
 refLink.value=location.origin+"?ref="+user.uid;
 
-loadRefs(res.referrals);
 loadAnn(res.announcements);
 
 if(user.role=="ADMIN"){
@@ -164,8 +178,10 @@ loadChat();
 });
 }
 
+if(user) sync();
+
 // MINING
-function mineAction(){
+function mine(){
 if(user.miningStart){
 call("claimMining",{uid:user.uid},sync);
 }else{
@@ -178,39 +194,38 @@ setInterval(()=>{
 if(!user.miningStart) return;
 
 let left=86400000-(Date.now()-user.miningStart);
-if(left<0){timer.innerText="Claim Ready";return;}
 
-let h=Math.floor(left/3600000);
-let m=Math.floor((left%3600000)/60000);
-let s=Math.floor((left%60000)/1000);
-
-timer.innerText=h+":"+m+":"+s;
-},1000);
+if(left<=0){
+timer.innerText="Claim Ready";
+return;
 }
 
-// REF
-function loadRefs(r){
-refs.innerHTML=r.map(x=>`
-<div class="glass mt-2">${x.name} (${x.uid})</div>
-`).join("");
+timer.innerText=Math.floor(left/1000)+" sec left";
+
+},1000);
 }
 
 // ANN
 function loadAnn(a){
 ann.innerHTML=a.slice(0,3).map(x=>`
-<div>${x[0]} - ${x[1]}</div>
+<div class="mt-2 p-2 bg-black rounded">${x[0]}<br>${x[1]}</div>
 `).join("");
 }
 
 // CHAT
 function sendMsg(){
-call("sendMsg",{from:user.uid,to:"ADMIN",msg:msg.value},loadChat);
+call("sendMsg",{from:user.uid,to:"ADMIN",msg:msg.value},()=>{
+msg.value="";
+loadChat();
+});
 }
 
 function loadChat(){
 call("getMsg",{uid:user.uid},res=>{
 chatBox.innerHTML=res.msgs.map(m=>`
-<div>${m[0]}: ${m[2]}</div>
+<div style="text-align:${m[0]==user.uid?'right':'left'}">
+${m[2]}
+</div>
 `).join("");
 });
 }
@@ -222,22 +237,22 @@ call("p2p",{from:user.uid,to:to.value,amount:Number(amt.value)},sync);
 
 // ADMIN
 function loadUsers(list){
-if(!list){
-call("sync",{uid:user.uid},r=>loadUsers(r.allUsers));
-return;
-}
-
 users.innerHTML=list.map(u=>`
-<div class="glass mt-2">
+<div class="card">
 ${u.name} (${u.uid})<br>
-Bal: ${u.bal}<br>
-
+Bal:${u.bal}<br>
 <input id="b_${u.uid}" placeholder="Balance">
 <button onclick="setBal('${u.uid}')">Set</button>
 <button onclick="verifyU('${u.uid}')">Verify</button>
 <button onclick="banU('${u.uid}')">Ban</button>
 </div>
 `).join("");
+}
+
+function searchUser(){
+call("sync",{uid:user.uid},res=>{
+loadUsers(res.allUsers.filter(u=>u.uid.includes(search.value)));
+});
 }
 
 function setBal(id){
