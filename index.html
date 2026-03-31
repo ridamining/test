@@ -1,49 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RIDA NETWORK</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 body{
-background:linear-gradient(135deg,#0a0f1f,#050508);
+background:linear-gradient(135deg,#020617,#0f172a);
 color:white;
 font-family:sans-serif;
+overflow-x:hidden;
 }
+
+/* Glow */
+.glow{
+box-shadow:0 0 20px #6366f1,0 0 40px #6366f1;
+}
+
+/* Cards */
 .card{
 background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-border-radius:16px;
+backdrop-filter:blur(15px);
+border-radius:18px;
 padding:14px;
 margin-top:12px;
 }
+
+/* Nav */
 .nav{
 position:fixed;bottom:0;width:100%;
 display:flex;justify-content:space-around;
-background:#0b0f1a;padding:10px;
+background:#020617;padding:10px;
 }
-.nav div{opacity:.6}
-.nav .on{color:#6366f1;opacity:1}
+.nav div{opacity:.5;transition:.3s}
+.nav .on{opacity:1;color:#6366f1;transform:scale(1.2)}
+
+/* Drawer */
+.drawer{
+position:fixed;
+left:-260px;top:0;
+width:260px;height:100%;
+background:#020617;
+padding:15px;
+transition:.3s;
+z-index:999;
+}
+.drawer.open{left:0}
+
+/* Avatar */
 .avatar{
-width:40px;height:40px;border-radius:50%;
-background:#6366f1;display:flex;align-items:center;justify-content:center;
+width:45px;height:45px;border-radius:50%;
+background:#6366f1;
+display:flex;align-items:center;justify-content:center;
+font-weight:bold;
 }
+
+/* Chat */
+.msgL{text-align:left;margin:5px}
+.msgR{text-align:right;margin:5px}
+
 </style>
 </head>
 
 <body class="p-3">
 
+<!-- DRAWER -->
+<div id="drawer" class="drawer">
+<h2 class="text-lg mb-3">RIDA GUIDE</h2>
+<p><b>How to Join:</b><br>Register → Start Mining</p><br>
+<p><b>How to Verify:</b><br>Complete tasks → Admin verifies</p><br>
+<p><b>P2P:</b><br>Only verified users, min 10 RIDA</p><br>
+<p><b>Support:</b><br>Use chat section</p>
+</div>
+
 <!-- AUTH -->
 <div id="auth">
-<div class="card">
-<h2 class="text-xl mb-2">RIDA NETWORK</h2>
+<div class="card text-center">
+<h2 class="text-xl mb-2">🚀 RIDA NETWORK</h2>
 <input id="name" placeholder="Name" class="w-full p-2 bg-black mb-2">
 <input id="email" placeholder="Email" class="w-full p-2 bg-black mb-2">
 <input id="pass" placeholder="Password" class="w-full p-2 bg-black mb-2">
 <input id="ref" placeholder="Referral UID" class="w-full p-2 bg-black mb-2">
-<button onclick="login()" class="w-full bg-indigo-600 p-2 rounded">Enter</button>
+<button onclick="login()" class="w-full bg-indigo-600 p-2 rounded">ENTER</button>
 </div>
 </div>
 
@@ -52,16 +91,19 @@ background:#6366f1;display:flex;align-items:center;justify-content:center;
 
 <!-- HEADER -->
 <div class="card flex justify-between items-center">
-<div class="flex items-center gap-2">
+<div class="flex gap-2 items-center">
 <div class="avatar" id="avatar"></div>
 <div>
 <b id="uname"></b><br>
-<small id="uid"></small>
+<small id="uid"></small><br>
+<span id="status"></span>
 </div>
 </div>
 
-<div class="text-right">
-<b id="bal">0</b><br>
+<button onclick="toggleDrawer()">☰</button>
+
+<div>
+<b id="bal"></b><br>
 <small>RIDA</small>
 </div>
 </div>
@@ -70,7 +112,7 @@ background:#6366f1;display:flex;align-items:center;justify-content:center;
 <div id="home" class="page active">
 
 <div class="card text-center">
-<button id="mineBtn" onclick="mine()" class="bg-indigo-600 px-4 py-2 rounded">
+<button id="mineBtn" onclick="mine()" class="glow bg-indigo-600 px-4 py-2 rounded">
 Start Mining
 </button>
 <p id="timer" class="mt-2 text-indigo-400"></p>
@@ -79,6 +121,7 @@ Start Mining
 <div class="card">
 <h3>📢 Announcements</h3>
 <div id="ann"></div>
+<button onclick="openAnn()">View All</button>
 </div>
 
 </div>
@@ -93,7 +136,7 @@ Start Mining
 
 <div class="card">
 <h3>P2P Transfer</h3>
-<input id="to" placeholder="Receiver UID" class="w-full p-2 bg-black mb-2">
+<input id="to" placeholder="UID" class="w-full p-2 bg-black mb-2">
 <input id="amt" placeholder="Amount" class="w-full p-2 bg-black mb-2">
 <button onclick="sendP2P()" class="bg-indigo-600 w-full p-2 rounded">Send</button>
 </div>
@@ -116,6 +159,13 @@ Start Mining
 <div id="users"></div>
 </div>
 
+<!-- ANN MODAL -->
+<div id="annModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:black;padding:20px;overflow:auto">
+<h2>You must be fullfil all the tasks given below to get 100% from the system.</h2>
+<div id="allAnn"></div>
+<button onclick="closeAnn()">Close</button>
+</div>
+
 <!-- NAV -->
 <div class="nav">
 <div onclick="tab('home',this)" class="on">🏠</div>
@@ -130,6 +180,7 @@ Start Mining
 const API="https://script.google.com/macros/s/AKfycbxRRJfvA6I1w5qWvlocU8Gcke_a19i_p7czfIQTYJPfEvs-b-imFxT9CPMmPbAifv4E2g/exec";
 
 let user=JSON.parse(localStorage.getItem("user"));
+let allAnnouncements=[];
 
 function call(a,d,cb){
 fetch(API+"?action="+a+"&payload="+encodeURIComponent(JSON.stringify(d)))
@@ -143,7 +194,7 @@ if(res.success){
 if(res.user){
 localStorage.setItem("user",JSON.stringify(res.user));
 sync();
-}else alert("Account created. Login again");
+}else alert("Created, login again");
 }
 });
 }
@@ -161,11 +212,13 @@ uname.innerText=user.name;
 uid.innerText=user.uid;
 bal.innerText=user.bal;
 
-// avatar
-avatar.innerText=user.name.charAt(0).toUpperCase();
+status.innerText=user.verified=="YES"?"✔ Verified":"⏳ Pending";
+
+avatar.innerText=user.name.charAt(0);
 
 refLink.value=location.origin+"?ref="+user.uid;
 
+allAnnouncements=res.announcements;
 loadAnn(res.announcements);
 
 if(user.role=="ADMIN"){
@@ -180,6 +233,11 @@ loadChat();
 
 if(user) sync();
 
+// DRAWER
+function toggleDrawer(){
+drawer.classList.toggle("open");
+}
+
 // MINING
 function mine(){
 if(user.miningStart){
@@ -193,14 +251,16 @@ function startTimer(){
 setInterval(()=>{
 if(!user.miningStart) return;
 
-let left=86400000-(Date.now()-user.miningStart);
+let rate=0.2/86400;
+let elapsed=(Date.now()-user.miningStart)/1000;
 
-if(left<=0){
+let mined=(elapsed*rate).toFixed(5);
+
+timer.innerText="Mining: "+mined+" RIDA";
+
+if(elapsed>=86400){
 timer.innerText="Claim Ready";
-return;
 }
-
-timer.innerText=Math.floor(left/1000)+" sec left";
 
 },1000);
 }
@@ -208,8 +268,18 @@ timer.innerText=Math.floor(left/1000)+" sec left";
 // ANN
 function loadAnn(a){
 ann.innerHTML=a.slice(0,3).map(x=>`
-<div class="mt-2 p-2 bg-black rounded">${x[0]}<br>${x[1]}</div>
+<div class="mt-2 p-2 bg-black rounded">${x[0]}</div>
 `).join("");
+}
+
+function openAnn(){
+annModal.style.display="block";
+allAnn.innerHTML=allAnnouncements.map(x=>`
+<div class="card">${x[0]}<br>${x[1]}</div>
+`).join("");
+}
+function closeAnn(){
+annModal.style.display="none";
 }
 
 // CHAT
@@ -223,9 +293,7 @@ loadChat();
 function loadChat(){
 call("getMsg",{uid:user.uid},res=>{
 chatBox.innerHTML=res.msgs.map(m=>`
-<div style="text-align:${m[0]==user.uid?'right':'left'}">
-${m[2]}
-</div>
+<div class="${m[0]==user.uid?'msgR':'msgL'}">${m[2]}</div>
 `).join("");
 });
 }
