@@ -3,103 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIDA OS | SUPREME</title>
+    <title>RIDA OS | MASTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style id="theme-css">
-        :root { --main: #3b82f6; --bg: #020617; --glass: rgba(15, 23, 42, 0.8); }
+    <style id="theme-engine">
+        :root { --main: #3b82f6; --bg: #020617; --glass: rgba(15, 23, 42, 0.85); }
     </style>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; transition: background 0.5s ease; overflow-x: hidden; }
-        .glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-        .active-nav { color: var(--main) !important; transform: scale(1.2); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; transition: all 0.5s ease; overflow-x: hidden; }
+        .glass { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.08); }
+        .active-nav { color: var(--main) !important; transform: scale(1.1); }
         .hidden { display: none !important; }
-        .mining-ring { border: 4px solid #0f172a; border-top-color: var(--main); animation: spin 2s linear infinite; }
+        .mining-glow { box-shadow: 0 0 60px rgba(59, 130, 246, 0.15); }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .spinning { animation: spin 3s linear infinite; }
     </style>
 </head>
 <body class="pb-32">
 
-    <div id="authPage" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass w-full max-w-sm p-10 rounded-[3rem] text-center border-t border-white/10 shadow-2xl">
-            <h1 class="text-4xl font-black italic text-blue-500 mb-2">RIDA</h1>
-            <p id="authLabel" class="text-[10px] font-black opacity-50 uppercase tracking-[0.3em] mb-10">System Access</p>
+    <div id="authPage" class="min-h-screen flex items-center justify-center p-6 animate-in fade-in duration-700">
+        <div class="glass w-full max-w-sm p-10 rounded-[3.5rem] text-center border-t border-white/10 shadow-2xl">
+            <h1 class="text-4xl font-black italic text-blue-500 mb-2 uppercase tracking-tighter">Rida</h1>
+            <p id="authLabel" class="text-[9px] font-black opacity-40 uppercase tracking-[0.4em] mb-10">Initialize Node</p>
             
             <div id="regDiv" class="hidden space-y-4 mb-4">
-                <input type="text" id="regName" class="w-full bg-slate-900/50 p-4 rounded-2xl border border-white/5 outline-none" placeholder="Full Name">
+                <input type="text" id="regName" class="w-full bg-slate-900/50 p-4 rounded-2xl border border-white/5 outline-none focus:border-blue-500 transition-all" placeholder="Full Name">
             </div>
-            <input type="email" id="authEmail" class="w-full bg-slate-900/50 p-4 rounded-2xl mb-4 border border-white/5 outline-none" placeholder="Node Email">
-            <input type="password" id="authPass" class="w-full bg-slate-900/50 p-4 rounded-2xl mb-10 border border-white/5 outline-none" placeholder="Master Key">
+            <input type="email" id="authEmail" class="w-full bg-slate-900/50 p-4 rounded-2xl mb-4 border border-white/5 outline-none focus:border-blue-500 transition-all" placeholder="Email Address">
+            <input type="password" id="authPass" class="w-full bg-slate-900/50 p-4 rounded-2xl mb-10 border border-white/5 outline-none focus:border-blue-500 transition-all" placeholder="Master Key">
             
-            <button onclick="processAuth()" class="w-full bg-blue-600 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">Initialize</button>
-            <p onclick="toggleAuth()" class="mt-8 text-[10px] font-black text-slate-500 uppercase cursor-pointer hover:text-blue-400">New? <span id="toggleTxt">Create Account</span></p>
+            <button onclick="processAuth()" id="authBtn" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl shadow-blue-900/20 active:scale-95 transition-all">Connect Protocol</button>
+            <p onclick="toggleAuth()" class="mt-8 text-[9px] font-black text-slate-500 uppercase cursor-pointer hover:text-blue-400 transition-colors">New Miner? <span id="toggleTxt" class="text-blue-500">Create Account</span></p>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
-        <header class="p-6 flex justify-between items-center sticky top-0 z-50 glass rounded-b-3xl">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white" style="background: var(--main)">
-                    <i data-lucide="layers" class="w-4 h-4"></i>
+        <header class="p-6 flex justify-between items-center sticky top-0 z-50 glass rounded-b-[2.5rem]">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-900/30" style="background: var(--main)">
+                    <i data-lucide="component" class="w-5 h-5"></i>
                 </div>
-                <h2 class="text-lg font-black italic">RIDA</h2>
+                <h2 class="text-xl font-black italic tracking-tighter">RIDA <span class="text-blue-500">PRO</span></h2>
             </div>
             <div class="text-right">
-                <p id="hStatus" class="text-[8px] font-black uppercase px-2 py-1 rounded bg-white/5 tracking-widest">---</p>
-                <p id="kstClock" class="text-[7px] font-bold text-slate-500 mt-1">KST 00:00</p>
+                <div id="hStatus" class="text-[8px] font-black uppercase px-2 py-1 rounded bg-white/5 tracking-widest border border-white/10">---</div>
+                <p id="kstClock" class="text-[7px] font-bold text-slate-500 mt-1 uppercase tracking-tighter">KST 00:00</p>
             </div>
         </header>
 
         <main class="p-6 space-y-6">
             <div id="tab-mining" class="space-y-6 animate-in fade-in duration-500">
-                <div class="glass p-10 rounded-[3rem] text-center border-t border-white/10 shadow-2xl">
-                    <p class="text-[10px] font-black opacity-50 uppercase tracking-widest mb-2">Yield Balance</p>
+                <div class="glass p-10 rounded-[3.5rem] text-center border-t border-white/10 mining-glow">
+                    <p class="text-[10px] font-black opacity-50 uppercase tracking-widest mb-2">Node Capacity</p>
                     <h2 class="text-5xl font-black tracking-tighter mb-8"><span id="balance">0.000000</span></h2>
-                    <div id="ring" class="w-44 h-44 border-4 border-slate-900 rounded-full mx-auto mb-8 flex items-center justify-center">
+                    
+                    <div class="relative w-48 h-48 mx-auto mb-8 flex items-center justify-center">
+                        <div id="ring" class="absolute inset-0 border-[6px] border-slate-900 border-t-blue-500 rounded-full"></div>
                         <div class="text-center">
-                            <span id="timer" class="text-3xl font-black">24:00:00</span>
-                            <p class="text-[8px] font-bold opacity-50 uppercase">Session</p>
+                            <span id="timer" class="text-3xl font-black block">24:00:00</span>
+                            <span class="text-[8px] font-bold opacity-40 uppercase">Sync Session</span>
                         </div>
                     </div>
-                    <button id="mineBtn" onclick="startMining()" class="w-full py-6 rounded-3xl font-black uppercase text-xs tracking-widest text-white shadow-xl active:scale-95 transition-all" style="background: var(--main)">Start Mining</button>
+                    
+                    <button id="mineBtn" onclick="startMining()" class="w-full py-6 rounded-[2rem] font-black uppercase text-xs tracking-widest text-white shadow-xl active:scale-95 transition-all" style="background: var(--main)">Launch Node</button>
                 </div>
             </div>
 
             <div id="tab-admin" class="hidden space-y-6 animate-in slide-in-from-top duration-500">
-                <h2 class="text-2xl font-black text-blue-500 italic uppercase">System Root</h2>
+                <h2 class="text-2xl font-black text-blue-500 italic uppercase">Admin Command</h2>
                 
-                <div class="glass p-6 rounded-3xl">
-                    <p class="text-[10px] font-black uppercase opacity-50 mb-4">UI Environment</p>
+                <div class="glass p-6 rounded-[2.5rem]">
+                    <p class="text-[10px] font-black uppercase opacity-50 mb-4 tracking-widest">Interface Theme</p>
                     <div class="flex gap-3 overflow-x-auto pb-2">
-                        <div onclick="setTheme('blue')" class="w-10 h-10 rounded-full bg-blue-600 border-2 border-white"></div>
-                        <div onclick="setTheme('gold')" class="w-10 h-10 rounded-full bg-amber-500"></div>
-                        <div onclick="setTheme('emerald')" class="w-10 h-10 rounded-full bg-emerald-500"></div>
-                        <div onclick="setTheme('crimson')" class="w-10 h-10 rounded-full bg-red-600"></div>
-                        <div onclick="setTheme('purple')" class="w-10 h-10 rounded-full bg-purple-600"></div>
+                        <div onclick="setTheme('blue')" class="w-10 h-10 rounded-full bg-blue-600 border-2 border-white cursor-pointer"></div>
+                        <div onclick="setTheme('gold')" class="w-10 h-10 rounded-full bg-amber-500 cursor-pointer"></div>
+                        <div onclick="setTheme('emerald')" class="w-10 h-10 rounded-full bg-emerald-500 cursor-pointer"></div>
+                        <div onclick="setTheme('crimson')" class="w-10 h-10 rounded-full bg-red-600 cursor-pointer"></div>
+                        <div onclick="setTheme('purple')" class="w-10 h-10 rounded-full bg-purple-600 cursor-pointer"></div>
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <p class="text-[10px] font-black uppercase opacity-50">Manage Node Network</p>
-                        <button onclick="syncSheetData()" class="p-2 bg-white/5 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-                    </div>
-                    <div id="admin-user-list" class="space-y-3">
-                        </div>
+                <div class="glass p-6 rounded-[2.5rem] text-center">
+                    <p class="text-[10px] font-black uppercase text-blue-500 mb-2">Network Utility</p>
+                    <p class="text-[9px] font-bold opacity-60">Database syncing is handled automatically via Universal Relay.</p>
                 </div>
             </div>
 
             <div id="tab-profile" class="hidden space-y-4 animate-in slide-in-from-right duration-500">
-                <div class="glass p-10 rounded-[3rem] text-center border-t border-white/5">
-                    <img id="pAvatar" class="w-20 h-20 mx-auto rounded-3xl mb-4 p-1 border-2" style="border-color: var(--main)">
+                <div class="glass p-10 rounded-[3.5rem] text-center">
+                    <img id="pAvatar" class="w-24 h-24 mx-auto rounded-[2.5rem] mb-4 border-2 p-1" style="border-color: var(--main)">
                     <h3 id="pName" class="font-black text-xl uppercase tracking-widest">---</h3>
-                    <p id="pEmail" class="text-xs text-slate-500 mb-6">---</p>
-                    <div class="grid grid-cols-2 gap-2 text-left">
-                        <div class="bg-black/20 p-4 rounded-2xl">
-                            <p class="text-[7px] font-black uppercase opacity-50">Node ID</p>
-                            <p id="pUID" class="text-[10px] font-black italic">---</p>
+                    <p id="pEmail" class="text-[10px] font-bold text-slate-500 mb-8 uppercase tracking-widest">---</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 text-left">
+                        <div class="bg-black/20 p-4 rounded-3xl border border-white/5">
+                            <span class="text-[7px] font-black uppercase opacity-40">Node ID</span>
+                            <p id="pUID" class="text-[10px] font-black italic mt-1">---</p>
                         </div>
-                        <div onclick="logout()" class="bg-red-500/10 p-4 rounded-2xl flex flex-col justify-center items-center cursor-pointer border border-red-500/20">
-                            <i data-lucide="log-out" class="w
-                                
+                        <div onclick="logout()" class="bg-red-500/10 p-4 rounded-3xl flex flex-col items-center justify-center cursor-pointer border border-red-500/10">
+                            <i data-lucide="power" class="w-4 h-4 text-red-500"></i>
+                            <span class="text-[7px] font-black uppercase text-red-500 mt-1">Disconnect</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="fixed bottom-8 left-8 right-8 h-20 glass rounded-[2.5rem] flex items-center justify-around z-[100] border-t border-white/10 shadow-2xl">
+            <button onclick="showTab('social')" id="nav-social" class="text-slate-400 hover:text-white transition-all"><i data-lucide="globe"></i></button>
+            <button onclick="showTab('mining')" id="nav-mining" class="w-16 h-16 rounded-full flex items-center justify-center text-white -translate-y-8 shadow-2xl transition-all" style="background: var(--main)"><i data-lucide="cpu"></i></button>
+            <button onclick="showTab('profile')" id="nav-profile" class="text-slate-400 hover:text-white transition-all"><i data-lucide="user-circle"></i></button>
+            <button id="nav-admin" onclick="showTab('admin')" class="hidden text-slate-400 hover:text-blue-500 transition-all"><i data-lucide="command"></i></button>
+        </nav>
+    </div>
+
+    <script>
+        // --- 🛰️ MASTER CONFIG ---
+        const API = "https://script.google.com/macros/s/AKfycbwqeDDA0M-fgoNC4jPcPYkDxQXZWT24eF8lTzvLXIbo0TkkWJ01DVjyBEWvbKIfxr9aAw/exec";
+        
+        let user = JSON.parse(localStorage.getItem('rida_supreme_v17'));
+        let isReg = false;
+
+        // --- THEME ENGINE ---
+        const themes = {
+            blue: { main: '#3b82f6', bg: '#020617', glass: 'rgba(15, 23, 42, 0.85)' },
+            gold: { main: '#f59e0b', bg: '#0d0800', glass: 'rgba(20, 15, 0, 0.85)' },
+            emerald: { main: '#10b981', bg: '#000d07', glass: 'rgba(0, 20, 10, 0.85)' },
+            crimson: { main: '#ef4444', bg: '#0d0000', glass: 'rgba(30, 0, 0, 0.85)' },
+            purple: { main: '#a855f7', bg: '#090012', glass: 'rgba(15, 0, 25, 0.85)' }
+        };
+
+        function setTheme(name) {
+            const t = themes[name];
+            document.documentElement.style.setProperty('--main', t.main);
+            document.documentElement.style.setProperty('--bg', t.bg);
+            document.documentElement.style.setProperty('--glass', t.glass);
+            localStorage.setItem('rida_theme', name);
+            lucide.createIcons();
+        }
+
+        // --- RELAY COMMUNICATION ---
+        async function relay(payload) {
+            try {
+                await fetch(API, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'text/plain' }, 
+                    body: JSON.stringify(payload) 
+                });
+                return true;
+            } catch (e) { return false; }
+        }
+
+        // --- AUTH PROTOCOL ---
+        function toggleAuth() {
+            isReg = !isReg;
+            document.getElementById('regDiv').classList.toggle('hidden', !isReg);
+            document.getElementById('authLabel').innerText = isReg ? "Register Node" : "Initialize Node";
+            document.getElementById('toggleTxt').innerText = isReg ? "Sign In" : "Create Account";
+        }
+
+        async function processAuth() {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPass').value;
+            const name = document.getElementById('regName').value || "Miner";
+            
+            if(!email || !pass) return alert("Credentials Required");
+            const btn = document.getElementById('authBtn');
+            btn.innerText = "CONNECTING..."; btn.disabled = true;
+
+            if(email === "adminrida@gmail.com" && pass === "CocoMomoPakistan@786") {
+                user = { uid: "MASTER", name: "Rida Admin", email: email, balance: 999999, status: "Verified", role: "admin" };
+            } else {
+                user = { uid: "RIDA-"+Math.floor(Math.random()*900000), name: name, email: email, balance: 0, status: "Unverified", role: "user" };
+            }
+
+            // Sync to Sheet
+            await relay({ 
+                method: "WRITE", 
+                sheet: "Users", 
+                headers: ["UID", "Email", "Name", "Balance", "Status", "Timestamp"], 
+                values: [user.uid, user.email, user.name, user.balance, user.status, new Date().toISOString()] 
+            });
+            
+            localStorage.setItem('rida_supreme_v17', JSON.stringify(user));
+            location.reload();
+        }
+
+        // --- NAVIGATION ---
+        function showTab(t) {
+            ['mining', 'social', 'profile', 'admin'].forEach(id => {
+                const el = document.getElementById('tab-'+id);
+                if(el) el.classList.toggle('hidden', id !== t);
+                const nav = document.getElementById('nav-'+id);
+                if(nav) nav.classList.toggle('active-nav', id === t);
+            });
+            if(t === 'profile') loadProfile();
+        }
+
+        function loadProfile() {
+            document.getElementById('pName').innerText = user.name;
+            document.getElementById('pEmail').innerText = user.email;
+            document.getElementById('pUID').innerText = user.uid;
+            document.getElementById('pAvatar').src = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${user.uid}`;
+        }
+
+        // --- MINING ENGINE ---
+        function startMining() {
+            localStorage.setItem('rida_start', Date.now());
+            location.reload();
+        }
+
+        function runMiningCheck() {
+            const start = localStorage.getItem('rida_start');
+            if(start) {
+                document.getElementById('ring').classList.add('spinning');
+                document.getElementById('mineBtn').innerText = "NODE ONLINE";
+                document.getElementById('mineBtn').disabled = true;
+                setInterval(() => {
+                    const rem = 86400 - ((Date.now() - start) / 1000);
+                    if(rem <= 0) { localStorage.removeItem('rida_start'); location.reload(); }
+                    
+                    const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60), s = Math.floor(rem%60);
+                    document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                    
+                    user.balance += (0.2/86400);
+                    document.getElementById('balance').innerText = user.balance.toFixed(6);
+                    // Sync locally every second
+                    localStorage.setItem('rida_supreme_v17', JSON.stringify(user));
+                }, 1000);
+            }
+        }
+
+        // --- INITIALIZE ---
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('rida_theme') || 'blue';
+            setTheme(savedTheme);
+            
+            if(user) {
+                document.getElementById('authPage').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('hStatus').innerText = user.status;
+                if(user.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
+                runMiningCheck();
+            }
+            
+            setInterval(() => {
+                const kst = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
+                document.getElementById('kstClock').innerText = `KST ${kst.getHours().toString().padStart(2,'0')}:${kst.getMinutes().toString().padStart(2,'0')}`;
+            }, 1000);
+            lucide.createIcons();
+        };
+
+        function logout() { localStorage.clear(); location.reload(); }
+    </script>
+</body>
+        </html>
+        
