@@ -1,55 +1,37 @@
-async function fetchSheetData() {
-    const tbody = document.getElementById('adminTableBody');
-    tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-blue-500 font-black animate-pulse">CONNECTING TO CLOUD...</td></tr>';
-    
-    // Add a 10-second timeout safety
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxYat7kzNr2xZ4X0I16BFUTDXd1gtZfXz0gGAhSAuzBYfbgpu_85vPfXCeb51gBS7Fgg/exec";
 
-    try {
-        const response = await fetch(WEB_APP_URL, { 
-            method: 'GET',
-            signal: controller.signal 
-        });
+    async function fetchSheetData() {
+        const tbody = document.getElementById('adminTableBody');
+        if (!tbody) return; // Safety check
         
-        if (!response.ok) throw new Error('Network response was not ok');
+        tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-blue-500 font-black animate-pulse">CONNECTING TO CLOUD...</td></tr>';
         
-        const data = await response.json();
-        clearTimeout(timeoutId);
-
-        if (!data || data.length < 2) {
-            tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-orange-500 font-black italic uppercase text-[8px]">Registry Empty: No Users Found in Sheet</td></tr>';
-            return;
-        }
-
-        // Render Data (skipping the header row)
-        tbody.innerHTML = data.slice(1).map((row) => `
-            <tr class="hover:bg-white/5 border-b border-white/5 transition-colors">
-                <td class="p-4 font-black text-[9px] uppercase tracking-tighter">
-                    ${row[1] || 'N/A'}<br>
-                    <span class="text-[7px] opacity-30 font-normal lowercase">${row[0] || ''}</span>
-                </td>
-                <td class="p-4">
-                    <span class="px-2 py-1 rounded bg-blue-600/10 text-blue-400 text-[8px] font-black border border-blue-500/20">
-                        ${row[3] || 'UNVERIFIED'}
-                    </span>
-                </td>
-                <td class="p-4 text-right">
-                    <button onclick="approveUser('${row[1]}')" class="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-xl text-[8px] font-black uppercase shadow-lg active:scale-95 transition-all">Approve</button>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (err) {
-        console.error("Fetch Error:", err);
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="3" class="p-10 text-center">
-                    <p class="text-red-500 font-black text-[10px] uppercase mb-2">Connection Failed</p>
-                    <p class="text-[8px] opacity-40 mb-4 font-mono">${err.message}</p>
-                    <button onclick="fetchSheetData()" class="text-[8px] bg-white/5 border border-white/10 px-4 py-2 rounded-lg font-black uppercase">Try Reconnecting</button>
-                </td>
-            </tr>`;
-    }
-}
+        try {
+            // Adding 'cache: no-store' helps prevent old data from sticking
+            const response = await fetch(WEB_APP_URL, { method: 'GET', cache: 'no-store' });
             
+            if (!response.ok) throw new Error('Network Error');
+            
+            const data = await response.json();
+
+            if (!data || data.length < 2) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center opacity-40">SHEET IS EMPTY</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.slice(1).map(row => `
+                <tr class="border-b border-white/5">
+                    <td class="p-4 font-black">${row[1] || 'N/A'}<br><span class="text-[7px] opacity-30">${row[0] || ''}</span></td>
+                    <td class="p-4"><span class="bg-blue-600/10 text-blue-500 px-2 py-1 rounded text-[8px] font-black">${row[3] || 'UNVERIFIED'}</span></td>
+                    <td class="p-4 text-right"><button onclick="approveUser('${row[1]}')" class="bg-blue-600 px-3 py-1 rounded-lg text-[8px] font-black">APPROVE</button></td>
+                </tr>
+            `).join('');
+
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-red-500 font-black">CONNECTION FAILED<br><span class="text-[8px] opacity-50">${err.message}</span></td></tr>`;
+        }
+    }
+    
+    // Make sure all your other functions (masterLogin, etc.) are inside this same <script> block
+</script>
