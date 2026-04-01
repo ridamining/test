@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIDA OS | MASTER v23</title>
+    <title>RIDA OS | LIVE SYNC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -12,7 +12,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; }
         .glass { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); }
         .hidden { display: none !important; }
-        .admin-border { border: 2px solid #3b82f6 !important; box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
+        .admin-glow { border: 1px solid #3b82f6 !important; box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        .loading-shimmer { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="pb-10">
@@ -20,49 +22,38 @@
     <div id="authPage" class="min-h-screen flex items-center justify-center p-6">
         <div class="glass w-full max-w-sm p-10 rounded-[3.5rem] text-center shadow-2xl">
             <h1 class="text-5xl font-black italic text-blue-500 mb-2">RIDA</h1>
-            <p class="text-[8px] font-black opacity-30 uppercase tracking-[0.5em] mb-12">Core Engine v23.0</p>
+            <p class="text-[8px] font-black opacity-30 uppercase tracking-[0.5em] mb-12">Neural Link v24.0</p>
             
-            <div class="space-y-4" id="authForm">
-                <input type="email" id="email" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Email Address">
-                <input type="password" id="pass" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Access Key">
-                <button onclick="handleLogin()" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest shadow-xl hover:bg-blue-500 transition-all">Initialize Node</button>
+            <div class="space-y-4">
+                <input type="email" id="email" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Email">
+                <input type="password" id="pass" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Key">
+                <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest shadow-xl">Initialize</button>
             </div>
         </div>
     </div>
 
-    <div id="adminPanel" class="hidden p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <header class="flex justify-between items-center bg-blue-600/10 p-6 rounded-[2.5rem] admin-border">
+    <div id="adminPanel" class="hidden p-6 space-y-6">
+        <header class="flex justify-between items-center bg-blue-600/10 p-6 rounded-[2.5rem] admin-glow">
             <div>
                 <h2 class="text-xl font-black text-blue-500 italic">COMMAND CENTER</h2>
-                <p class="text-[8px] font-bold opacity-50 uppercase tracking-widest">Master Authority v23</p>
+                <p class="text-[8px] font-bold opacity-50 uppercase tracking-widest">Master Authority Active</p>
             </div>
             <button onclick="logout()" class="p-3 bg-red-500/20 rounded-2xl text-red-500"><i data-lucide="power"></i></button>
         </header>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div class="glass p-6 rounded-3xl text-center border border-white/5">
-                <p class="text-[8px] font-black opacity-40 uppercase">Total Active Nodes</p>
-                <h3 class="text-2xl font-black">1,042</h3>
-            </div>
-            <div class="glass p-6 rounded-3xl text-center border border-white/5">
-                <p class="text-[8px] font-black opacity-40 uppercase">Pending KYC</p>
-                <h3 class="text-2xl font-black text-orange-500">12</h3>
-            </div>
-        </div>
-
         <div class="glass rounded-[2.5rem] overflow-hidden border border-white/5">
             <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                 <h3 class="text-xs font-black uppercase tracking-widest">Global Registry</h3>
-                <span class="text-[7px] font-black bg-blue-600 px-2 py-1 rounded">LIVE SYNC</span>
+                <button onclick="fetchSheetData()" class="text-[7px] font-black bg-blue-600 px-3 py-1.5 rounded-full hover:bg-blue-500 transition-all">REFRESH CLOUD</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-[10px]">
                     <thead class="bg-black/20 text-slate-500 font-black uppercase">
                         <tr>
-                            <th class="p-4">UID</th>
+                            <th class="p-4">UID / Email</th>
                             <th class="p-4">Wallet</th>
                             <th class="p-4">Status</th>
-                            <th class="p-4">Control</th>
+                            <th class="p-4 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody id="adminTableBody" class="divide-y divide-white/5">
@@ -72,101 +63,149 @@
         </div>
     </div>
 
-    <div id="userApp" class="hidden animate-in fade-in duration-500">
+    <div id="userApp" class="hidden">
         <header class="p-6 flex justify-between items-center glass rounded-b-[2.5rem]">
-            <h2 class="text-xl font-black italic">RIDA <span class="text-blue-500">MINER</span></h2>
-            <div id="userStatus" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border border-white/5">---</div>
+            <h2 class="text-xl font-black italic">RIDA <span class="text-blue-500">PRO</span></h2>
+            <div id="uStatus" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border border-white/5 bg-white/5 text-blue-500">Unverified</div>
         </header>
 
         <main class="p-6 space-y-6">
             <div class="glass p-10 rounded-[4rem] text-center border-t border-white/10">
-                <p class="text-[10px] font-black opacity-30 mb-2 uppercase">Your Assets</p>
-                <h2 class="text-5xl font-black mb-8"><span id="userBal">0.000000</span></h2>
-                <button onclick="alert('Node Syncing...')" class="w-full py-5 rounded-[2rem] bg-blue-600 font-black uppercase text-xs tracking-widest shadow-xl">Activate Mining</button>
+                <p class="text-[10px] font-black opacity-30 mb-2 uppercase">Current Assets</p>
+                <h2 class="text-5xl font-black mb-10"><span id="uBal">0.000000</span></h2>
+                <button onclick="startMining()" id="mineBtn" class="w-full py-6 rounded-[2.5rem] bg-blue-600 font-black uppercase text-xs tracking-widest shadow-xl">Connect Node</button>
+                <p id="timer" class="mt-4 text-[9px] font-bold opacity-30 uppercase tracking-widest">Protocol Ready</p>
             </div>
-            
+
             <div class="glass p-8 rounded-[3rem] border border-white/5">
-                <h3 class="text-xs font-black uppercase mb-4 text-blue-500">KYC Verification</h3>
-                <p class="text-[9px] opacity-40 mb-6">Status: Unverified. Link wallet to start.</p>
-                <button onclick="logout()" class="w-full bg-red-500/10 py-4 rounded-2xl text-red-500 text-[8px] font-black uppercase tracking-widest">Logout Session</button>
+                <h3 class="text-xs font-black uppercase mb-4 text-blue-500">Verification Hub</h3>
+                <p class="text-[9px] opacity-40 mb-6">Status: <span id="uStatusLabel">Awaiting Wallet</span></p>
+                <button onclick="logout()" class="w-full bg-red-500/10 py-4 rounded-2xl text-red-500 text-[8px] font-black uppercase">Disconnect</button>
             </div>
         </main>
     </div>
 
     <script>
-        function handleLogin() {
+        // --- LIVE CONFIGURATION ---
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxYat7kzNr2xZ4X0I16BFUTDXd1gtZfXz0gGAhSAuzBYfbgpu_85vPfXCeb51gBS7Fgg/exec";
+        let session = JSON.parse(localStorage.getItem('rida_pro_session'));
+
+        // --- AUTH & ROUTING ---
+        async function handleLogin() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
+            const btn = document.getElementById('loginBtn');
 
-            if(!email || !pass) return alert("Fill all fields");
+            if(!email || !pass) return alert("Credentials required");
+            btn.innerText = "AUTHENTICATING...";
+            btn.disabled = true;
 
-            // CRITICAL: Clear previous session to prevent role-lock
-            localStorage.removeItem('rida_session');
+            // CLEAR PREVIOUS SESSION
+            localStorage.clear();
 
-            let sessionData;
             if (email === "adminrida@gmail.com" && pass === "CocoMomoPakistan@786") {
-                sessionData = { role: 'admin', email: email, name: 'Master Admin' };
+                session = { role: 'admin', email: email, name: 'Master' };
             } else {
-                sessionData = { role: 'user', email: email, uid: 'RIDA-'+Math.floor(1000+Math.random()*9000), status: 'Unverified', balance: 0.0 };
+                session = { role: 'user', email: email, uid: 'RIDA-'+Math.floor(1000+Math.random()*9000), status: 'Unverified', balance: 0.0 };
             }
 
-            localStorage.setItem('rida_session', JSON.stringify(sessionData));
-            location.reload(); // Refresh to trigger view logic
-        }
-
-        function logout() {
-            localStorage.clear();
+            localStorage.setItem('rida_pro_session', JSON.stringify(session));
             location.reload();
         }
 
-        window.onload = () => {
-            const session = JSON.parse(localStorage.getItem('rida_session'));
+        function logout() { localStorage.clear(); location.reload(); }
+
+        // --- ADMIN CLOUD SYNC ---
+        async function fetchSheetData() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-blue-500 font-black animate-pulse">FETCHING CLOUD REGISTRY...</td></tr>';
             
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const data = await response.json();
+                
+                // Assuming data[0] is headers, data[1+] are users
+                tbody.innerHTML = data.slice(1).map((row, index) => `
+                    <tr class="hover:bg-white/5 transition-all">
+                        <td class="p-4 font-black">${row[1] || 'No UID'}<br><span class="text-[8px] opacity-30">${row[0]}</span></td>
+                        <td class="p-4 font-mono opacity-50 text-[8px] break-all">${row[4] || 'None'}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-lg ${row[3]==='Verified'?'bg-green-500/10 text-green-500':'bg-orange-500/10 text-orange-500'} font-black text-[8px]">
+                                ${row[3] || 'Unverified'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="approveUser('${row[1]}')" class="bg-blue-600/20 text-blue-500 px-3 py-1.5 rounded-xl border border-blue-500/30 hover:bg-blue-600 hover:text-white transition-all font-black">APPROVE</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500">Failed to Sync Cloud. Check Web App URL.</td></tr>';
+            }
+            lucide.createIcons();
+        }
+
+        async function approveUser(uid) {
+            if(!confirm(`Verify Node ${uid}?`)) return;
+            
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Use no-cors for GAS redirects
+                    body: JSON.stringify({ action: 'APPROVE_KYC', uid: uid })
+                });
+                alert("Approval Signal Sent. Refresh to update.");
+                fetchSheetData();
+            } catch (err) {
+                alert("Signal Error: Check Internet Connection");
+            }
+        }
+
+        // --- USER LOGIC ---
+        function startMining() {
+            localStorage.setItem('rida_mining_start', Date.now());
+            location.reload();
+        }
+
+        function runMiner() {
+            const start = localStorage.getItem('rida_mining_start');
+            if(!start) return;
+            
+            document.getElementById('mineBtn').innerText = "NODE SYNCHRONIZED";
+            document.getElementById('mineBtn').disabled = true;
+            document.getElementById('mineBtn').classList.add('opacity-40');
+
+            setInterval(() => {
+                const rem = 86400 - ((Date.now() - start) / 1000);
+                if(rem <= 0) { localStorage.removeItem('rida_mining_start'); location.reload(); }
+                
+                const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60), s = Math.floor(rem%60);
+                document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
+                session.balance += (0.2 / 86400);
+                document.getElementById('uBal').innerText = session.balance.toFixed(6);
+                localStorage.setItem('rida_pro_session', JSON.stringify(session));
+            }, 1000);
+        }
+
+        // --- INITIALIZE ---
+        window.onload = () => {
             if (!session) {
                 document.getElementById('authPage').classList.remove('hidden');
             } else {
                 document.getElementById('authPage').classList.add('hidden');
-                
                 if (session.role === 'admin') {
                     document.getElementById('adminPanel').classList.remove('hidden');
-                    renderAdminData();
+                    fetchSheetData();
                 } else {
                     document.getElementById('userApp').classList.remove('hidden');
-                    document.getElementById('userStatus').innerText = session.status;
-                    document.getElementById('userBal').innerText = session.balance.toFixed(6);
+                    document.getElementById('uBal').innerText = session.balance.toFixed(6);
+                    document.getElementById('uStatus').innerText = session.status;
+                    runMiner();
                 }
             }
             lucide.createIcons();
         };
-
-        function renderAdminData() {
-            const mockUsers = [
-                { uid: 'RIDA-5021', wallet: '0x7BE...B917', status: 'Tentative' },
-                { uid: 'RIDA-1109', wallet: 'None', status: 'Unverified' },
-                { uid: 'RIDA-4432', wallet: '0xABC...221', status: 'Verified' }
-            ];
-
-            const tbody = document.getElementById('adminTableBody');
-            tbody.innerHTML = mockUsers.map(u => `
-                <tr class="hover:bg-white/5 transition-all">
-                    <td class="p-4 font-black">${u.uid}</td>
-                    <td class="p-4 font-mono opacity-50">${u.wallet}</td>
-                    <td class="p-4">
-                        <span class="px-2 py-1 rounded-lg ${u.status==='Verified'?'bg-green-500/10 text-green-500':'bg-orange-500/10 text-orange-500'} font-black">
-                            ${u.status}
-                        </span>
-                    </td>
-                    <td class="p-4">
-                        <button onclick="updateStatus('${u.uid}', 'Verified')" class="bg-blue-600/20 text-blue-500 px-3 py-1 rounded-lg border border-blue-500/30 hover:bg-blue-600 hover:text-white transition-all">Approve</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function updateStatus(uid, newStatus) {
-            alert(`Broadcasting to Google Sheets: UID ${uid} is now ${newStatus}`);
-            // Logic to send to API will go here
-        }
     </script>
 </body>
 </html>
