@@ -3,201 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIDA OS | MASTER</title>
+    <title>RIDA OS | MASTER v23</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --main: #3b82f6; --bg: #010409; --glass: rgba(13, 17, 23, 0.85); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        :root { --main: #3b82f6; --bg: #010409; --glass: rgba(13, 17, 23, 0.9); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; }
         .glass { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); }
         .hidden { display: none !important; }
-        .admin-glow { box-shadow: 0 0 40px rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        .admin-border { border: 2px solid #3b82f6 !important; box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
     </style>
 </head>
 <body class="pb-10">
 
     <div id="authPage" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass w-full max-w-sm p-12 rounded-[4rem] text-center shadow-2xl">
+        <div class="glass w-full max-w-sm p-10 rounded-[3.5rem] text-center shadow-2xl">
             <h1 class="text-5xl font-black italic text-blue-500 mb-2">RIDA</h1>
-            <p class="text-[8px] font-black opacity-30 uppercase tracking-[0.5em] mb-12">Universal Node v22</p>
-            <div class="space-y-4">
-                <input type="email" id="authEmail" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Email">
-                <input type="password" id="authPass" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Key">
-                <button onclick="handleAuth()" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">Initialize</button>
+            <p class="text-[8px] font-black opacity-30 uppercase tracking-[0.5em] mb-12">Core Engine v23.0</p>
+            
+            <div class="space-y-4" id="authForm">
+                <input type="email" id="email" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Email Address">
+                <input type="password" id="pass" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none text-sm" placeholder="Access Key">
+                <button onclick="handleLogin()" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest shadow-xl hover:bg-blue-500 transition-all">Initialize Node</button>
             </div>
         </div>
     </div>
 
-    <div id="adminPanel" class="hidden p-6 space-y-6 animate-in fade-in duration-700">
-        <header class="flex justify-between items-center bg-blue-600/10 p-6 rounded-[2.5rem] border border-blue-500/20">
+    <div id="adminPanel" class="hidden p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <header class="flex justify-between items-center bg-blue-600/10 p-6 rounded-[2.5rem] admin-border">
             <div>
                 <h2 class="text-xl font-black text-blue-500 italic">COMMAND CENTER</h2>
-                <p class="text-[8px] font-bold opacity-50 uppercase tracking-widest">Master Authority Active</p>
+                <p class="text-[8px] font-bold opacity-50 uppercase tracking-widest">Master Authority v23</p>
             </div>
             <button onclick="logout()" class="p-3 bg-red-500/20 rounded-2xl text-red-500"><i data-lucide="power"></i></button>
         </header>
 
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass p-6 rounded-3xl text-center">
-                <p class="text-[8px] font-black opacity-40 uppercase">Total Miners</p>
-                <h3 id="admUserCount" class="text-2xl font-black">1,204</h3>
+            <div class="glass p-6 rounded-3xl text-center border border-white/5">
+                <p class="text-[8px] font-black opacity-40 uppercase">Total Active Nodes</p>
+                <h3 class="text-2xl font-black">1,042</h3>
             </div>
-            <div class="glass p-6 rounded-3xl text-center">
-                <p class="text-[8px] font-black opacity-40 uppercase">Tentative KYC</p>
-                <h3 id="admKycCount" class="text-2xl font-black text-orange-500">14</h3>
+            <div class="glass p-6 rounded-3xl text-center border border-white/5">
+                <p class="text-[8px] font-black opacity-40 uppercase">Pending KYC</p>
+                <h3 class="text-2xl font-black text-orange-500">12</h3>
             </div>
         </div>
 
-        <div class="glass rounded-[2.5rem] overflow-hidden">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h3 class="text-xs font-black uppercase tracking-widest">Global Node Registry</h3>
-                <button onclick="syncSheetData()" class="text-[8px] bg-blue-600 px-3 py-1.5 rounded-full font-black uppercase">Refresh</button>
+        <div class="glass rounded-[2.5rem] overflow-hidden border border-white/5">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <h3 class="text-xs font-black uppercase tracking-widest">Global Registry</h3>
+                <span class="text-[7px] font-black bg-blue-600 px-2 py-1 rounded">LIVE SYNC</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-[10px]">
-                    <thead class="bg-white/5 text-slate-500 uppercase font-black">
+                    <thead class="bg-black/20 text-slate-500 font-black uppercase">
                         <tr>
                             <th class="p-4">UID</th>
+                            <th class="p-4">Wallet</th>
                             <th class="p-4">Status</th>
-                            <th class="p-4">Balance</th>
-                            <th class="p-4">Action</th>
+                            <th class="p-4">Control</th>
                         </tr>
                     </thead>
-                    <tbody id="adminUserTable" class="divide-y divide-white/5">
+                    <tbody id="adminTableBody" class="divide-y divide-white/5">
                         </tbody>
                 </table>
             </div>
         </div>
-
-        <div class="glass p-6 rounded-[2.5rem]">
-            <h3 class="text-xs font-black uppercase tracking-widest mb-4">Support Tickets</h3>
-            <div id="adminChatList" class="space-y-3 max-h-60 overflow-y-auto">
-                <p class="text-center py-8 text-[9px] opacity-30 font-black uppercase">No Active Tickets</p>
-            </div>
-        </div>
     </div>
 
-    <div id="userApp" class="hidden">
+    <div id="userApp" class="hidden animate-in fade-in duration-500">
         <header class="p-6 flex justify-between items-center glass rounded-b-[2.5rem]">
-            <h2 class="text-xl font-black italic">RIDA <span class="text-blue-500">PRO</span></h2>
-            <div id="userKycBadge" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border border-white/5">Unverified</div>
+            <h2 class="text-xl font-black italic">RIDA <span class="text-blue-500">MINER</span></h2>
+            <div id="userStatus" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border border-white/5">---</div>
         </header>
 
         <main class="p-6 space-y-6">
-            <div id="tab-mining" class="space-y-6">
-                <div class="glass p-10 rounded-[3.5rem] text-center border-t border-white/10">
-                    <p class="text-[10px] font-black opacity-30 mb-2 uppercase">Assets</p>
-                    <h2 class="text-5xl font-black mb-8"><span id="userBalance">0.000000</span></h2>
-                    <button onclick="startMining()" class="w-full py-5 rounded-[2rem] bg-blue-600 font-black uppercase text-xs tracking-widest shadow-xl">Activate Node</button>
-                </div>
+            <div class="glass p-10 rounded-[4rem] text-center border-t border-white/10">
+                <p class="text-[10px] font-black opacity-30 mb-2 uppercase">Your Assets</p>
+                <h2 class="text-5xl font-black mb-8"><span id="userBal">0.000000</span></h2>
+                <button onclick="alert('Node Syncing...')" class="w-full py-5 rounded-[2rem] bg-blue-600 font-black uppercase text-xs tracking-widest shadow-xl">Activate Mining</button>
             </div>
-
-            <div id="tab-support" class="hidden space-y-6">
-                <div class="glass h-[60vh] flex flex-col rounded-[3rem] overflow-hidden border border-blue-500/10">
-                    <div class="p-6 bg-blue-600/10 border-b border-white/5">
-                        <h3 class="text-xs font-black uppercase tracking-widest">Core Support</h3>
-                        <p class="text-[7px] text-blue-500 font-bold uppercase">Online & Ready</p>
-                    </div>
-                    <div id="chatBox" class="flex-1 p-6 overflow-y-auto space-y-4 text-[10px]">
-                        <div class="bg-white/5 p-4 rounded-2xl rounded-tl-none self-start max-w-[80%]">
-                            Welcome to RIDA Support. How can we assist your node?
-                        </div>
-                    </div>
-                    <div class="p-4 bg-black/40 border-t border-white/5 flex gap-2">
-                        <input id="chatInput" class="flex-1 bg-transparent p-2 outline-none text-xs" placeholder="Message team...">
-                        <button onclick="sendMessage()" class="bg-blue-600 p-3 rounded-2xl"><i data-lucide="send" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
+            
+            <div class="glass p-8 rounded-[3rem] border border-white/5">
+                <h3 class="text-xs font-black uppercase mb-4 text-blue-500">KYC Verification</h3>
+                <p class="text-[9px] opacity-40 mb-6">Status: Unverified. Link wallet to start.</p>
+                <button onclick="logout()" class="w-full bg-red-500/10 py-4 rounded-2xl text-red-500 text-[8px] font-black uppercase tracking-widest">Logout Session</button>
             </div>
         </main>
-
-        <nav class="fixed bottom-8 left-8 right-8 h-20 glass rounded-[2.5rem] flex items-center justify-around border-t border-white/10">
-            <button onclick="showTab('mining')" class="text-blue-500"><i data-lucide="cpu"></i></button>
-            <button onclick="showTab('support')" class="text-slate-500"><i data-lucide="message-square"></i></button>
-            <button onclick="logout()" class="text-red-500"><i data-lucide="power"></i></button>
-        </nav>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwqeDDA0M-fgoNC4jPcPYkDxQXZWT24eF8lTzvLXIbo0TkkWJ01DVjyBEWvbKIfxr9aAw/exec";
-        let user = JSON.parse(localStorage.getItem('rida_v22_db'));
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
 
-        // --- AUTH & ROUTING ---
-        function handleAuth() {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPass').value;
+            if(!email || !pass) return alert("Fill all fields");
 
-            if(email === "adminrida@gmail.com" && pass === "CocoMomoPakistan@786") {
-                user = { role: 'admin', email: email, name: 'Master Admin' };
+            // CRITICAL: Clear previous session to prevent role-lock
+            localStorage.removeItem('rida_session');
+
+            let sessionData;
+            if (email === "adminrida@gmail.com" && pass === "CocoMomoPakistan@786") {
+                sessionData = { role: 'admin', email: email, name: 'Master Admin' };
             } else {
-                user = { role: 'user', uid: 'RIDA-'+Math.floor(1000+Math.random()*9000), email: email, balance: 0.0, status: 'Unverified' };
+                sessionData = { role: 'user', email: email, uid: 'RIDA-'+Math.floor(1000+Math.random()*9000), status: 'Unverified', balance: 0.0 };
             }
-            localStorage.setItem('rida_v22_db', JSON.stringify(user));
+
+            localStorage.setItem('rida_session', JSON.stringify(sessionData));
+            location.reload(); // Refresh to trigger view logic
+        }
+
+        function logout() {
+            localStorage.clear();
             location.reload();
         }
 
-        // --- ADMIN CONTROLS ---
-        function loadAdminDashboard() {
-            // Mocking data from Google Sheets
-            const users = [
-                { uid: 'RIDA-9921', status: 'Tentative', balance: 45.2, wallet: '0x123...' },
-                { uid: 'RIDA-1029', status: 'Unverified', balance: 0.2, wallet: '' },
-                { uid: 'RIDA-8832', status: 'Verified', balance: 120.0, wallet: '0xabc...' }
+        window.onload = () => {
+            const session = JSON.parse(localStorage.getItem('rida_session'));
+            
+            if (!session) {
+                document.getElementById('authPage').classList.remove('hidden');
+            } else {
+                document.getElementById('authPage').classList.add('hidden');
+                
+                if (session.role === 'admin') {
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    renderAdminData();
+                } else {
+                    document.getElementById('userApp').classList.remove('hidden');
+                    document.getElementById('userStatus').innerText = session.status;
+                    document.getElementById('userBal').innerText = session.balance.toFixed(6);
+                }
+            }
+            lucide.createIcons();
+        };
+
+        function renderAdminData() {
+            const mockUsers = [
+                { uid: 'RIDA-5021', wallet: '0x7BE...B917', status: 'Tentative' },
+                { uid: 'RIDA-1109', wallet: 'None', status: 'Unverified' },
+                { uid: 'RIDA-4432', wallet: '0xABC...221', status: 'Verified' }
             ];
 
-            const table = document.getElementById('adminUserTable');
-            table.innerHTML = users.map(u => `
-                <tr>
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = mockUsers.map(u => `
+                <tr class="hover:bg-white/5 transition-all">
                     <td class="p-4 font-black">${u.uid}</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded-lg ${u.status==='Verified'?'bg-green-500/10 text-green-500':'bg-orange-500/10 text-orange-500'}">${u.status}</span></td>
-                    <td class="p-4 font-mono">${u.balance.toFixed(2)}</td>
-                    <td class="p-4 text-right">
-                        <button onclick="approveUser('${u.uid}')" class="bg-blue-600 px-2 py-1 rounded">Approve</button>
+                    <td class="p-4 font-mono opacity-50">${u.wallet}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-lg ${u.status==='Verified'?'bg-green-500/10 text-green-500':'bg-orange-500/10 text-orange-500'} font-black">
+                            ${u.status}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <button onclick="updateStatus('${u.uid}', 'Verified')" class="bg-blue-600/20 text-blue-500 px-3 py-1 rounded-lg border border-blue-500/30 hover:bg-blue-600 hover:text-white transition-all">Approve</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        async function approveUser(uid) {
-            alert(`Broadcasting Approval for ${uid} to Google Sheets...`);
-            // fetch(API_URL, { method: 'POST', body: JSON.stringify({action: 'APPROVE', uid: uid}) });
+        function updateStatus(uid, newStatus) {
+            alert(`Broadcasting to Google Sheets: UID ${uid} is now ${newStatus}`);
+            // Logic to send to API will go here
         }
-
-        // --- USER CHAT LOGIC ---
-        function sendMessage() {
-            const msg = document.getElementById('chatInput').value;
-            if(!msg) return;
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML += `<div class="bg-blue-600 p-4 rounded-2xl rounded-tr-none self-end max-w-[80%] ml-auto">${msg}</div>`;
-            document.getElementById('chatInput').value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // --- UI ROUTING ---
-        function showTab(t) {
-            document.getElementById('tab-mining').classList.toggle('hidden', t !== 'mining');
-            document.getElementById('tab-support').classList.toggle('hidden', t !== 'support');
-        }
-
-        function logout() { localStorage.clear(); location.reload(); }
-
-        window.onload = () => {
-            if(user) {
-                document.getElementById('authPage').classList.add('hidden');
-                if(user.role === 'admin') {
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    loadAdminDashboard();
-                } else {
-                    document.getElementById('userApp').classList.remove('hidden');
-                    document.getElementById('userBalance').innerText = user.balance.toFixed(6);
-                    document.getElementById('userKycBadge').innerText = user.status;
-                }
-            }
-            lucide.createIcons();
-        };
     </script>
 </body>
 </html>
