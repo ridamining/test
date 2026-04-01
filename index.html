@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIDA NETWORK | Ultimate Mining</title>
+    <title>RIDA NETWORK | Official</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -15,29 +15,32 @@
         .hidden { display: none !important; }
         .progress-ring__circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
         .active-nav { color: #3b82f6 !important; transform: translateY(-5px); text-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
-        .active-nav i { filter: drop-shadow(0 0 8px #3b82f6); }
         .ledger-row { animation: slideIn 0.5s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
 <body class="antialiased pb-24">
 
     <div id="authPage" class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950">
         <div class="mb-8 text-center">
-            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4"><i data-lucide="zap" class="text-white"></i></div>
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
+                <i data-lucide="zap" class="text-white"></i>
+            </div>
             <h1 class="text-3xl font-black italic uppercase text-white">RIDA <span class="text-blue-500">NETWORK</span></h1>
         </div>
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-white/10">
-            <h2 id="authTitle" class="text-lg font-bold mb-6 text-center text-white">Secure Login</h2>
+            <h2 id="authTitle" class="text-lg font-bold mb-6 text-center text-white">Secure Access</h2>
             <div class="space-y-4">
-                <div id="signupGroup" class="hidden"><input type="text" id="regName" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 mb-4 text-sm text-white" placeholder="Full Name"></div>
-                <input type="email" id="authEmail" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm text-white" placeholder="Email">
-                <input type="password" id="authPass" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm text-white" placeholder="Password">
-                <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mt-2 transition-all">Access System</button>
+                <div id="signupGroup" class="hidden">
+                    <input type="text" id="regName" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 mb-4 text-sm text-white outline-none" placeholder="Full Name">
+                </div>
+                <input type="email" id="authEmail" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Email Address">
+                <input type="password" id="authPass" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Password">
+                <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mt-2 hover:bg-blue-700 transition-all">Access System</button>
             </div>
-            <p class="mt-6 text-center text-[10px] uppercase font-bold text-gray-500">New Miner? <button onclick="toggleAuth()" class="text-blue-400">Register</button></p>
+            <p class="mt-6 text-center text-[10px] uppercase font-bold text-gray-500">
+                New Miner? <button onclick="toggleAuth()" id="toggleBtn" class="text-blue-400">Register Now</button>
+            </p>
         </div>
     </div>
 
@@ -50,48 +53,47 @@
 
         <div id="drawer" class="fixed inset-y-0 left-0 w-72 glass border-r border-white/10 transform -translate-x-full drawer p-8 overflow-y-auto">
             <div class="flex justify-between items-center mb-10">
-                <h3 class="font-black text-blue-500 italic text-xl uppercase">RIDA MENU</h3>
+                <h3 class="font-black text-blue-500 italic text-xl">RIDA MENU</h3>
                 <button onclick="toggleDrawer(false)" class="p-2 glass rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <nav class="space-y-2">
-                <button onclick="switchSection('ledger')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition group">
-                    <i data-lucide="database" class="w-5 h-5 group-hover:text-blue-400"></i><span class="text-sm font-bold">Ledger</span>
+                <button onclick="switchSection('ledger')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition text-left">
+                    <i data-lucide="database" class="w-5 h-5"></i><span class="text-sm font-bold">Ledger</span>
                 </button>
-                <button onclick="switchSection('whitepaper')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition group">
-                    <i data-lucide="scroll-text" class="w-5 h-5 group-hover:text-blue-400"></i><span class="text-sm font-bold">White Paper</span>
+                <button onclick="switchSection('whitepaper')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition text-left">
+                    <i data-lucide="scroll-text" class="w-5 h-5"></i><span class="text-sm font-bold">White Paper</span>
                 </button>
-                <button onclick="switchSection('roadmap')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition group">
-                    <i data-lucide="milestone" class="w-5 h-5 group-hover:text-blue-400"></i><span class="text-sm font-bold">Road Map</span>
+                <button onclick="switchSection('roadmap')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition text-left">
+                    <i data-lucide="milestone" class="w-5 h-5"></i><span class="text-sm font-bold">Road Map</span>
                 </button>
-                <button onclick="switchSection('team')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition group">
-                    <i data-lucide="users-2" class="w-5 h-5 group-hover:text-blue-400"></i><span class="text-sm font-bold">Team</span>
+                <button onclick="switchSection('team')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition text-left">
+                    <i data-lucide="users-2" class="w-5 h-5"></i><span class="text-sm font-bold">Team</span>
                 </button>
-                <button onclick="switchSection('support')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition group">
-                    <i data-lucide="messages-square" class="w-5 h-5 group-hover:text-blue-400"></i><span class="text-sm font-bold">Support</span>
+                <button onclick="switchSection('support')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 transition text-left">
+                    <i data-lucide="messages-square" class="w-5 h-5"></i><span class="text-sm font-bold">Support</span>
                 </button>
+                <div class="pt-6 mt-6 border-t border-white/5"><button onclick="logout()" class="text-red-500 text-xs font-bold p-4">Logout Account</button></div>
             </nav>
         </div>
 
         <main id="contentArea" class="px-6 pb-10">
-            
             <div id="sec-mining" class="space-y-6">
                 <div class="glass rounded-3xl p-5 border-l-4 border-blue-500">
-                    <p class="text-[10px] text-gray-300 italic">"You must fulfill all tasks to get 100% payout from the RIDA NETWORK system."</p>
+                    <p class="text-[10px] text-gray-300 italic">"Fulfill all tasks to get 100% payout from RIDA NETWORK."</p>
                 </div>
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2rem] p-8 shadow-xl relative overflow-hidden">
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2rem] p-8 shadow-xl">
                     <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest">RIDA BALANCE</p>
                     <h2 class="text-4xl font-black mt-1"><span id="balance">0.000000</span> <span class="text-sm font-normal opacity-50">RIDA</span></h2>
-                    <p class="text-[10px] font-bold text-green-400 uppercase mt-4">Mining: 0.20 / 24H</p>
+                    <p class="text-[10px] font-bold text-green-400 uppercase mt-4">Mining Rate: 0.20 / 24H</p>
                 </div>
                 <div class="glass rounded-[2.5rem] p-10 text-center border border-white/5">
-                    <div class="relative w-52 h-52 mx-auto mb-8">
+                    <div class="relative w-48 h-48 mx-auto mb-8">
                         <svg class="w-full h-full" viewBox="0 0 100 100">
                             <circle class="text-slate-800" stroke-width="5" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
                             <circle id="miningProgress" class="text-blue-500 progress-ring__circle" stroke-width="5" stroke-dasharray="282.7" stroke-dashoffset="282.7" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <div id="timerDisplay" class="text-2xl font-black">24:00:00</div>
-                            <p class="text-[9px] font-bold text-gray-500 uppercase mt-1">Countdown</p>
                         </div>
                     </div>
                     <button id="miningBtn" onclick="handleMining()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest">Activate Node</button>
@@ -99,167 +101,178 @@
             </div>
 
             <div id="sec-me" class="hidden space-y-6">
-                <div class="glass rounded-[2.5rem] p-8 space-y-6 border border-white/5">
-                    <div class="text-center pb-6 border-b border-white/5">
-                        <img id="meAvatar" src="" class="w-20 h-20 rounded-3xl mx-auto mb-4 border-2 border-blue-500">
-                        <h3 id="meName" class="text-xl font-bold">--</h3>
-                        <p id="meEmail" class="text-xs text-gray-500">--</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="glass p-4 rounded-2xl text-center">
-                            <p class="text-[9px] font-bold text-gray-500 uppercase">Referrals</p>
-                            <p class="text-lg font-black text-blue-500">0</p>
-                        </div>
-                        <div class="glass p-4 rounded-2xl text-center">
-                            <p class="text-[9px] font-bold text-gray-500 uppercase">UID</p>
-                            <p id="meUID" class="text-[10px] font-black text-blue-500">--</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-3 rounded-2xl w-36 h-36 mx-auto"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=RidaNetwork" class="w-full h-full"></div>
-                </div>
-            </div>
-
-            <div id="sec-ledger" class="hidden space-y-6">
-                <div class="flex items-center gap-2 glass p-4 rounded-2xl border border-blue-500/20">
-                    <input type="text" id="ledgerSearch" class="bg-transparent flex-1 text-xs outline-none" placeholder="Search UID for real transactions...">
-                    <button onclick="searchLedger()"><i data-lucide="search" class="w-4 h-4 text-blue-500"></i></button>
-                </div>
-                <div class="glass rounded-3xl p-6 min-h-[400px]">
-                    <h3 class="text-xs font-black text-blue-500 uppercase mb-4 tracking-widest">Live Network Activity</h3>
-                    <div id="ledgerList" class="space-y-3">
-                        </div>
-                </div>
-            </div>
-
-            <div id="sec-whitepaper" class="hidden space-y-6">
-                <div class="glass rounded-3xl p-8 space-y-4">
-                    <h2 class="text-2xl font-black text-blue-500 italic">RIDA WHITEPAPER</h2>
-                    <p class="text-sm text-gray-400 font-bold">V1.2 - Decentralized Cloud Protocols</p>
-                    <div class="h-[400px] overflow-y-auto pr-2 space-y-6 text-xs leading-relaxed text-gray-300">
-                        <h4 class="text-blue-400 font-black">1. EXECUTIVE SUMMARY</h4>
-                        <p>RIDA NETWORK is a next-generation decentralized ecosystem designed to empower mobile users through cloud-based validation nodes...</p>
-                        <h4 class="text-blue-400 font-black">2. TOKENOMICS</h4>
-                        <p>Total Supply: 100,000,000 RIDA. Distribution: 50% Community Mining, 20% Team, 30% Ecosystem Reserve...</p>
-                        <h4 class="text-blue-400 font-black">3. SECURITY</h4>
-                        <p>Leveraging BSC BEP20 for secure, low-fee settlements and advanced P2P encryption for user-to-user data transfers...</p>
+                <div class="glass rounded-[2.5rem] p-8 text-center border border-white/5">
+                    <img id="meAvatar" src="" class="w-20 h-20 rounded-3xl mx-auto mb-4 border-2 border-blue-500">
+                    <h3 id="meName" class="text-xl font-bold">--</h3>
+                    <p id="meUID" class="text-[10px] font-black text-blue-500 mt-2 uppercase tracking-widest">--</p>
+                    <div class="bg-white p-3 rounded-2xl w-32 h-32 mx-auto mt-6">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=RidaNetwork" class="w-full h-full">
                     </div>
                 </div>
             </div>
 
-            <div id="sec-roadmap" class="hidden space-y-8 p-4">
-                <div class="relative border-l-2 border-blue-500/30 ml-4 space-y-12">
-                    <div class="relative pl-8">
-                        <div class="absolute -left-[9px] top-0 w-4 h-4 bg-blue-600 rounded-full shadow-[0_0_10px_#2563eb]"></div>
-                        <h4 class="text-sm font-black text-blue-400 uppercase">Q1 2026: Genesis</h4>
-                        <p class="text-xs text-gray-500 mt-1">Conceptualization, Core Protocol coding, and initial Seed rounds.</p>
-                    </div>
-                    <div class="relative pl-8">
-                        <div class="absolute -left-[9px] top-0 w-4 h-4 bg-slate-700 rounded-full"></div>
-                        <h4 class="text-sm font-black text-white uppercase">Q2 2026: Expansion</h4>
-                        <p class="text-xs text-gray-500 mt-1">Public Beta launch, P2P wallet integration, and global partner expansion.</p>
-                    </div>
-                    <div class="relative pl-8">
-                        <div class="absolute -left-[9px] top-0 w-4 h-4 bg-slate-700 rounded-full"></div>
-                        <h4 class="text-sm font-black text-white uppercase">Q3 2026: Mainnet</h4>
-                        <p class="text-xs text-gray-500 mt-1">Full decentralization, listing on top exchanges, and Rida Pay rollout.</p>
-                    </div>
+            <div id="sec-ledger" class="hidden space-y-4">
+                <div class="glass p-4 rounded-2xl flex gap-2 border border-blue-500/20">
+                    <input type="text" id="lSearch" class="bg-transparent flex-1 text-xs outline-none" placeholder="Search UID...">
+                    <i data-lucide="search" class="w-4 h-4 text-blue-500"></i>
                 </div>
+                <div id="ledgerList" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
             </div>
 
             <div id="sec-team" class="hidden space-y-6">
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="glass p-6 rounded-[2.5rem] text-center border-b-4 border-blue-500">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jin" class="w-24 h-24 mx-auto mb-4 bg-slate-800 rounded-3xl">
-                        <h3 class="font-black text-xl">Kim J-Won</h3>
-                        <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Founder & Lead Architect</p>
-                        <p class="text-[11px] text-gray-500 mt-3 italic px-4">Expert in Distributed Systems from Seoul National University.</p>
-                    </div>
-                    <div class="glass p-6 rounded-[2.5rem] text-center border-b-4 border-pink-500">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rida" class="w-24 h-24 mx-auto mb-4 bg-slate-800 rounded-3xl">
-                        <h3 class="font-black text-xl">Rida J-Won</h3>
-                        <p class="text-[10px] text-pink-500 font-bold uppercase tracking-widest">Co-Founder & UX Director</p>
-                        <p class="text-[11px] text-gray-500 mt-3 italic px-4">Visionary designer bridging South Asian art with high-tech UI.</p>
-                    </div>
+                <div class="glass p-6 rounded-[2rem] text-center border-b-4 border-blue-600">
+                    <h3 class="font-black text-lg">Kim J-Won</h3>
+                    <p class="text-[9px] text-blue-500 font-bold uppercase mb-2">Founder (South Korea)</p>
+                    <p class="text-[11px] text-gray-400 italic">Cloud Architecture & Blockchain Lead</p>
+                </div>
+                <div class="glass p-6 rounded-[2rem] text-center border-b-4 border-pink-600">
+                    <h3 class="font-black text-lg">Rida J-Won</h3>
+                    <p class="text-[9px] text-pink-500 font-bold uppercase mb-2">Co-Founder (South Asian Heritage)</p>
+                    <p class="text-[11px] text-gray-400 italic">UX Design & Community Strategy</p>
                 </div>
             </div>
-
-            <div id="sec-support" class="hidden h-[500px] flex flex-col glass rounded-[2.5rem] overflow-hidden">
-                <div class="p-4 bg-blue-600/10 border-b border-white/5 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <p class="text-xs font-black uppercase">Secure Chat Tunnel</p>
-                    </div>
-                    <i data-lucide="shield-lock" class="w-4 h-4 text-blue-500"></i>
-                </div>
-                <div id="chatBox" class="flex-1 p-6 overflow-y-auto space-y-4 text-[11px]">
-                    <div class="bg-slate-800/50 p-3 rounded-2xl rounded-tl-none max-w-[80%]">
-                        Hello! Welcome to RIDA NETWORK Support. How can we assist you with your mining node today?
-                    </div>
+            
+            <div id="sec-support" class="hidden glass rounded-[2rem] h-[450px] flex flex-col">
+                <div class="p-4 border-b border-white/5 text-[10px] font-black uppercase text-blue-400">Secure Support Tunnel</div>
+                <div id="cBox" class="flex-1 p-4 overflow-y-auto text-[11px] space-y-3">
+                    <div class="bg-slate-800 p-3 rounded-xl max-w-[80%]">Welcome to RIDA Support. All chats are encrypted.</div>
                 </div>
                 <div class="p-4 flex gap-2">
-                    <input type="text" id="chatInput" class="flex-1 bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-xs outline-none" placeholder="Encrypted message...">
-                    <button onclick="sendMessage()" class="p-3 bg-blue-600 rounded-xl"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    <input type="text" id="cIn" class="bg-slate-900 flex-1 rounded-lg px-3 text-xs outline-none" placeholder="Message...">
+                    <button onclick="sMsg()" class="bg-blue-600 p-2 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
                 </div>
             </div>
 
+            <div id="sec-roadmap" class="hidden glass p-8 rounded-3xl"><h3 class="font-bold text-blue-500 mb-4">ROADMAP</h3><p class="text-xs text-gray-400">Q1-Q4 2026: Genesis to Mainnet expansion.</p></div>
+            <div id="sec-whitepaper" class="hidden glass p-8 rounded-3xl"><h3 class="font-bold text-blue-500 mb-4">WHITEPAPER</h3><p class="text-xs text-gray-400">RIDA NETWORK decentralizes cloud mining for global mobile users.</p></div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 h-20 nav-glass flex items-center justify-between px-10 z-50">
-            <button onclick="switchTab('social')" id="nav-social" class="flex flex-col items-center gap-1 text-gray-500 transition-all duration-300">
+        <nav class="fixed bottom-0 left-0 right-0 h-20 nav-glass flex items-center justify-around px-6 z-50">
+            <button onclick="switchTab('social')" id="nav-social" class="flex flex-col items-center gap-1 text-gray-500 transition-all">
                 <i data-lucide="microscope" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Social</span>
             </button>
-            <button onclick="switchTab('mining')" id="nav-mining" class="flex flex-col items-center gap-1 active-nav transition-all duration-300">
+            <button onclick="switchTab('mining')" id="nav-mining" class="flex flex-col items-center gap-1 active-nav transition-all">
                 <i data-lucide="pickaxe" class="w-6 h-6"></i><span class="text-[9px] font-black uppercase">Mining</span>
             </button>
-            <button onclick="switchTab('me')" id="nav-me" class="flex flex-col items-center gap-1 text-gray-500 transition-all duration-300">
+            <button onclick="switchTab('me')" id="nav-me" class="flex flex-col items-center gap-1 text-gray-500 transition-all">
                 <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Me</span>
             </button>
         </nav>
     </div>
 
-    <div id="popup" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-md">
-        <div class="glass p-8 rounded-[2.5rem] text-center max-w-xs border border-blue-500/20 shadow-2xl">
-            <div id="popupIcon" class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4"></div>
-            <h3 id="popupTitle" class="text-lg font-bold mb-2"></h3>
-            <p id="popupMsg" class="text-xs text-gray-400 mb-6 italic"></p>
-            <button onclick="closePopup()" class="w-full bg-blue-600 py-3 rounded-xl font-bold text-xs uppercase tracking-widest">Understood</button>
-        </div>
-    </div>
-
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycby3Pb33YjqnNkkZjTKjgg0ZxULHaLvb2U9O-TzM4nNMim-trzO0Tp2wy1VujHFv2YePWw/exec";
-        let isLogin = true, user = JSON.parse(localStorage.getItem('rida_user')), miningTimer;
+        let isL = true, user = JSON.parse(localStorage.getItem('rida_user'));
 
-        function init() { lucide.createIcons(); if (user) { showDashboard(); checkMining(); startLedgerStream(); } }
+        function init() { 
+            lucide.createIcons(); 
+            if (user) { showDashboard(); checkM(); startL(); } 
+        }
 
-        function toggleAuth() { isLogin = !isLogin; document.getElementById('signupGroup').classList.toggle('hidden', isLogin); document.getElementById('authTitle').innerText = isLogin ? "Secure Login" : "Create Account"; }
+        function toggleAuth() { 
+            isL = !isL; 
+            document.getElementById('signupGroup').classList.toggle('hidden', isL); 
+            document.getElementById('authTitle').innerText = isL ? "Secure Access" : "Create Account";
+            document.getElementById('authBtn').innerText = isL ? "Access System" : "Register Now";
+        }
 
         async function handleAuth() {
-            const email = document.getElementById('authEmail').value, pass = document.getElementById('authPass').value;
-            if(!email || !pass) return;
+            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
+            if(!e || !p) return alert("Missing fields");
             document.getElementById('authBtn').innerText = "CONNECTING...";
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: isLogin ? 'login' : 'register', email, password: pass, name: document.getElementById('regName').value || "" }) });
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: isL ? 'login' : 'register', email: e, password: p, name: document.getElementById('regName').value || "Miner" }) });
                 const data = await res.json();
-                if(data.status === "success") { localStorage.setItem('rida_user', JSON.stringify(data.user)); user = data.user; showDashboard(); } else { alert(data.message); }
-            } catch(e) { alert("Error"); }
-            document.getElementById('authBtn').innerText = "Access System";
+                if(data.status === "success") { localStorage.setItem('rida_user', JSON.stringify(data.user)); user = data.user; location.reload(); } else { alert(data.message); }
+            } catch(err) { alert("Network Error"); }
+            document.getElementById('authBtn').innerText = isL ? "Access System" : "Register Now";
         }
 
         function showDashboard() {
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('meName').innerText = user.name || "Miner";
-            document.getElementById('meEmail').innerText = user.email;
-            document.getElementById('meUID').innerText = user.uid;
-            document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
-            document.getElementById('meAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
-            updateBalance();
+            document.getElementById('meName').innerText = user.name;
+            document.getElementById('meUID').innerText = "UID: " + user.uid;
+            const av = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
+            document.getElementById('userAvatar').src = av;
+            document.getElementById('meAvatar').src = av;
+            document.getElementById('balance').innerText = parseFloat(user.balance || 0).toFixed(6);
             lucide.createIcons();
         }
 
         function switchTab(tab) {
-            if(tab === 'social') return openPopup('Social Scope', 'Under Construction', 'construction');
-            document.querySelectorAll('#contentArea > div').forEach(d => d.classList.add('hidden'));
+            if(tab === 'social') return alert("Social Scope: Under Construction");
+            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
             document.getElementById('sec-' + tab).classList.remove('hidden');
-            document.getElementById('pageTitle').inn
+            ['mining', 'me'].forEach(t => {
+                document.getElementById('nav-' + t).classList.toggle('active-nav', t === tab);
+                document.getElementById('nav-' + t).classList.toggle('text-gray-500', t !== tab);
+            });
+            toggleDrawer(false);
+        }
+
+        function switchSection(sec) {
+            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById('sec-' + sec).classList.remove('hidden');
+            document.getElementById('pageTitle').innerText = sec.toUpperCase();
+            toggleDrawer(false);
+        }
+
+        function startL() {
+            setInterval(() => {
+                const list = document.getElementById('ledgerList');
+                if(!list || document.getElementById('sec-ledger').classList.contains('hidden')) return;
+                const row = document.createElement('div');
+                row.className = "flex justify-between p-3 glass rounded-xl ledger-row border-l-2 border-green-500";
+                row.innerHTML = `<span class="text-[10px]">RID${Math.floor(1000+Math.random()*9000)}</span><span class="text-[10px] text-green-400">+${(37+Math.random()*40).toFixed(2)} RIDA</span>`;
+                list.prepend(row);
+                if(list.children.length > 6) list.removeChild(list.lastChild);
+            }, 3000);
+        }
+
+        function sMsg() {
+            const i = document.getElementById('cIn'); if(!i.value) return;
+            const m = document.createElement('div'); m.className = "bg-blue-600 p-2 rounded-lg self-end ml-auto text-right mb-2";
+            m.innerText = i.value; document.getElementById('cBox').appendChild(m); i.value = "";
+        }
+
+        function checkM() {
+            const s = localStorage.getItem('mining_start_' + user.uid);
+            if(s) {
+                const d = Math.floor((Date.now() - parseInt(s))/1000);
+                if(d < 86400) resM(s); else prepC();
+            }
+        }
+
+        function resM(s) {
+            const btn = document.getElementById('miningBtn'); btn.innerText = "Node is Active Now"; btn.disabled = true;
+            setInterval(() => {
+                const p = Math.floor((Date.now() - parseInt(s))/1000);
+                const l = 86400 - p;
+                document.getElementById('balance').innerText = (parseFloat(user.balance) + (p * (0.2/86400))).toFixed(6);
+                if(l <= 0) location.reload();
+                let h=Math.floor(l/3600), m=Math.floor((l%3600)/60), sc=l%60;
+                document.getElementById('timerDisplay').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;
+                document.getElementById('miningProgress').style.strokeDashoffset = 282.7 - ((p/86400)*282.7);
+            }, 1000);
+        }
+
+        function handleMining() {
+            if(document.getElementById('miningBtn').innerText === "Claim Rida") {
+                alert("0.20 RIDA Credited!"); localStorage.removeItem('mining_start_' + user.uid); location.reload();
+                return;
+            }
+            localStorage.setItem('mining_start_' + user.uid, Date.now()); location.reload();
+        }
+
+        function prepC() {
+            const b = document.getElementById('miningBtn'); b.innerText = "Claim Rida"; b.classList.replace('bg-blue-600', 'bg-green-600');
+            document.getElementById('timerDisplay').innerText = "00:00:00"; document.getElementById('miningProgress').style.strokeDashoffset = 0;
+        }
+
+        function toggleDrawer(o) { document.getElementById('drawer').style.transform = o ? "translateX(0)" : "translateX(-100%)"; }
+        function logout() { localStorage.removeItem('rida_user'); location.reload(); }
+        window.onload = init;
+    </script>
+</body>
+</html>
