@@ -12,7 +12,7 @@
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; }
         .hidden { display: none !important; }
-        .progress-ring__circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        .progress-ring__circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
         input::placeholder { color: #475569; }
     </style>
 </head>
@@ -23,17 +23,17 @@
             <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
                 <i data-lucide="zap" class="text-white"></i>
             </div>
-            <h1 class="text-3xl font-black italic uppercase">Rida <span class="text-blue-500">Pro</span></h1>
+            <h1 class="text-3xl font-black italic uppercase">RIDA <span class="text-blue-500">NETWORK</span></h1>
         </div>
 
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-white/10">
-            <h2 id="authTitle" class="text-lg font-bold mb-6 text-center">Secure Login</h2>
+            <h2 id="authTitle" class="text-lg font-bold mb-6 text-center text-white">Secure Login</h2>
             <div class="space-y-4">
                 <div id="signupGroup" class="hidden">
-                    <input type="text" id="regName" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 mb-4 text-sm" placeholder="Full Name">
+                    <input type="text" id="regName" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 mb-4 text-sm text-white" placeholder="Full Name">
                 </div>
-                <input type="email" id="authEmail" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm" placeholder="Email">
-                <input type="password" id="authPass" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm" placeholder="Password">
+                <input type="email" id="authEmail" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm text-white" placeholder="Email">
+                <input type="password" id="authPass" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm text-white" placeholder="Password">
                 <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mt-2 transition-all">
                     Access System
                 </button>
@@ -55,37 +55,45 @@
 
         <main class="px-6 space-y-6">
             <div class="glass rounded-3xl p-5 border-l-4 border-blue-500">
-                <p class="text-xs text-gray-300 italic">"You must fulfill all tasks to get 100% payout from the system."</p>
+                <p class="text-[11px] text-gray-300 italic">"You must fulfill all tasks to get 100% payout from the RIDA NETWORK system."</p>
             </div>
 
             <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2rem] p-8 shadow-xl">
-                <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest">Balance</p>
-                <h2 class="text-4xl font-black mt-1"><span id="balance">0.00</span> <span class="text-sm font-normal opacity-50">RIDA</span></h2>
+                <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest">RIDA NETWORK BALANCE</p>
+                <h2 class="text-4xl font-black mt-1"><span id="balance">0.000000</span> <span class="text-sm font-normal opacity-50">RIDA</span></h2>
+                <div class="mt-4 flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                    <p class="text-[10px] font-bold text-green-400 uppercase tracking-tighter">Mining: 0.20 RIDA / 24H</p>
+                </div>
                 <button onclick="copyUID()" class="mt-6 w-full bg-white/10 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">Copy Referral UID</button>
             </div>
 
             <div class="glass rounded-[2.5rem] p-10 text-center">
-                <div class="relative w-48 h-48 mx-auto mb-8">
+                <div class="relative w-52 h-52 mx-auto mb-8">
                     <svg class="w-full h-full" viewBox="0 0 100 100">
-                        <circle class="text-slate-800" stroke-width="6" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
-                        <circle id="miningProgress" class="text-blue-500 progress-ring__circle" stroke-width="6" stroke-dasharray="282.7" stroke-dashoffset="282.7" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
+                        <circle class="text-slate-800" stroke-width="5" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
+                        <circle id="miningProgress" class="text-blue-500 progress-ring__circle" stroke-width="5" stroke-dasharray="282.7" stroke-dashoffset="282.7" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
                         <div id="timerDisplay" class="text-2xl font-black">24:00:00</div>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase mt-1">Remaining</p>
                     </div>
                 </div>
-                <button id="miningBtn" onclick="handleMining()" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">Activate Node</button>
+                <button id="miningBtn" onclick="handleMining()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95">
+                    Activate Node
+                </button>
             </div>
         </main>
 
-        <div id="drawer" class="fixed inset-y-0 left-0 w-64 bg-slate-900 shadow-2xl transform -translate-x-full drawer p-8">
+        <div id="drawer" class="fixed inset-y-0 left-0 w-72 bg-slate-900 shadow-2xl transform -translate-x-full drawer p-8">
             <div class="flex justify-between mb-10">
-                <h3 class="font-black text-blue-500">MENU</h3>
+                <h3 class="font-black text-blue-500 italic">RIDA NETWORK</h3>
                 <button onclick="toggleDrawer(false)"><i data-lucide="x"></i></button>
             </div>
             <div class="space-y-6 text-sm font-bold text-gray-400">
-                <p onclick="alert('Coming soon!')" class="cursor-pointer hover:text-white">Verification</p>
-                <p onclick="alert('Coming soon!')" class="cursor-pointer hover:text-white">Referrals</p>
+                <p class="hover:text-white cursor-pointer">Verification</p>
+                <p class="hover:text-white cursor-pointer">Referral Program</p>
+                <p class="hover:text-white cursor-pointer">Whitepaper</p>
                 <p onclick="logout()" class="text-red-500 cursor-pointer pt-10 border-t border-white/5">Logout</p>
             </div>
         </div>
@@ -95,6 +103,10 @@
         const API_URL = "https://script.google.com/macros/s/AKfycby3Pb33YjqnNkkZjTKjgg0ZxULHaLvb2U9O-TzM4nNMim-trzO0Tp2wy1VujHFv2YePWw/exec";
         let isLogin = true;
         let user = JSON.parse(localStorage.getItem('rida_user'));
+        let isMiningActive = false;
+        let totalSeconds = 86400; // 24 Hours
+        let miningTimer;
+        let displayBalance = 0;
 
         function init() {
             lucide.createIcons();
@@ -114,7 +126,7 @@
             const btn = document.getElementById('authBtn');
             if(!email || !pass) return alert("Fill all fields");
 
-            btn.innerText = "LOADING...";
+            btn.innerText = "AUTHENTICATING...";
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
@@ -131,7 +143,7 @@
                     user = data.user;
                     showDashboard();
                 } else { alert(data.message); }
-            } catch(e) { alert("Error connecting to server"); }
+            } catch(e) { alert("Server connection error."); }
             btn.innerText = isLogin ? "Access System" : "Register Now";
         }
 
@@ -139,24 +151,77 @@
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userUID').innerText = "UID: " + user.uid;
-            document.getElementById('balance').innerText = parseFloat(user.balance || 0).toFixed(2);
+            displayBalance = parseFloat(user.balance || 0);
+            updateBalanceUI();
             document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
-            startUI();
             lucide.createIcons();
         }
 
-        function startUI() {
-            let sec = 86400;
-            setInterval(() => {
-                sec--;
-                let h = Math.floor(sec / 3600);
-                let m = Math.floor((sec % 3600) / 60);
-                let s = sec % 60;
-                document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
+        function startMiningEngine() {
+            isMiningActive = true;
+            const btn = document.getElementById('miningBtn');
+            btn.innerText = "Node is Active Now";
+            btn.classList.replace('bg-blue-600', 'bg-slate-800');
+            btn.disabled = true;
+
+            const incrementPerSecond = 0.20 / 86400; 
+
+            miningTimer = setInterval(() => {
+                totalSeconds--;
                 
-                let progress = ((86400 - sec) / 86400) * 282.7;
+                // Update Balance visually (Counter effect)
+                displayBalance += incrementPerSecond;
+                updateBalanceUI();
+
+                // Update Timer Text
+                let h = Math.floor(totalSeconds / 3600);
+                let m = Math.floor((totalSeconds % 3600) / 60);
+                let s = totalSeconds % 60;
+                document.getElementById('timerDisplay').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                
+                // Update Progress Ring
+                let progress = ((86400 - totalSeconds) / 86400) * 282.7;
                 document.getElementById('miningProgress').style.strokeDashoffset = 282.7 - progress;
+
+                // On Completion
+                if (totalSeconds <= 0) {
+                    clearInterval(miningTimer);
+                    isMiningActive = false;
+                    btn.innerText = "Claim Rida";
+                    btn.classList.replace('bg-slate-800', 'bg-green-600');
+                    btn.disabled = false;
+                }
             }, 1000);
+        }
+
+        function updateBalanceUI() {
+            document.getElementById('balance').innerText = displayBalance.toFixed(6);
+        }
+
+        async function handleMining() {
+            const btn = document.getElementById('miningBtn');
+            
+            if (btn.innerText === "Claim Rida") {
+                // Logic to update server with the 0.20
+                alert("0.20 RIDA Credited to your RIDA NETWORK account!");
+                location.reload(); 
+                return;
+            }
+
+            if (!isMiningActive) {
+                // Call API to start on backend
+                btn.innerText = "STARTING...";
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'startMining', uid: user.uid })
+                    });
+                    const data = await res.json();
+                    if(data.status === "success") {
+                        startMiningEngine();
+                    }
+                } catch(e) { alert("Failed to start node."); btn.innerText = "Activate Node"; }
+            }
         }
 
         function toggleDrawer(open) {
@@ -165,7 +230,7 @@
 
         function copyUID() {
             navigator.clipboard.writeText(user.uid);
-            alert("UID Copied!");
+            alert("Referral UID Copied!");
         }
 
         function logout() {
