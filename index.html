@@ -3,241 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIDA OS | TEAM MINING</title>
+    <title>RIDA OS | PRO MAX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --main: #3b82f6; --bg: #020617; --glass: rgba(15, 23, 42, 0.9); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
-        .glass { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.08); }
-        .active-nav { color: var(--main) !important; transform: scale(1.1); filter: drop-shadow(0 0 8px var(--main)); }
+        :root { --main: #3b82f6; --bg: #010409; --glass: rgba(13, 17, 23, 0.8); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; }
+        .glass { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); }
+        .active-nav { color: var(--main) !important; filter: drop-shadow(0 0 10px var(--main)); transform: translateY(-3px); }
         .hidden { display: none !important; }
-        .kyc-tentative { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .kyc-verified { color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .mining-pulse { animation: pulse 3s infinite ease-in-out; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.1); } 50% { box-shadow: 0 0 50px rgba(59,130,246,0.3); } }
     </style>
 </head>
 <body class="pb-36">
 
-    <div id="mainApp" class="hidden animate-in fade-in duration-500">
-        <header class="p-6 flex justify-between items-center sticky top-0 z-[100] glass rounded-b-[2.5rem]">
+    <div id="authPage" class="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent">
+        <div class="glass w-full max-w-sm p-12 rounded-[4rem] text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-20 -left-20 w-40 h-40 bg-blue-600/10 blur-[80px]"></div>
+            
+            <h1 class="text-5xl font-black italic text-blue-500 mb-2 tracking-tighter">RIDA</h1>
+            <p id="authSubtitle" class="text-[9px] font-black opacity-30 uppercase tracking-[0.4em] mb-12">Protocol v21.0</p>
+            
+            <div class="space-y-4">
+                <div id="signUpFields" class="hidden animate-in fade-in slide-in-from-top-2">
+                    <input type="text" id="regName" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none focus:border-blue-500/50 transition-all text-sm" placeholder="Full Name">
+                </div>
+                <input type="email" id="authEmail" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none focus:border-blue-500/50 transition-all text-sm" placeholder="Email Address">
+                <input type="password" id="authPass" class="w-full bg-white/5 p-5 rounded-3xl border border-white/5 outline-none focus:border-blue-500/50 transition-all text-sm" placeholder="Security Key">
+                
+                <button onclick="handleAuth()" id="mainAuthBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/20 transition-all active:scale-95 mt-4">Connect Node</button>
+            </div>
+            
+            <p onclick="toggleAuthMode()" class="mt-8 text-[10px] font-black text-slate-500 uppercase cursor-pointer group">
+                <span id="modeText">New to RIDA?</span> <span id="modeAction" class="text-blue-500 group-hover:underline">Create Account</span>
+            </p>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden">
+        <header class="p-6 flex justify-between items-center sticky top-0 z-[100] glass rounded-b-[3rem]">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg bg-blue-600"><i data-lucide="users"></i></div>
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg bg-gradient-to-br from-blue-600 to-blue-400"><i data-lucide="layout-grid" class="w-6 h-6"></i></div>
                 <div>
-                    <h2 class="text-lg font-black italic">RIDA <span class="text-blue-500">TEAM</span></h2>
-                    <p id="kstClock" class="text-[7px] font-bold opacity-40 uppercase tracking-widest mt-0.5">00:00 KST</p>
+                    <h2 class="text-xl font-black italic tracking-tighter leading-none">RIDA <span class="text-blue-500">PRO</span></h2>
+                    <p id="kstClock" class="text-[8px] font-black opacity-40 uppercase tracking-widest mt-1">00:00 KST</p>
                 </div>
             </div>
-            <div id="topStatus" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border">Unverified</div>
+            <div id="kycBadge" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border border-white/5 bg-white/5">Unverified</div>
         </header>
 
         <main class="p-6 space-y-6">
             
             <div id="tab-mining" class="space-y-6">
-                <div class="glass p-8 rounded-[3.5rem] text-center border-t border-white/10">
-                    <p class="text-[10px] font-black opacity-40 uppercase tracking-[0.2em] mb-2">Mining Balance</p>
-                    <h2 class="text-5xl font-black tracking-tighter mb-8"><span id="balance">0.000000</span></h2>
+                <div class="glass p-10 rounded-[4rem] text-center border-t border-white/10 mining-pulse relative overflow-hidden">
+                    <div class="absolute top-4 right-8 opacity-5"><i data-lucide="zap" class="w-24 h-24"></i></div>
                     
-                    <div class="grid grid-cols-2 gap-3 mb-8">
-                        <div class="bg-white/5 p-4 rounded-3xl border border-white/5">
-                            <p class="text-[7px] font-black opacity-40 uppercase">Personal Yield</p>
-                            <p class="text-[10px] font-black text-blue-500 mt-1">0.20 RIDA/d</p>
-                        </div>
-                        <div class="bg-white/5 p-4 rounded-3xl border border-white/5">
-                            <p class="text-[7px] font-black opacity-40 uppercase">Team Yield</p>
-                            <p id="teamYield" class="text-[10px] font-black text-green-500 mt-1">0.00 RIDA/d</p>
+                    <p class="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] mb-3">Cloud Mining Yield</p>
+                    <h2 class="text-6xl font-black tracking-tighter mb-10"><span id="balance">0.000000</span></h2>
+                    
+                    <div class="relative w-44 h-44 mx-auto mb-10">
+                        <svg class="w-full h-full -rotate-90">
+                            <circle cx="88" cy="88" r="80" stroke="currentColor" stroke-width="8" fill="transparent" class="text-white/5" />
+                            <circle id="progressCircle" cx="88" cy="88" r="80" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="502" stroke-dashoffset="502" class="text-blue-500 transition-all duration-1000" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="timer" class="text-2xl font-black tracking-widest">24:00:00</span>
+                            <span class="text-[7px] font-black opacity-40 uppercase">Session</span>
                         </div>
                     </div>
 
-                    <button id="mineBtn" onclick="startMining()" class="w-full py-6 rounded-[2rem] font-black uppercase text-xs tracking-widest text-white shadow-xl bg-blue-600 active:scale-95 transition-all">Launch Node</button>
-                    <p id="timer" class="mt-4 text-[9px] font-bold opacity-30 uppercase tracking-widest">Protocol Offline</p>
+                    <button id="mineBtn" onclick="startMining()" class="w-full py-6 rounded-[2.5rem] font-black uppercase text-xs tracking-[0.2em] text-white shadow-2xl bg-gradient-to-r from-blue-600 to-blue-400 active:scale-95 transition-all">Start Node</button>
                 </div>
 
-                <div class="glass p-6 rounded-[2.5rem] space-y-4">
-                    <div class="flex justify-between items-center px-2">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest">Active Referrals</h3>
-                        <span id="activeCount" class="text-[10px] font-black text-blue-500">0 Active</span>
+                <div class="glass p-8 rounded-[3rem] space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><i data-lucide="users" class="w-3 h-3 text-blue-500"></i> Team Mining</h3>
+                        <button onclick="pingTeam()" class="text-[8px] font-black text-blue-500 border border-blue-500/30 px-3 py-1 rounded-full bg-blue-500/5 active:bg-blue-500/20">PING ALL</button>
                     </div>
-                    <div id="teamContainer" class="space-y-2">
-                        <p class="text-[8px] text-center opacity-30 py-4 uppercase">No team members yet</p>
+                    <div id="teamStats" class="grid grid-cols-2 gap-3">
+                        <div class="bg-white/5 p-4 rounded-3xl border border-white/5">
+                            <p class="text-[7px] font-black opacity-40 uppercase">Referrals</p>
+                            <p id="refCount" class="text-sm font-black mt-1">0 Members</p>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-3xl border border-white/5">
+                            <p class="text-[7px] font-black opacity-40 uppercase">Daily Bonus</p>
+                            <p class="text-sm font-black text-green-500 mt-1">+0.00 RIDA</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="tab-social" class="hidden space-y-6">
-                <h2 class="text-2xl font-black italic text-blue-500 uppercase">Verification Hub</h2>
+            <div id="tab-kyc" class="hidden space-y-6">
+                <h2 class="text-3xl font-black italic text-blue-500 uppercase tracking-tighter">Identity Center</h2>
                 
-                <div id="kycStep1" class="glass p-8 rounded-[3rem] space-y-4">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-500 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
-                        <p class="text-[10px] font-black uppercase tracking-widest">Step 1: Link Wallet</p>
+                <div class="glass p-8 rounded-[3.5rem] space-y-6 relative">
+                    <div id="step1">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-600/10 text-blue-500 flex items-center justify-center font-black">1</div>
+                            <p class="text-[12px] font-black uppercase tracking-widest">Link BSC Wallet</p>
+                        </div>
+                        <input id="bscWallet" class="w-full bg-white/5 p-5 rounded-3xl text-[10px] outline-none border border-white/5 focus:border-blue-500/30" placeholder="0x... (BEP20 Address)">
+                        <button onclick="submitWallet()" class="w-full mt-4 bg-white/5 border border-white/10 py-4 rounded-3xl text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Continue</button>
                     </div>
-                    <p class="text-[9px] opacity-50">Submit your BSC (BEP20) wallet address to start verification.</p>
-                    <input id="bscWallet" class="w-full bg-black/40 p-4 rounded-2xl text-[10px] outline-none border border-white/5" placeholder="0x...">
-                    <button onclick="submitWallet()" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest">Link Wallet</button>
-                </div>
 
-                <div id="kycStep2" class="hidden glass p-8 rounded-[3rem] space-y-4 border border-orange-500/30">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-500 flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></div>
-                        <p class="text-[10px] font-black uppercase tracking-widest">Step 2: Security Deposit</p>
+                    <div id="step2" class="opacity-20 pointer-events-none transition-all duration-500">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-black">2</div>
+                            <p class="text-[12px] font-black uppercase tracking-widest">Security Deposit</p>
+                        </div>
+                        <div class="bg-blue-600/5 border border-blue-500/10 p-5 rounded-3xl mb-4">
+                            <p class="text-[8px] font-black opacity-40 mb-2 uppercase italic">Target Wallet (USDT BEP20)</p>
+                            <p class="text-[9px] font-mono text-blue-400 break-all">0x7BE5dA3EDA9E1bB6627bFD1E88149a03daBFB917</p>
+                        </div>
+                        <input id="txHash" class="w-full bg-white/5 p-5 rounded-3xl text-[10px] outline-none border border-white/5" placeholder="Transaction Hash (TxID)">
+                        <button onclick="submitHash()" class="w-full mt-4 bg-blue-600 py-5 rounded-3xl text-[9px] font-black uppercase tracking-widest shadow-xl">Complete Verification</button>
                     </div>
-                    <div class="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
-                        <p class="text-[8px] font-black uppercase opacity-60 mb-2">Official Core Wallet (BEP20)</p>
-                        <p class="text-[9px] font-mono break-all text-blue-400">0x7BE5dA3EDA9E1bB6627bFD1E88149a03daBFB917</p>
-                        <button onclick="copyWallet()" class="mt-3 text-[7px] font-black uppercase text-blue-500">Copy Address</button>
-                    </div>
-                    <p class="text-[9px] opacity-60">Send exactly <span class="text-white font-bold">5 USDT (BSC BEP20)</span>. Once sent, paste the Tx Hash below.</p>
-                    <input id="txHash" class="w-full bg-black/40 p-4 rounded-2xl text-[10px] outline-none border border-white/5" placeholder="Enter Transaction Hash">
-                    <button onclick="submitHash()" class="w-full bg-blue-600 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest">Submit for Approval</button>
                 </div>
             </div>
 
             <div id="tab-profile" class="hidden space-y-6">
-                <div class="glass p-10 rounded-[3.5rem] text-center">
-                    <img id="pAvatar" class="w-24 h-24 mx-auto rounded-[2.5rem] mb-4 border-2 p-1 border-blue-500">
-                    <h3 id="pName" class="font-black text-xl uppercase tracking-tighter">---</h3>
-                    <p id="pUID" class="text-[9px] font-bold opacity-40 uppercase tracking-widest">---</p>
-                    <div class="mt-8 p-4 bg-white/5 rounded-2xl text-left">
-                        <p class="text-[7px] font-black uppercase opacity-40">BSC Wallet</p>
-                        <p id="pWallet" class="text-[9px] font-mono truncate">Not Linked</p>
+                <div class="glass p-12 rounded-[4rem] text-center border-t border-white/5">
+                    <div class="relative w-32 h-32 mx-auto mb-6">
+                        <img id="pAvatar" class="w-full h-full rounded-[3rem] border-4 p-1 border-blue-600/30">
+                        <div id="statusDot" class="absolute -bottom-2 -right-2 w-8 h-8 bg-slate-800 rounded-full border-4 border-[#010409] flex items-center justify-center"><i data-lucide="shield-alert" class="w-4 h-4 text-slate-400"></i></div>
                     </div>
-                    <button onclick="logout()" class="w-full mt-4 bg-red-500/10 py-4 rounded-2xl text-red-500 text-[8px] font-black uppercase">Terminate Session</button>
+                    <h3 id="pName" class="text-2xl font-black uppercase tracking-tighter">---</h3>
+                    <p id="pEmail" class="text-[10px] font-bold opacity-30 uppercase tracking-widest mb-10">---</p>
+                    
+                    <button onclick="logout()" class="w-full bg-red-500/10 border border-red-500/20 py-5 rounded-3xl text-red-500 text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i data-lucide="power" class="w-4 h-4"></i> Disconnect Node</button>
                 </div>
             </div>
 
         </main>
 
-        <nav class="fixed bottom-8 left-8 right-8 h-20 glass rounded-[2.5rem] flex items-center justify-around z-[200] border border-white/10 shadow-2xl">
-            <button onclick="showTab('social')" id="nav-social" class="text-slate-500"><i data-lucide="shield-check"></i></button>
-            <button onclick="showTab('mining')" id="nav-mining" class="w-16 h-16 rounded-full flex items-center justify-center text-white -translate-y-8 shadow-2xl bg-blue-600"><i data-lucide="cpu"></i></button>
-            <button onclick="showTab('profile')" id="nav-profile" class="text-slate-500"><i data-lucide="user"></i></button>
+        <nav class="fixed bottom-10 left-8 right-8 h-20 glass rounded-[2.5rem] flex items-center justify-around z-[200] border-t border-white/10 shadow-2xl">
+            <button onclick="showTab('kyc')" id="nav-kyc" class="text-slate-500"><i data-lucide="shield-check"></i></button>
+            <button onclick="showTab('mining')" id="nav-mining" class="w-16 h-16 rounded-full flex items-center justify-center text-white -translate-y-10 shadow-2xl bg-gradient-to-br from-blue-600 to-blue-400"><i data-lucide="cpu"></i></button>
+            <button onclick="showTab('profile')" id="nav-profile" class="text-slate-500"><i data-lucide="user-cog"></i></button>
         </nav>
     </div>
 
-    <div id="authPage" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass w-full max-w-sm p-12 rounded-[4rem] text-center">
-            <h1 class="text-5xl font-black italic text-blue-500 mb-12">RIDA</h1>
-            <input type="email" id="authEmail" class="w-full bg-white/5 p-5 rounded-2xl mb-4 border border-white/5 outline-none" placeholder="Email">
-            <input type="password" id="authPass" class="w-full bg-white/5 p-5 rounded-2xl mb-10 border border-white/5 outline-none" placeholder="Password">
-            <button onclick="processAuth()" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest">Connect</button>
-        </div>
-    </div>
-
     <script>
-        const API = "YOUR_WEBAPP_URL"; // Linked to your Google Sheet
-        let user = JSON.parse(localStorage.getItem('rida_v20_save'));
+        let user = JSON.parse(localStorage.getItem('rida_pro_v21'));
+        let isSignUp = false;
+
+        // --- AUTH LOGIC ---
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            document.getElementById('signUpFields').classList.toggle('hidden', !isSignUp);
+            document.getElementById('modeAction').innerText = isSignUp ? "Login Instead" : "Create Account";
+            document.getElementById('modeText').innerText = isSignUp ? "Have an account?" : "New to RIDA?";
+            document.getElementById('mainAuthBtn').innerText = isSignUp ? "Initialize Node" : "Connect Node";
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPass').value;
+            const name = document.getElementById('regName').value || "Miner Node";
+
+            if(!email || !pass) return alert("Credentials Required");
+
+            user = {
+                uid: "RIDA-" + Math.floor(100000 + Math.random() * 900000),
+                name: name,
+                email: email,
+                balance: 0,
+                status: "Unverified",
+                wallet: "",
+                refs: 0
+            };
+
+            localStorage.setItem('rida_pro_v21', JSON.stringify(user));
+            location.reload();
+        }
 
         // --- KYC LOGIC ---
         function submitWallet() {
-            const wallet = document.getElementById('bscWallet').value;
-            if(wallet.length < 20) return alert("Invalid Wallet Address");
-            user.wallet = wallet;
+            const w = document.getElementById('bscWallet').value;
+            if(w.length < 20) return alert("Enter Valid BSC Address");
+            user.wallet = w;
             user.status = "Tentative";
-            updateUser();
-            alert("Protocol Updated: Status changed to TENTATIVE. Please complete Step 2.");
-            location.reload();
+            save();
+            document.getElementById('step2').style.opacity = "1";
+            document.getElementById('step2').style.pointerEvents = "auto";
+            alert("Wallet Linked. Proceed to Security Deposit.");
         }
 
         function submitHash() {
-            const hash = document.getElementById('txHash').value;
-            if(hash.length < 10) return alert("Invalid Hash");
-            alert(`Hash Submitted: ${hash}\nAdmin will verify UID: ${user.uid} shortly.`);
-            // In a real build, this sends the hash to your Google Sheet for you to check
+            const h = document.getElementById('txHash').value;
+            if(h.length < 10) return alert("Enter Valid Tx Hash");
+            alert("Protocol Submitted: Admin will verify your USDT deposit shortly.");
         }
 
-        function copyWallet() {
-            navigator.clipboard.writeText("0x7BE5dA3EDA9E1bB6627bFD1E88149a03daBFB917");
-            alert("Core Wallet Copied!");
-        }
-
-        // --- TEAM MINING LOGIC ---
-        function loadTeam() {
-            // Mocking team data - in real app, fetch from Sheets
-            const team = [
-                { uid: 'RIDA-992', status: 'Active', reward: 0.01 },
-                { uid: 'RIDA-104', status: 'Sleeping', reward: 0.00 }
-            ];
-            
-            let totalYield = 0;
-            document.getElementById('teamContainer').innerHTML = team.map(m => {
-                if(m.status === 'Active') totalYield += 0.01;
-                return `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center border border-white/5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full ${m.status === 'Active' ? 'bg-green-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}"></div>
-                        <p class="text-[10px] font-black uppercase">${m.uid}</p>
-                    </div>
-                    <p class="text-[9px] font-bold ${m.status === 'Active' ? 'text-green-500' : 'opacity-20'}">+${m.reward} RIDA/d</p>
-                </div>
-                `;
-            }).join('');
-            
-            document.getElementById('teamYield').innerText = totalYield.toFixed(2) + " RIDA/d";
-            document.getElementById('activeCount').innerText = team.filter(x => x.status === 'Active').length + " Active";
-        }
-
-        // --- CORE ENGINE ---
-        function showTab(t) {
-            ['mining', 'social', 'profile'].forEach(id => {
-                document.getElementById('tab-'+id).classList.toggle('hidden', id !== t);
-                document.getElementById('nav-'+id).classList.toggle('active-nav', id === t);
-            });
-            if(t === 'social' && user.status === "Tentative") document.getElementById('kycStep2').classList.remove('hidden');
-        }
-
+        // --- MINING ENGINE ---
         function startMining() {
-            localStorage.setItem('rida_v20_timer', Date.now());
+            localStorage.setItem('rida_v21_start', Date.now());
             location.reload();
         }
 
-        function runMiner() {
-            const start = localStorage.getItem('rida_v20_timer');
+        function runMiningSession() {
+            const start = localStorage.getItem('rida_v21_start');
             if(!start) return;
-            document.getElementById('mineBtn').innerText = "SYNCHRONIZED";
+
+            document.getElementById('mineBtn').innerText = "NODE ONLINE";
             document.getElementById('mineBtn').disabled = true;
-            document.getElementById('mineBtn').style.opacity = "0.5";
-            
+            document.getElementById('mineBtn').classList.add('opacity-40');
+
             setInterval(() => {
-                const rem = 86400 - ((Date.now() - start) / 1000);
+                const elapsed = (Date.now() - start) / 1000;
+                const rem = 86400 - elapsed;
+                
+                if(rem <= 0) { localStorage.removeItem('rida_v21_start'); location.reload(); }
+
                 const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60), s = Math.floor(rem%60);
-                document.getElementById('timer').innerText = `NEXT SYNC: ${h}h ${m}m ${s}s`;
+                document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
                 
-                // Add Daily Team Yield to total (0.01 per day / 86400 seconds)
-                const activeTeamYield = 0.01 / 86400; // Simplified for 1 member
-                user.balance += (0.2 / 86400) + activeTeamYield; 
-                
+                // Progress Circle
+                const percent = (rem / 86400) * 502;
+                document.getElementById('progressCircle').style.strokeDashoffset = 502 - percent;
+
+                user.balance += (0.2 / 86400); // Base Mining
                 document.getElementById('balance').innerText = user.balance.toFixed(6);
-                localStorage.setItem('rida_v20_save', JSON.stringify(user));
+                save();
             }, 1000);
         }
 
-        function processAuth() {
-            const email = document.getElementById('authEmail').value;
-            if(!email) return alert("Email required");
-            user = { uid: "RIDA-"+Math.floor(1000+Math.random()*9000), name: "Miner Node", email: email, balance: 0, status: "Unverified", wallet: "" };
-            updateUser();
-            location.reload();
+        // --- UI UTILS ---
+        function showTab(t) {
+            ['mining', 'kyc', 'profile'].forEach(id => {
+                document.getElementById('tab-'+id).classList.toggle('hidden', id !== t);
+                document.getElementById('nav-'+id).classList.toggle('active-nav', id === t);
+            });
         }
 
-        function updateUser() { localStorage.setItem('rida_v20_save', JSON.stringify(user)); }
+        function pingTeam() {
+            alert("📡 Network Signal Sent: All inactive referrals have been pinged.");
+        }
+
+        function save() { localStorage.setItem('rida_pro_v21', JSON.stringify(user)); }
+        function logout() { localStorage.clear(); location.reload(); }
 
         window.onload = () => {
             if(user) {
                 document.getElementById('authPage').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                document.getElementById('balance').innerText = user.balance.toFixed(6);
-                document.getElementById('topStatus').innerText = user.status;
                 document.getElementById('pName').innerText = user.name;
-                document.getElementById('pUID').innerText = user.uid;
-                document.getElementById('pWallet').innerText = user.wallet || "Not Linked";
+                document.getElementById('pEmail').innerText = user.email;
+                document.getElementById('kycBadge').innerText = user.status;
+                document.getElementById('balance').innerText = user.balance.toFixed(6);
                 document.getElementById('pAvatar').src = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${user.uid}`;
                 
-                if(user.status === "Tentative") document.getElementById('topStatus').className = "text-[8px] font-black uppercase px-3 py-1.5 rounded-xl kyc-tentative";
-                if(user.status === "Verified") document.getElementById('topStatus').className = "text-[8px] font-black uppercase px-3 py-1.5 rounded-xl kyc-verified";
+                if(user.status === "Tentative") {
+                    document.getElementById('kycBadge').classList.add('text-orange-500', 'border-orange-500/20');
+                    document.getElementById('statusDot').innerHTML = `<i data-lucide="clock" class="w-4 h-4 text-orange-500"></i>`;
+                }
                 
-                runMiner();
-                loadTeam();
+                runMiningSession();
             }
             setInterval(() => {
                 const kst = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
@@ -245,8 +270,6 @@
             }, 1000);
             lucide.createIcons();
         };
-
-        function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
