@@ -1,260 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIDA OS | PRO MAX</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
-        .drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; }
-        .hidden { display: none !important; }
-        .active-ring { border-top-color: #3b82f6; animation: spin 2s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
-</head>
-<body class="pb-24">
+<nav class="fixed bottom-6 left-6 right-6 h-20 glass rounded-[2.5rem] flex items-center justify-around px-2 z-[90] border-t border-white/10 shadow-2xl">
+    <button onclick="showTab('social')" id="nav-social" class="flex flex-col items-center justify-center w-16 h-16 rounded-2xl transition-all active:scale-90 text-slate-500">
+        <i data-lucide="globe" class="w-6 h-6"></i>
+        <span class="text-[8px] font-black uppercase mt-1 tracking-widest">Social</span>
+    </button>
 
-    <div id="drawer" class="fixed inset-y-0 left-0 w-80 glass transform -translate-x-full drawer p-8 overflow-y-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-xl font-black text-blue-500 italic">RIDA SYSTEM</h2>
-            <button onclick="toggleDrawer(false)"><i data-lucide="x"></i></button>
+    <button onclick="showTab('mining')" id="nav-mining" class="flex flex-col items-center justify-center w-20 h-20 bg-blue-600 rounded-full -translate-y-6 shadow-xl shadow-blue-900/40 border-4 border-[#020617] transition-all active:scale-95 text-white">
+        <i data-lucide="cpu" class="w-8 h-8"></i>
+    </button>
+
+    <button onclick="showTab('profile')" id="nav-profile" class="flex flex-col items-center justify-center w-16 h-16 rounded-2xl transition-all active:scale-90 text-slate-500">
+        <i data-lucide="user" class="w-6 h-6"></i>
+        <span class="text-[8px] font-black uppercase mt-1 tracking-widest">Me</span>
+    </button>
+</nav>
+
+<main class="p-6 pb-32">
+    
+    <div id="tab-mining" class="space-y-6 animate-in fade-in zoom-in duration-500">
         </div>
-        <nav class="space-y-2">
-            <button onclick="showTab('mining')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4"><i data-lucide="cpu"></i> Dashboard</button>
-            <button onclick="showTab('profile')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4"><i data-lucide="user"></i> My Profile</button>
-            <button onclick="showTab('transfer')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4"><i data-lucide="send"></i> Transfer Rida</button>
-            <div id="adminArea" class="hidden pt-6 mt-6 border-t border-white/10">
-                <button onclick="showTab('admin')" class="w-full text-left p-4 rounded-2xl bg-blue-600/20 text-blue-400 font-bold flex items-center gap-4"><i data-lucide="shield"></i> ADMIN PANEL</button>
-            </div>
-            <button onclick="logout()" class="w-full text-left p-4 text-red-500 mt-10 opacity-50 text-xs font-bold">DISCONNECT NODE</button>
-        </nav>
-    </div>
 
-    <div id="authPage" class="min-h-screen flex items-center justify-center p-6 bg-slate-950">
-        <div class="glass w-full max-w-sm p-10 rounded-[3rem] text-center border-t border-blue-500/20">
-            <h1 class="text-4xl font-black italic text-blue-500 mb-2">RIDA</h1>
-            <p id="authTypeLabel" class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-10">Sign In</p>
-            
-            <div id="regFields" class="hidden space-y-4 mb-4">
-                <input type="text" id="regName" class="w-full bg-slate-900 p-4 rounded-2xl outline-none text-sm border border-white/5" placeholder="Full Name">
-            </div>
-            <input type="email" id="authEmail" class="w-full bg-slate-900 p-4 rounded-2xl mb-4 outline-none text-sm border border-white/5" placeholder="Email Address">
-            <input type="password" id="authPass" class="w-full bg-slate-900 p-4 rounded-2xl mb-8 outline-none text-sm border border-white/5" placeholder="Password">
-            
-            <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">Connect</button>
-            
-            <p class="mt-6 text-[10px] text-slate-500 font-bold uppercase cursor-pointer" onclick="toggleAuthMode()">
-                <span id="authToggleText">New Miner? Create Account</span>
-            </p>
+    <div id="tab-social" class="hidden space-y-6 animate-in slide-in-from-left duration-500">
+        <h2 class="text-2xl font-black italic text-blue-500 uppercase">Social Hub</h2>
+        <div class="glass p-6 rounded-[2rem] border-l-4 border-l-blue-500">
+            <p class="text-[10px] font-black text-blue-500 uppercase mb-2">Global Announcement</p>
+            <p class="text-xs font-bold text-slate-300">RIDA Network v2.0 is now live. All nodes must synchronize within 24 hours.</p>
+            <p class="text-[8px] text-slate-500 mt-4">Posted: 2 hours ago</p>
         </div>
-    </div>
+        </div>
 
-    <div id="mainApp" class="hidden">
-        <header class="p-5 flex justify-between items-center sticky top-0 glass z-50">
-            <button onclick="toggleDrawer(true)" class="p-2 bg-blue-600/10 rounded-xl text-blue-500"><i data-lucide="menu"></i></button>
-            <div class="text-right">
-                <p id="hStatus" class="text-[10px] font-black uppercase text-red-500">Unverified</p>
-                <p id="hUID" class="text-[8px] font-bold text-slate-500 mt-1">--</p>
-            </div>
-        </header>
-
-        <main class="p-6">
-            <div id="tab-mining" class="space-y-6 animate-in fade-in duration-500">
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-900 p-10 rounded-[3rem] shadow-2xl">
-                    <p class="text-[10px] font-black uppercase opacity-60 tracking-widest">Global Balance</p>
-                    <h2 class="text-5xl font-black mt-2 tracking-tighter"><span id="balance">0.000000</span></h2>
+    <div id="tab-profile" class="hidden space-y-4 animate-in slide-in-from-right duration-500">
+        <div class="glass p-10 rounded-[3rem] text-center border-t border-white/5 relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="w-24 h-24 rounded-[2.5rem] bg-slate-900 mx-auto mb-4 border-2 border-blue-500 p-1 overflow-hidden">
+                    <img id="pAvatar" src="" class="w-full h-full object-cover rounded-[2rem]">
                 </div>
-                <div class="glass p-10 rounded-[3.5rem] text-center border border-white/5">
-                    <div id="timerRing" class="w-44 h-44 border-[6px] border-slate-900 rounded-full mx-auto mb-8 flex items-center justify-center">
-                        <div class="text-center">
-                            <span id="timer" class="text-3xl font-black block">24:00:00</span>
-                            <span class="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Session</span>
-                        </div>
+                <h3 id="pName" class="font-black text-xl uppercase tracking-widest text-white">--</h3>
+                <p id="pEmail" class="text-[10px] font-bold text-slate-500 mb-6">--</p>
+                
+                <div class="grid grid-cols-2 gap-3 mb-8">
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5 text-left">
+                        <p class="text-[7px] font-black text-blue-500 uppercase tracking-widest">Network ID</p>
+                        <p id="pUID" class="text-[10px] font-black mt-1 text-white">--</p>
                     </div>
-                    <button id="mineBtn" onclick="startMiningSession()" class="w-full bg-blue-600 py-6 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl">Initialize Node</button>
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5 text-left">
+                        <p class="text-[7px] font-black text-blue-500 uppercase tracking-widest">Node Status</p>
+                        <p id="pStatus" class="text-[10px] font-black mt-1 text-emerald-500">Verified</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5 text-left">
+                        <p class="text-[7px] font-black text-blue-500 uppercase tracking-widest">Join Date</p>
+                        <p id="pJoinDate" class="text-[10px] font-black mt-1 text-white">--</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5 text-left">
+                        <p class="text-[7px] font-black text-blue-500 uppercase tracking-widest">Referrals</p>
+                        <p id="pRefCount" class="text-[10px] font-black mt-1 text-white">0 Users</p>
+                    </div>
                 </div>
-            </div>
 
-            <div id="tab-profile" class="hidden space-y-4">
-                <div class="glass p-10 rounded-[3rem] text-center">
-                    <img id="pAvatar" src="" class="w-24 h-24 rounded-[2.5rem] mx-auto mb-4 border-2 border-blue-500 p-1">
-                    <h3 id="pName" class="font-black text-xl uppercase tracking-widest">--</h3>
-                    <p id="pEmail" class="text-xs text-slate-500">--</p>
-                </div>
-                <div class="glass p-6 rounded-[2rem] border border-white/5">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest">Invite & Earn 0.5 RIDA</p>
+                <div class="bg-blue-600/10 p-6 rounded-[2rem] border border-blue-500/20 text-left">
+                    <p class="text-[9px] font-black text-blue-500 uppercase mb-4 tracking-widest">Your Referral Link</p>
                     <div class="flex gap-2">
-                        <input readonly id="refUrl" class="bg-slate-950 p-4 rounded-2xl flex-1 text-[10px] font-bold text-blue-400 border border-white/5" value="">
-                        <button onclick="copyRef()" class="bg-blue-600 px-6 rounded-2xl"><i data-lucide="copy" class="w-5 h-5"></i></button>
+                        <input readonly id="refUrl" class="bg-slate-950 p-4 rounded-2xl flex-1 text-[9px] font-bold text-blue-300 border border-white/5" value="">
+                        <button onclick="copyRef()" class="bg-blue-600 px-5 rounded-2xl active:scale-90 transition-all"><i data-lucide="copy" class="w-4 h-4"></i></button>
                     </div>
-                    <p class="mt-4 text-[9px] text-slate-500 font-bold uppercase">Total Referrals: <span id="pRefCount" class="text-blue-500">0</span></p>
                 </div>
             </div>
-
-            <div id="tab-transfer" class="hidden space-y-6">
-                <div class="glass p-8 rounded-[2.5rem]">
-                    <h2 class="text-xl font-black mb-6 italic uppercase tracking-tighter">P2P Transfer</h2>
-                    <input id="targetUID" class="w-full bg-slate-900 p-5 rounded-2xl mb-4 outline-none border border-white/5 text-sm" placeholder="Recipient UID">
-                    <input id="sendAmount" type="number" class="w-full bg-slate-900 p-5 rounded-2xl mb-8 outline-none border border-white/5 text-sm" placeholder="Amount (RIDA)">
-                    <button onclick="handleTransfer()" class="w-full bg-blue-600 py-5 rounded-2xl font-black uppercase text-xs shadow-lg">Execute Transaction</button>
-                    <p id="limitNote" class="mt-4 text-[9px] text-slate-500 text-center font-bold">User Limit: 10 - 100 Rida / 24h</p>
-                </div>
-            </div>
-
-            <div id="tab-admin" class="hidden space-y-6 pb-12">
-                <h2 class="text-2xl font-black text-blue-500 italic uppercase">System Root</h2>
-                <div id="adminUserList" class="space-y-4">
-                    </div>
-            </div>
-        </main>
+        </div>
     </div>
+</main>
 
-    <script>
-        const API = "https://script.google.com/macros/s/AKfycbxgc-Q4ij_H4uWS_zYA3d5w6SCiFgdQgm-mLyzkxnuRCFdyo_xVLhUPCMQdBG3kLZJsvQ/exec";
-        let isReg = false;
-        let user = JSON.parse(localStorage.getItem('rida_pro_max_v9'));
-
-        function init() { 
-            lucide.createIcons(); 
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.get('ref')) localStorage.setItem('rida_pending_ref', urlParams.get('ref'));
-            if(user) loadApp(); 
-        }
-
-        function toggleAuthMode() {
-            isReg = !isReg;
-            document.getElementById('regFields').classList.toggle('hidden', !isReg);
-            document.getElementById('authTypeLabel').innerText = isReg ? "Create New Node" : "Sign In";
-            document.getElementById('authBtn').innerText = isReg ? "Register" : "Connect";
-            document.getElementById('authToggleText').innerText = isReg ? "Already a Miner? Sign In" : "New Miner? Create Account";
-        }
-
-        function handleAuth() {
-            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
-            if(!e || !p) return alert("Fields required");
-
-            if(e === "adminrida@gmail.com" && p === "CocoMomoPakistan@786") {
-                user = { uid: "MASTER", name: "System Admin", email: e, balance: 999999, status: "Verified", role: "admin" };
-            } else {
-                user = { 
-                    uid: "RIDA-" + Math.floor(100000 + Math.random()*900000), 
-                    name: document.getElementById('regName').value || "Miner", 
-                    email: e, balance: 0, status: "Unverified", role: "user",
-                    refCount: 0, joinDate: new Date().toLocaleDateString()
-                };
-            }
-            localStorage.setItem('rida_pro_max_v9', JSON.stringify(user));
-            location.reload();
-        }
-
-        function loadApp() {
-            document.getElementById('authPage').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('hUID').innerText = user.uid;
-            document.getElementById('hStatus').innerText = user.status;
-            document.getElementById('balance').innerText = parseFloat(user.balance).toFixed(6);
+<script>
+    // NAVIGATION LOGIC
+    function showTab(t) {
+        const tabs = ['mining', 'social', 'profile', 'transfer', 'admin'];
+        tabs.forEach(tab => {
+            const el = document.getElementById('tab-' + tab);
+            const nav = document.getElementById('nav-' + tab);
+            if (el) el.classList.toggle('hidden', tab !== t);
             
-            // Profile setup
+            // Handle Navigation Button Styling
+            if (nav) {
+                if (tab === t) {
+                    nav.classList.add('text-blue-500');
+                    nav.classList.remove('text-slate-500');
+                } else {
+                    nav.classList.remove('text-blue-500');
+                    nav.classList.add('text-slate-500');
+                }
+            }
+        });
+        
+        // Hide drawer if open
+        toggleDrawer(false);
+        
+        // Specific Profile Data Injection
+        if (t === 'profile') {
             document.getElementById('pName').innerText = user.name;
             document.getElementById('pEmail').innerText = user.email;
+            document.getElementById('pUID').innerText = user.uid;
+            document.getElementById('pStatus').innerText = user.status;
+            document.getElementById('pJoinDate').innerText = user.joinDate || "01/04/2026";
+            document.getElementById('pRefCount').innerText = (user.refCount || 0) + " Users";
             document.getElementById('pAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
             document.getElementById('refUrl').value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
-            
-            if(user.role === "admin") {
-                document.getElementById('adminArea').classList.remove('hidden');
-                document.getElementById('limitNote').innerText = "Admin Limit: 0.20 - 10,000 RIDA";
-                fetchUsers();
-            }
-            checkMiningTimer();
         }
-
-        // --- TRANSACTION ENGINE ---
-        function handleTransfer() {
-            const amt = parseFloat(document.getElementById('sendAmount').value);
-            const min = user.role === 'admin' ? 0.20 : 10;
-            const max = user.role === 'admin' ? 10000 : 100;
-
-            if(amt < min || amt > max) return alert(`Limit Violation: ${min} - ${max} RIDA`);
-            if(amt > user.balance) return alert("Insufficient Balance");
-
-            alert("Processing P2P Protocol...");
-            // Backend sync logic here
-        }
-
-        // --- MINING & TIMER ---
-        function startMiningSession() {
-            const end = Date.now() + (24 * 60 * 60 * 1000);
-            localStorage.setItem('rida_timer_end', end);
-            location.reload();
-        }
-
-        function checkMiningTimer() {
-            const end = localStorage.getItem('rida_timer_end');
-            if(end) {
-                const btn = document.getElementById('mineBtn');
-                btn.innerText = "NODE SYNCHRONIZED"; btn.disabled = true;
-                btn.className = "w-full bg-slate-900 border border-blue-500/20 text-blue-500 py-6 rounded-[2rem] font-black uppercase text-[10px]";
-                document.getElementById('timerRing').classList.add('active-ring');
-                
-                setInterval(() => {
-                    const now = Date.now();
-                    const diff = end - now;
-                    if(diff <= 0) { localStorage.removeItem('rida_timer_end'); location.reload(); }
-                    
-                    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-                    document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                    
-                    // Increment Balance visually
-                    user.balance = parseFloat(user.balance) + (0.2 / 86400);
-                    document.getElementById('balance').innerText = user.balance.toFixed(6);
-                }, 1000);
-            }
-        }
-
-        // --- ADMIN VIEW ---
-        function fetchUsers() {
-            // Mocking deep data for visualization
-            const mockData = [
-                { uid: "RIDA-123456", name: "John Doe", email: "john@test.com", refs: 12, balance: 45.5, status: "Unverified" },
-                { uid: "RIDA-987654", name: "Sarah Connor", email: "sarah@test.com", refs: 5, balance: 120.0, status: "Verified" }
-            ];
-            const list = document.getElementById('adminUserList');
-            list.innerHTML = mockData.map(u => `
-                <div class="glass p-6 rounded-[2.5rem] border-l-4 ${u.status === 'Verified' ? 'border-l-green-500' : 'border-l-red-500'}">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h4 class="font-black text-xs uppercase tracking-widest">${u.name}</h4>
-                            <p class="text-[9px] text-slate-500 font-bold">${u.uid} | ${u.email}</p>
-                        </div>
-                        <span class="text-[8px] bg-white/5 px-2 py-1 rounded border border-white/10 font-black">${u.status}</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="bg-slate-900 p-2 rounded-xl text-center"><p class="text-[7px] text-slate-500 font-bold uppercase">Refs</p><p class="text-[10px] font-black">${u.refs}</p></div>
-                        <div class="bg-slate-900 p-2 rounded-xl text-center"><p class="text-[7px] text-slate-500 font-bold uppercase">Balance</p><p class="text-[10px] font-black text-blue-400">${u.balance}</p></div>
-                        <div class="bg-slate-900 p-2 rounded-xl text-center"><p class="text-[7px] text-slate-500 font-bold uppercase">Actions</p><p class="text-[10px] font-black">...</p></div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button class="flex-1 py-3 bg-blue-600/20 text-blue-400 rounded-xl text-[9px] font-black uppercase">Verify</button>
-                        <button class="flex-1 py-3 bg-red-600/20 text-red-500 rounded-xl text-[9px] font-black uppercase">Block</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function showTab(t) {
-            ['mining', 'profile', 'transfer', 'admin'].forEach(tab => document.getElementById('tab-'+tab)?.classList.toggle('hidden', tab !== t));
-            toggleDrawer(false);
-        }
-
-        function toggleDrawer(o) { document.getElementById('drawer').style.transform = o ? "translateX(0)" : "translateX(-100%)"; }
-        function copyRef() { const i = document.getElementById('refUrl'); i.select(); navigator.clipboard.writeText(i.value); alert("Referral Protocol Copied!"); }
-        function logout() { localStorage.clear(); location.reload(); }
-        window.onload = init;
-    </script>
-</body>
-    </html>
-    
+    }
+</script>
