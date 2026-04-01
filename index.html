@@ -1,37 +1,54 @@
-<script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxYat7kzNr2xZ4X0I16BFUTDXd1gtZfXz0gGAhSAuzBYfbgpu_85vPfXCeb51gBS7Fgg/exec";
-
-    async function fetchSheetData() {
-        const tbody = document.getElementById('adminTableBody');
-        if (!tbody) return; // Safety check
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RIDA DEBUG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen">
+    <div id="statusBox" class="text-center p-10 border border-white/10 rounded-3xl bg-white/5">
+        <h1 class="text-4xl font-bold mb-4">RIDA SYSTEM</h1>
+        <p id="msg" class="text-blue-500 animate-pulse">Initializing Interface...</p>
         
-        tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-blue-500 font-black animate-pulse">CONNECTING TO CLOUD...</td></tr>';
-        
-        try {
-            // Adding 'cache: no-store' helps prevent old data from sticking
-            const response = await fetch(WEB_APP_URL, { method: 'GET', cache: 'no-store' });
-            
-            if (!response.ok) throw new Error('Network Error');
-            
-            const data = await response.json();
+        <div id="loginArea" class="mt-8 space-y-4">
+            <input type="email" id="email" class="block w-full p-4 bg-black rounded-xl" placeholder="Email">
+            <input type="password" id="pass" class="block w-full p-4 bg-black rounded-xl" placeholder="Password">
+            <button onclick="checkAdmin()" class="w-full bg-blue-600 p-4 rounded-xl font-bold">LOGIN</button>
+        </div>
 
-            if (!data || data.length < 2) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center opacity-40">SHEET IS EMPTY</td></tr>';
-                return;
+        <div id="adminArea" class="hidden mt-8 text-left">
+            <h2 class="text-green-500 font-bold">ADMIN PANEL ACTIVE</h2>
+            <button onclick="fetchData()" class="mt-4 p-2 bg-white/10 rounded">Sync Cloud</button>
+            <div id="out" class="mt-4 text-[10px] font-mono"></div>
+        </div>
+    </div>
+
+    <script>
+        // REPLACE THIS WITH YOUR NEW WEB APP URL EVERY TIME YOU DEPLOY
+        const URL = "https://script.google.com/macros/s/AKfycbyxYat7kzNr2xZ4X0I16BFUTDXd1gtZfXz0gGAhSAuzBYfbgpu_85vPfXCeb51gBS7Fgg/exec";
+
+        function checkAdmin() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            
+            if(e === "adminrida@gmail.com" && p === "CocoMomoPakistan@786") {
+                document.getElementById('loginArea').classList.add('hidden');
+                document.getElementById('adminArea').classList.remove('hidden');
+                document.getElementById('msg').innerText = "Master Controller Online";
+            } else {
+                alert("User Mode Active - Mining Starting");
             }
-
-            tbody.innerHTML = data.slice(1).map(row => `
-                <tr class="border-b border-white/5">
-                    <td class="p-4 font-black">${row[1] || 'N/A'}<br><span class="text-[7px] opacity-30">${row[0] || ''}</span></td>
-                    <td class="p-4"><span class="bg-blue-600/10 text-blue-500 px-2 py-1 rounded text-[8px] font-black">${row[3] || 'UNVERIFIED'}</span></td>
-                    <td class="p-4 text-right"><button onclick="approveUser('${row[1]}')" class="bg-blue-600 px-3 py-1 rounded-lg text-[8px] font-black">APPROVE</button></td>
-                </tr>
-            `).join('');
-
-        } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-red-500 font-black">CONNECTION FAILED<br><span class="text-[8px] opacity-50">${err.message}</span></td></tr>`;
         }
-    }
-    
-    // Make sure all your other functions (masterLogin, etc.) are inside this same <script> block
-</script>
+
+        async function fetchData() {
+            document.getElementById('out').innerText = "Loading...";
+            try {
+                const res = await fetch(URL);
+                const data = await res.json();
+                document.getElementById('out').innerText = JSON.stringify(data, null, 2);
+            } catch(err) {
+                document.getElementById('out').innerText = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
