@@ -3,162 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIDA PRO MAX | Ecosystem</title>
+    <title>RIDA OS | Pro Max</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .drawer { transition: transform 0.4s ease; z-index: 100; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; -webkit-tap-highlight-color: transparent; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .admin-card { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid #3b82f633; }
         .hidden { display: none !important; }
-        .admin-gradient { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); }
-        .chat-bubble-user { background: #3b82f6; border-radius: 15px 15px 0 15px; }
-        .chat-bubble-admin { background: #1e293b; border-radius: 15px 15px 15px 0; }
+        .active-tab { color: #3b82f6 !important; }
     </style>
 </head>
 <body class="pb-24">
 
-    <div id="drawer" class="fixed inset-y-0 left-0 w-72 glass border-r border-white/10 transform -translate-x-full drawer p-6 overflow-y-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="font-black text-blue-500 italic text-xl">RIDA OS</h3>
-            <button onclick="toggleDrawer(false)" class="p-2 glass rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+    <div id="drawer" class="fixed inset-y-0 left-0 w-80 glass z-[100] transform -translate-x-full transition-transform duration-500 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-2xl font-black text-blue-500 italic uppercase tracking-tighter">Rida <span class="text-white">OS</span></h2>
+            <button onclick="toggleDrawer(false)" class="p-2 glass rounded-xl"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        <nav class="space-y-2">
-            <button onclick="showTab('mining')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 text-left"><i data-lucide="cpu" class="w-5 h-5"></i><span class="text-sm font-bold">Mining Node</span></button>
-            <button onclick="showTab('me')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 text-left"><i data-lucide="shield-check" class="w-5 h-5"></i><span class="text-sm font-bold">Network ID</span></button>
-            <button onclick="showTab('support')" class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 text-gray-400 text-left"><i data-lucide="message-circle" class="w-5 h-5"></i><span class="text-sm font-bold">Support Chat</span></button>
-            <div id="adminLink" class="hidden pt-4 mt-4 border-t border-white/10">
-                <button onclick="showTab('admin')" class="w-full flex items-center gap-4 p-4 rounded-2xl bg-blue-600/20 text-blue-400 text-left"><i data-lucide="lock" class="w-5 h-5"></i><span class="text-sm font-bold">Admin Panel</span></button>
+        <div class="space-y-2">
+            <button onclick="showTab('mining')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition-all"><i data-lucide="cpu" class="w-5 h-5"></i> <span class="font-bold text-sm">Mining Node</span></button>
+            <button onclick="showTab('announcements')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition-all"><i data-lucide="megaphone" class="w-5 h-5"></i> <span class="font-bold text-sm">Announcements</span></button>
+            <button onclick="showTab('support')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition-all"><i data-lucide="message-square" class="w-5 h-5"></i> <span class="font-bold text-sm">Live Support</span></button>
+            
+            <div id="adminMenu" class="hidden pt-4 mt-4 border-t border-white/10">
+                <p class="px-4 text-[10px] font-black text-blue-500 uppercase mb-2">Admin Terminal</p>
+                <button onclick="showTab('admin')" class="w-full text-left p-4 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center gap-4 font-bold border border-blue-500/20"><i data-lucide="shield-check"></i> Command Center</button>
             </div>
-            <button onclick="logout()" class="w-full flex items-center gap-4 p-4 mt-10 text-red-500 opacity-50"><i data-lucide="log-out" class="w-5 h-5"></i><span class="text-sm font-bold">Disconnect</span></button>
-        </nav>
-    </div>
-
-    <div id="authPage" class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950">
-        <div class="glass w-full max-w-sm p-10 rounded-[3rem] text-center border-t border-blue-500/20">
-            <h1 class="text-4xl font-black italic text-blue-500 mb-2">RIDA</h1>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-10">Pro Max Edition</p>
-            <div id="regBox" class="hidden"><input type="text" id="regName" class="w-full bg-slate-900 p-4 rounded-2xl mb-4 text-sm outline-none border border-white/5" placeholder="Full Name"></div>
-            <input type="email" id="authEmail" class="w-full bg-slate-900 p-4 rounded-2xl mb-4 text-sm outline-none border border-white/5" placeholder="Email">
-            <input type="password" id="authPass" class="w-full bg-slate-900 p-4 rounded-2xl mb-8 text-sm outline-none border border-white/5" placeholder="Access Key">
-            <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-900/40">Launch Protocol</button>
-            <button onclick="toggleAuth()" class="mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-blue-400">Switch Access Mode</button>
+            
+            <button onclick="logout()" class="w-full text-left p-4 text-red-500 mt-10 opacity-60 flex items-center gap-4 font-bold"><i data-lucide="log-out"></i> Disconnect</button>
         </div>
     </div>
 
-    <div id="mainApp" class="hidden">
-        <header class="p-5 flex justify-between items-center sticky top-0 bg-slate-950/90 backdrop-blur-xl z-50 border-b border-white/5">
-            <button onclick="toggleDrawer(true)" class="p-2 glass rounded-xl text-blue-500"><i data-lucide="menu" class="w-6 h-6"></i></button>
+    <div id="mainApp" class="hidden animate-in fade-in zoom-in duration-500">
+        <header class="p-5 flex justify-between items-center sticky top-0 glass z-50">
+            <button onclick="toggleDrawer(true)" class="p-2 bg-blue-600/10 rounded-xl text-blue-500 border border-blue-500/20 transition-all active:scale-90"><i data-lucide="menu"></i></button>
             <div class="text-right">
-                <span id="hStatus" class="text-[9px] font-black uppercase px-2 py-1 rounded-md bg-red-500/10 text-red-500 border border-red-500/20">Unverified</span>
-                <p id="hUID" class="text-[8px] font-bold text-slate-500 mt-1">UID: --</p>
+                <p id="hStatus" class="text-[10px] font-black uppercase tracking-widest text-red-500">Unverified</p>
+                <p id="hUID" class="text-[8px] font-bold text-slate-500 mt-1 tracking-widest">ID: --</p>
             </div>
         </header>
 
         <main class="p-6">
             <div id="tab-mining" class="space-y-6">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-900 p-10 rounded-[3rem] shadow-2xl relative">
-                    <p class="text-[10px] font-black uppercase opacity-60">Total Rida Assets</p>
-                    <h2 class="text-5xl font-black mt-2 tracking-tighter"><span id="balance">0.000000</span></h2>
-                </div>
-                <div class="glass p-12 rounded-[3.5rem] text-center border border-white/5">
-                    <div class="w-48 h-48 border-[8px] border-slate-900 border-t-blue-500 rounded-full mx-auto mb-10 flex items-center justify-center">
-                        <span id="timer" class="text-3xl font-black">24:00:00</span>
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-900 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black uppercase opacity-60 tracking-[0.2em]">Available Balance</p>
+                        <h2 class="text-5xl font-black mt-2 tracking-tighter"><span id="balance">0.000000</span> <span class="text-xs opacity-40">RIDA</span></h2>
                     </div>
-                    <button id="mineBtn" onclick="startMining()" class="w-full bg-blue-600 py-6 rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl">Initialize Node</button>
+                    <i data-lucide="zap" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12"></i>
                 </div>
+
+                <div class="glass p-12 rounded-[3.5rem] text-center border border-white/5 shadow-inner">
+                    <div class="w-44 h-44 border-[6px] border-slate-900 border-t-blue-500 rounded-full mx-auto mb-8 flex items-center justify-center relative">
+                        <div class="text-center">
+                            <span id="timer" class="text-3xl font-black block">24:00:00</span>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Uptime</span>
+                        </div>
+                    </div>
+                    <button id="mineBtn" onclick="startMining()" class="w-full bg-blue-600 py-6 rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-blue-900/40 active:scale-95 transition-all">Launch Mining Node</button>
+                </div>
+            </div>
+
+            <div id="tab-admin" class="hidden space-y-6 pb-10">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-black text-blue-500 uppercase tracking-tighter">Network Control</h1>
+                    <span id="userCount" class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-[10px] font-black">0 Users</span>
+                </div>
+                <div id="adminUserList" class="space-y-4">
+                    </div>
             </div>
 
             <div id="tab-support" class="hidden flex flex-col h-[70vh]">
-                <div class="flex-1 overflow-y-auto space-y-4 p-4" id="chatContainer">
-                    <div class="chat-bubble-admin p-4 text-xs max-w-[80%]">Welcome to RIDA Support. How can we help you today?</div>
+                <div id="chatBox" class="flex-1 overflow-y-auto space-y-4 p-4 glass rounded-[2rem] mb-4 border border-white/10">
+                    <div class="bg-slate-800/50 p-4 rounded-2xl text-[10px] max-w-[80%] border border-white/5">Welcome to RIDA Support. We verify accounts within 24 hours. Message us if you have issues.</div>
                 </div>
-                <div class="p-4 glass rounded-3xl flex gap-2 border border-white/10">
-                    <input id="chatInput" class="flex-1 bg-transparent text-sm outline-none px-2" placeholder="Message Admin...">
-                    <button onclick="sendMessage()" class="bg-blue-600 p-3 rounded-2xl"><i data-lucide="send" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-
-            <div id="tab-admin" class="hidden space-y-4">
-                <h2 class="text-xl font-black text-blue-500 italic mb-6">ADMIN COMMAND CENTER</h2>
-                <div id="userList" class="space-y-3">
-                    <p class="text-slate-500 text-center text-xs p-10">Fetching Network Users...</p>
-                </div>
-            </div>
-
-            <div id="tab-me" class="hidden space-y-4">
-                <div class="glass p-10 rounded-[3rem] text-center">
-                    <img id="meAvatar" src="" class="w-24 h-24 rounded-[2.5rem] mx-auto mb-4 border-2 border-blue-500">
-                    <h3 id="meName" class="font-black text-xl uppercase">--</h3>
-                    <p id="meEmail" class="text-xs text-slate-500">--</p>
-                </div>
-                <div class="glass p-6 rounded-[2rem] border border-white/5">
-                    <p class="text-[9px] font-black text-slate-500 uppercase mb-4 tracking-widest">Referral Engine</p>
-                    <div class="flex gap-2">
-                        <input readonly id="refUrl" class="bg-slate-950 p-4 rounded-2xl flex-1 text-[10px] font-bold text-blue-300 border border-white/5" value="">
-                        <button onclick="copyRef()" class="bg-blue-600 px-6 rounded-2xl"><i data-lucide="copy" class="w-5 h-5"></i></button>
-                    </div>
+                <div class="flex gap-2 p-2 glass rounded-3xl border border-white/5">
+                    <input id="chatIn" class="flex-1 bg-transparent px-4 text-sm outline-none" placeholder="Enter message...">
+                    <button onclick="sendChat()" class="bg-blue-600 p-4 rounded-2xl shadow-lg active:scale-90 transition-all"><i data-lucide="send" class="w-5 h-5"></i></button>
                 </div>
             </div>
         </main>
     </div>
 
+    <div id="authPage" class="min-h-screen flex items-center justify-center p-8 bg-[#020617]">
+        <div class="glass w-full max-w-sm p-10 rounded-[3rem] text-center border-t border-blue-500/20 shadow-2xl">
+            <h1 class="text-5xl font-black italic text-blue-500 mb-2 tracking-tighter uppercase">Rida</h1>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">Decentralized Protocol</p>
+            
+            <input type="email" id="aEmail" class="w-full bg-slate-900/50 p-5 rounded-2xl mb-4 outline-none border border-white/5 text-sm focus:border-blue-500 transition-all" placeholder="Email Address">
+            <input type="password" id="aPass" class="w-full bg-slate-900/50 p-5 rounded-2xl mb-10 outline-none border border-white/5 text-sm focus:border-blue-500 transition-all" placeholder="Access Password">
+            
+            <button onclick="auth()" class="w-full bg-blue-600 py-6 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl shadow-blue-900/40 active:scale-95 transition-all">Connect to Network</button>
+        </div>
+    </div>
+
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbyfj7CbQtdukBe4gOzg1IRA2aCWewjqeM_6VFYORfnPMLhYiBDmASU3obDNrR6vzzC0mA/exec";
-        let isL = true, user = JSON.parse(localStorage.getItem('rida_pro_max'));
+        const API = "https://script.google.com/macros/s/AKfycbxgc-Q4ij_H4uWS_zYA3d5w6SCiFgdQgm-mLyzkxnuRCFdyo_xVLhUPCMQdBG3kLZJsvQ/exec";
+        let user = JSON.parse(localStorage.getItem('rida_pro_v7'));
 
         function init() { 
             lucide.createIcons(); 
             if(user) {
-                if(user.email === "admin@rida.com") document.getElementById('adminLink').classList.remove('hidden');
-                loadDashboard(); 
+                if(user.email === "adminrida@gmail.com") document.getElementById('adminMenu').classList.remove('hidden');
+                loadApp();
             }
         }
 
-        function toggleAuth() { isL = !isL; document.getElementById('regBox').classList.toggle('hidden', isL); }
+        // Bypasses CORS using JSONP
+        function callAPI(params, callbackName) {
+            const script = document.createElement('script');
+            const queryString = new URLSearchParams(params).toString();
+            script.src = `${API}?${queryString}&callback=${callbackName}`;
+            document.body.appendChild(script);
+        }
 
-        function handleAuth() {
-            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
-            if(!e || !p) return alert("Fill fields");
+        function auth() {
+            const e = document.getElementById('aEmail').value, p = document.getElementById('aPass').value;
+            if(!e || !p) return alert("Missing credentials");
+
+            // Local Session setup
+            user = { 
+                uid: e === "adminrida@gmail.com" ? "MASTER" : "RIDA-" + Math.floor(100000 + Math.random()*900000), 
+                name: e === "adminrida@gmail.com" ? "Admin" : "Miner", 
+                email: e, 
+                balance: 0, 
+                status: "Unverified" 
+            };
+            localStorage.setItem('rida_pro_v7', JSON.stringify(user));
             
-            // Special Admin Account
-            if(e === "admin@rida.com" && p === "admin123") {
-                const adminUser = { uid: "RIDA-ROOT", name: "System Admin", email: e, balance: 9999, status: "Verified", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=admin" };
-                localStorage.setItem('rida_pro_max', JSON.stringify(adminUser));
-                location.reload();
-                return;
-            }
-
-            const uData = { uid: "RIDA-"+Math.floor(100000+Math.random()*900000), name: document.getElementById('regName').value || "Miner", email: e, balance: 0, status: "Unverified", avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${e}` };
-            localStorage.setItem('rida_pro_max', JSON.stringify(uData));
+            // Sync with Sheet (Silent)
+            const syncData = { action: 'register', name: user.name, email: e, password: p, uid: user.uid };
+            callAPI(syncData, 'console.log');
+            
             location.reload();
         }
 
-        function loadDashboard() {
+        function loadApp() {
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('hName').innerText = user.name;
-            document.getElementById('hUID').innerText = "UID: " + user.uid;
+            document.getElementById('hUID').innerText = "ID: " + user.uid;
             document.getElementById('hStatus').innerText = user.status;
-            document.getElementById('meName').innerText = user.name;
-            document.getElementById('meEmail').innerText = user.email;
-            document.getElementById('meAvatar').src = user.avatar;
-            document.getElementById('refUrl').value = `https://ridamining.github.io/test/?ref=${user.uid}`;
+            if(user.email === "adminrida@gmail.com") fetchNetworkData();
             checkMining();
         }
 
+        function fetchNetworkData() {
+            callAPI({ action: 'getAllUsers', adminEmail: "adminrida@gmail.com", adminPass: "CocoMomoPakistan@786" }, 'renderAdmin');
+        }
+
+        window.renderAdmin = (res) => {
+            if(res.status === "success") {
+                document.getElementById('userCount').innerText = res.data.length + " Users";
+                const list = document.getElementById('adminUserList');
+                list.innerHTML = res.data.map(u => `
+                    <div class="admin-card p-6 rounded-[2rem] shadow-xl border border-white/5 animate-in slide-in-from-bottom duration-300">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-black text-sm uppercase text-blue-400">${u.name}</h3>
+                                <p class="text-[9px] text-slate-500 font-bold">${u.email}</p>
+                            </div>
+                            <span class="text-[8px] font-black uppercase px-2 py-1 rounded bg-white/5 border border-white/10">${u.status}</span>
+                        </div>
+                        <div class="flex items-center gap-2 mb-6">
+                            <span class="text-[9px] font-bold text-slate-500">Balance:</span>
+                            <span class="text-xs font-black text-white">${u.balance} RIDA</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="updateNode('${u.uid}', 'Verified')" class="bg-green-600/20 text-green-500 py-3 rounded-xl text-[9px] font-black uppercase border border-green-500/20">Verify</button>
+                            <button onclick="updateNode('${u.uid}', 'Banned')" class="bg-red-600/20 text-red-500 py-3 rounded-xl text-[9px] font-black uppercase border border-red-500/20">Block</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        };
+
+        function updateNode(uid, status) {
+            callAPI({ action: 'updateUser', uid: uid, status: status, adminEmail: "adminrida@gmail.com", adminPass: "CocoMomoPakistan@786" }, 'alertUpdate');
+        }
+        window.alertUpdate = () => { alert("Action Successful. Reloading..."); location.reload(); };
+
         function showTab(t) {
-            const tabs = ['mining', 'me', 'support', 'admin'];
+            const tabs = ['mining', 'admin', 'announcements', 'support'];
             tabs.forEach(tab => document.getElementById('tab-'+tab)?.classList.toggle('hidden', tab !== t));
             toggleDrawer(false);
-            if(t === 'admin') loadAdminUsers();
         }
 
         function toggleDrawer(o) { document.getElementById('drawer').style.transform = o ? "translateX(0)" : "translateX(-100%)"; }
 
         function startMining() {
             localStorage.setItem('m_start_'+user.uid, Date.now());
+            callAPI({ action: 'startMining', uid: user.uid }, 'console.log');
             location.reload();
         }
 
@@ -166,7 +202,8 @@
             const s = localStorage.getItem('m_start_'+user.uid);
             if(s) {
                 const btn = document.getElementById('mineBtn');
-                btn.innerText = "NODE ACTIVE"; btn.disabled = true; btn.className = "w-full bg-slate-900 border border-blue-500/20 text-blue-500 py-6 rounded-3xl font-black";
+                btn.innerText = "NODE SYNCHRONIZED"; btn.disabled = true;
+                btn.className = "w-full bg-slate-900 border border-blue-500/20 text-blue-500 py-6 rounded-3xl font-black text-xs";
                 setInterval(() => {
                     const elap = (Date.now() - s) / 1000;
                     document.getElementById('balance').innerText = (parseFloat(user.balance) + (elap * (0.2/86400))).toFixed(6);
@@ -174,41 +211,12 @@
             }
         }
 
-        // ONE-ON-ONE CHAT LOGIC
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            if(!input.value) return;
-            const container = document.getElementById('chatContainer');
-            const msg = document.createElement('div');
-            msg.className = "chat-bubble-user p-4 text-xs max-w-[80%] self-end ml-auto";
-            msg.innerText = input.value;
-            container.appendChild(msg);
-            
-            // Send to Google Sheet Support tab via POST
-            fetch(API, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'supportMessage', uid: user.uid, message: input.value, sender: user.name }) });
-            input.value = "";
+        function sendChat() {
+            const i = document.getElementById('chatIn'); if(!i.value) return;
+            callAPI({ action: 'sendMessage', uid: user.uid, name: user.name, msg: i.value, role: 'User' }, 'console.log');
+            i.value = ""; alert("Message Sent to Admin.");
         }
 
-        // ADMIN USER CONTROL
-        function loadAdminUsers() {
-            // In a pro build, you fetch this from API. For now, we mock the network:
-            const mockUsers = [
-                { name: "John Doe", email: "john@test.com", status: "Unverified" },
-                { name: "Alice Smith", email: "alice@test.com", status: "Verified" }
-            ];
-            const list = document.getElementById('userList');
-            list.innerHTML = mockUsers.map(u => `
-                <div class="glass p-5 rounded-2xl flex justify-between items-center">
-                    <div>
-                        <p class="text-[11px] font-black uppercase">${u.name}</p>
-                        <p class="text-[9px] text-slate-500">${u.email}</p>
-                    </div>
-                    <button onclick="alert('User Verified!')" class="text-[8px] font-black uppercase px-3 py-2 bg-blue-600 rounded-lg">${u.status === 'Verified' ? 'ALREADY VERIFIED' : 'VERIFY NOW'}</button>
-                </div>
-            `).join('');
-        }
-
-        function copyRef() { const i = document.getElementById('refUrl'); i.select(); navigator.clipboard.writeText(i.value); alert("Link Copied!"); }
         function logout() { localStorage.clear(); location.reload(); }
         window.onload = init;
     </script>
