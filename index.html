@@ -1,146 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIDA NETWORK | Pro Max</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: white; margin: 0; padding: 0; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; }
+        .hidden { display: none !important; }
+        .progress-ring__circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        input::placeholder { color: #475569; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="authPage" class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950">
+        <div class="mb-8 text-center">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
+                <i data-lucide="zap" class="text-white"></i>
+            </div>
+            <h1 class="text-3xl font-black italic uppercase">Rida <span class="text-blue-500">Pro</span></h1>
+        </div>
+
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-white/10">
+            <h2 id="authTitle" class="text-lg font-bold mb-6 text-center">Secure Login</h2>
+            <div class="space-y-4">
+                <div id="signupGroup" class="hidden">
+                    <input type="text" id="regName" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 mb-4 text-sm" placeholder="Full Name">
+                </div>
+                <input type="email" id="authEmail" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm" placeholder="Email">
+                <input type="password" id="authPass" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-sm" placeholder="Password">
+                <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mt-2 transition-all">
+                    Access System
+                </button>
+            </div>
+            <p class="mt-6 text-center text-[10px] uppercase font-bold text-gray-500">
+                New Miner? <button onclick="toggleAuth()" id="toggleBtn" class="text-blue-400">Register</button>
+            </p>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden min-h-screen">
+        <header class="p-6 flex justify-between items-center">
+            <button onclick="toggleDrawer(true)" class="p-3 glass rounded-xl text-blue-400"><i data-lucide="menu"></i></button>
+            <div class="flex items-center gap-3 glass p-2 pr-4 rounded-2xl">
+                <img id="userAvatar" src="" class="w-10 h-10 rounded-lg bg-slate-800">
+                <p class="text-[10px] font-black" id="userUID">UID: --</p>
+            </div>
+        </header>
+
+        <main class="px-6 space-y-6">
+            <div class="glass rounded-3xl p-5 border-l-4 border-blue-500">
+                <p class="text-xs text-gray-300 italic">"You must fulfill all tasks to get 100% payout from the system."</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2rem] p-8 shadow-xl">
+                <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest">Balance</p>
+                <h2 class="text-4xl font-black mt-1"><span id="balance">0.00</span> <span class="text-sm font-normal opacity-50">RIDA</span></h2>
+                <button onclick="copyUID()" class="mt-6 w-full bg-white/10 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">Copy Referral UID</button>
+            </div>
+
+            <div class="glass rounded-[2.5rem] p-10 text-center">
+                <div class="relative w-48 h-48 mx-auto mb-8">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <circle class="text-slate-800" stroke-width="6" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
+                        <circle id="miningProgress" class="text-blue-500 progress-ring__circle" stroke-width="6" stroke-dasharray="282.7" stroke-dashoffset="282.7" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div id="timerDisplay" class="text-2xl font-black">24:00:00</div>
+                    </div>
+                </div>
+                <button id="miningBtn" onclick="handleMining()" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">Activate Node</button>
+            </div>
+        </main>
+
+        <div id="drawer" class="fixed inset-y-0 left-0 w-64 bg-slate-900 shadow-2xl transform -translate-x-full drawer p-8">
+            <div class="flex justify-between mb-10">
+                <h3 class="font-black text-blue-500">MENU</h3>
+                <button onclick="toggleDrawer(false)"><i data-lucide="x"></i></button>
+            </div>
+            <div class="space-y-6 text-sm font-bold text-gray-400">
+                <p onclick="alert('Coming soon!')" class="cursor-pointer hover:text-white">Verification</p>
+                <p onclick="alert('Coming soon!')" class="cursor-pointer hover:text-white">Referrals</p>
+                <p onclick="logout()" class="text-red-500 cursor-pointer pt-10 border-t border-white/5">Logout</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycby3Pb33YjqnNkkZjTKjgg0ZxULHaLvb2U9O-TzM4nNMim-trzO0Tp2wy1VujHFv2YePWw/exec";
-        let isLoginMode = true;
-        let userData = JSON.parse(localStorage.getItem('rida_pro_session'));
-        let miningInterval;
+        let isLogin = true;
+        let user = JSON.parse(localStorage.getItem('rida_user'));
 
-        window.onload = () => {
-            if (userData) {
-                showDashboard();
-            }
+        function init() {
             lucide.createIcons();
-        };
+            if (user) showDashboard();
+        }
 
         function toggleAuth() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('signupGroup').classList.toggle('hidden', isLoginMode);
-            document.getElementById('authTitle').innerText = isLoginMode ? "Secure Login" : "Create Account";
-            document.getElementById('authBtn').innerText = isLoginMode ? "Authenticate" : "Register Now";
-            document.getElementById('toggleBtn').innerText = isLoginMode ? "Register" : "Login";
+            isLogin = !isLogin;
+            document.getElementById('signupGroup').classList.toggle('hidden', isLogin);
+            document.getElementById('authTitle').innerText = isLogin ? "Secure Login" : "Create Account";
+            document.getElementById('authBtn').innerText = isLogin ? "Access System" : "Register Now";
         }
 
         async function handleAuth() {
-            const btn = document.getElementById('authBtn');
             const email = document.getElementById('authEmail').value;
             const pass = document.getElementById('authPass').value;
-            if (!email || !pass) return alert("Fields Required");
-            
-            btn.disabled = true;
-            btn.innerHTML = `<span class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div> PROCESSING...</span>`;
+            const btn = document.getElementById('authBtn');
+            if(!email || !pass) return alert("Fill all fields");
 
-            const payload = {
-                action: isLoginMode ? 'login' : 'register',
-                email, password: pass,
-                name: document.getElementById('regName').value || ""
-            };
-
+            btn.innerText = "LOADING...";
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: isLogin ? 'login' : 'register',
+                        email: email,
+                        password: pass,
+                        name: document.getElementById('regName').value || ""
+                    })
+                });
                 const data = await res.json();
-                if (data.status === "success") {
-                    localStorage.setItem('rida_pro_session', JSON.stringify(data.user));
-                    userData = data.user;
+                if(data.status === "success") {
+                    localStorage.setItem('rida_user', JSON.stringify(data.user));
+                    user = data.user;
                     showDashboard();
                 } else { alert(data.message); }
-            } catch (e) { alert("API Connection Failed"); }
-            btn.disabled = false;
-            btn.innerText = isLoginMode ? "Authenticate" : "Register Now";
+            } catch(e) { alert("Error connecting to server"); }
+            btn.innerText = isLogin ? "Access System" : "Register Now";
         }
 
         function showDashboard() {
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            
-            // Update Text Fields
-            document.getElementById('userUID').innerText = "UID: " + userData.uid;
-            document.getElementById('balance').innerText = parseFloat(userData.balance || 0).toFixed(2);
-            document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.uid}`;
-            
-            // Start the "Silent" UI elements
-            startUIRenderer();
+            document.getElementById('userUID').innerText = "UID: " + user.uid;
+            document.getElementById('balance').innerText = parseFloat(user.balance || 0).toFixed(2);
+            document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
+            startUI();
             lucide.createIcons();
         }
 
-        // --- NEW: UI ENGINE (Makes the app "Live") ---
-        function startUIRenderer() {
-            if (miningInterval) clearInterval(miningInterval);
-            
-            let progress = 0;
-            const timerEl = document.getElementById('timerDisplay');
-            const btn = document.getElementById('miningBtn');
-
-            // Simulate 24-hour countdown (86400 seconds)
-            let totalSeconds = 86400; 
-
-            miningInterval = setInterval(() => {
-                totalSeconds--;
+        function startUI() {
+            let sec = 86400;
+            setInterval(() => {
+                sec--;
+                let h = Math.floor(sec / 3600);
+                let m = Math.floor((sec % 3600) / 60);
+                let s = sec % 60;
+                document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
                 
-                // 1. Update Timer Text
-                let hrs = Math.floor(totalSeconds / 3600);
-                let mins = Math.floor((totalSeconds % 3600) / 60);
-                let secs = totalSeconds % 60;
-                timerEl.innerText = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-                // 2. Update Progress Ring (0-100%)
-                progress = ((86400 - totalSeconds) / 86400) * 100;
-                updateMiningProgress(progress);
-
-                if (totalSeconds <= 0) {
-                    clearInterval(miningInterval);
-                    btn.innerText = "CLAIM REWARDS";
-                    btn.classList.replace('bg-blue-600', 'bg-green-600');
-                }
+                let progress = ((86400 - sec) / 86400) * 282.7;
+                document.getElementById('miningProgress').style.strokeDashoffset = 282.7 - progress;
             }, 1000);
-        }
-
-        function updateMiningProgress(percent) {
-            const circle = document.getElementById('miningProgress');
-            const radius = circle.r.baseVal.value;
-            const circumference = radius * 2 * Math.PI;
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            const offset = circumference - (percent / 100 * circumference);
-            circle.style.strokeDashoffset = offset;
-        }
-
-        async function handleMining() {
-            const btn = document.getElementById('miningBtn');
-            if (btn.innerText === "CLAIM REWARDS") {
-                // Logic to call API and claim
-                location.reload(); 
-                return;
-            }
-
-            btn.innerText = "ACTIVATING...";
-            try {
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'startMining', uid: userData.uid }) 
-                });
-                const data = await res.json();
-                if(data.status === "success") {
-                    alert("Mining Node Activated!");
-                    btn.innerText = "NODE ACTIVE";
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50');
-                }
-            } catch (e) { alert("Mining activation failed."); }
         }
 
         function toggleDrawer(open) {
             document.getElementById('drawer').style.transform = open ? "translateX(0)" : "translateX(-100%)";
         }
 
-        function openTransfer() { document.getElementById('p2pModal').classList.remove('hidden'); }
-        function closeTransfer() { document.getElementById('p2pModal').classList.add('hidden'); }
-        
         function copyUID() {
-            navigator.clipboard.writeText(userData.uid);
-            alert("UID Copied to Clipboard!");
+            navigator.clipboard.writeText(user.uid);
+            alert("UID Copied!");
         }
 
         function logout() {
-            localStorage.removeItem('rida_pro_session');
+            localStorage.removeItem('rida_user');
             location.reload();
         }
+
+        window.onload = init;
     </script>
-    
+</body>
+</html>
