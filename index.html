@@ -1,182 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIDA OS | MASTER CONTROL</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --main: #3b82f6; --bg: #010409; --glass: rgba(13, 17, 23, 0.95); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: white; -webkit-tap-highlight-color: transparent; }
-        .glass { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); }
-        .hidden { display: none !important; }
-        .admin-card { border: 2px solid #3b82f6 !important; box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
-    </style>
-</head>
-<body class="pb-10">
+async function fetchSheetData() {
+    const tbody = document.getElementById('adminTableBody');
+    tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-blue-500 font-black animate-pulse">CONNECTING TO CLOUD...</td></tr>';
+    
+    // Add a 10-second timeout safety
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    <div id="authPage" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass w-full max-w-sm p-10 rounded-[3.5rem] text-center shadow-2xl border-t border-white/10">
-            <h1 class="text-5xl font-black italic text-blue-500 mb-2">RIDA</h1>
-            <p class="text-[8px] font-black opacity-30 uppercase tracking-[0.5em] mb-12">System Kernel v25.0</p>
-            
-            <div class="space-y-4">
-                <input type="email" id="email" class="w-full bg-white/10 p-5 rounded-3xl border border-white/10 outline-none text-sm focus:border-blue-500 transition-all" placeholder="Admin/User Email">
-                <input type="password" id="pass" class="w-full bg-white/10 p-5 rounded-3xl border border-white/10 outline-none text-sm focus:border-blue-500 transition-all" placeholder="Access Key">
-                <button onclick="masterLogin()" class="w-full bg-blue-600 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">Connect Protocol</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="adminPanel" class="hidden p-6 space-y-6 animate-in fade-in zoom-in duration-500">
-        <header class="flex justify-between items-center bg-blue-600/10 p-6 rounded-[2.5rem] admin-card">
-            <div>
-                <h2 class="text-xl font-black text-blue-500 italic">COMMAND CENTER</h2>
-                <p class="text-[8px] font-bold opacity-50 uppercase tracking-widest">Master Admin Auth: Active</p>
-            </div>
-            <button onclick="logout()" class="p-3 bg-red-500/20 rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all"><i data-lucide="power"></i></button>
-        </header>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div class="glass p-6 rounded-3xl text-center border border-white/5">
-                <p class="text-[8px] font-black opacity-40 uppercase">Total User Nodes</p>
-                <h3 class="text-2xl font-black">--</h3>
-            </div>
-            <button onclick="fetchSheetData()" class="glass p-6 rounded-3xl text-center border border-blue-500/30 bg-blue-500/5">
-                <p class="text-[8px] font-black text-blue-500 uppercase italic">Refresh Cloud</p>
-                <h3 class="text-sm font-black uppercase mt-1">Sync Registry</h3>
-            </button>
-        </div>
-
-        <div class="glass rounded-[2.5rem] overflow-hidden border border-white/5">
-            <div class="p-6 border-b border-white/5 bg-white/5 font-black uppercase text-[10px] tracking-widest">User Management</div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-[10px]">
-                    <thead class="bg-black/40 text-slate-500">
-                        <tr>
-                            <th class="p-4">Node UID</th>
-                            <th class="p-4">Status</th>
-                            <th class="p-4">Control</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody" class="divide-y divide-white/5">
-                        <tr><td colspan="3" class="p-10 text-center opacity-30">Click Sync to load data...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="userApp" class="hidden animate-in fade-in duration-500">
-        <header class="p-6 flex justify-between items-center glass rounded-b-[2.5rem]">
-            <h2 class="text-xl font-black italic">RIDA <span class="text-blue-500">PRO</span></h2>
-            <div id="uStatus" class="text-[8px] font-black uppercase px-3 py-1.5 rounded-xl border border-white/10 bg-white/5">---</div>
-        </header>
-
-        <main class="p-6 space-y-6">
-            <div class="glass p-12 rounded-[4rem] text-center border-t border-white/10 relative overflow-hidden">
-                <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/10 blur-[50px]"></div>
-                <p class="text-[10px] font-black opacity-30 mb-2 uppercase">Total Yield</p>
-                <h2 class="text-5xl font-black mb-10 tracking-tighter"><span id="uBal">0.000000</span></h2>
-                <button onclick="startMining()" id="mineBtn" class="w-full py-6 rounded-[2.5rem] bg-blue-600 font-black uppercase text-[10px] tracking-widest shadow-xl">Activate Node</button>
-            </div>
-            
-            <div class="glass p-8 rounded-[3rem] text-center">
-                <p class="text-[10px] font-black opacity-30 uppercase mb-4">Account Control</p>
-                <button onclick="logout()" class="w-full bg-red-500/10 py-4 rounded-2xl text-red-500 text-[8px] font-black uppercase tracking-widest">Logout Session</button>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxYat7kzNr2xZ4X0I16BFUTDXd1gtZfXz0gGAhSAuzBYfbgpu_85vPfXCeb51gBS7Fgg/exec";
+    try {
+        const response = await fetch(WEB_APP_URL, { 
+            method: 'GET',
+            signal: controller.signal 
+        });
         
-        // --- MASTER LOGIN LOGIC ---
-        function masterLogin() {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('pass').value.trim();
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        clearTimeout(timeoutId);
 
-            if(!email || !pass) return alert("Credentials required");
+        if (!data || data.length < 2) {
+            tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-orange-500 font-black italic uppercase text-[8px]">Registry Empty: No Users Found in Sheet</td></tr>';
+            return;
+        }
 
-            // 🛠️ THE FIX: Hard Reset existing sessions
-            localStorage.removeItem('rida_session');
+        // Render Data (skipping the header row)
+        tbody.innerHTML = data.slice(1).map((row) => `
+            <tr class="hover:bg-white/5 border-b border-white/5 transition-colors">
+                <td class="p-4 font-black text-[9px] uppercase tracking-tighter">
+                    ${row[1] || 'N/A'}<br>
+                    <span class="text-[7px] opacity-30 font-normal lowercase">${row[0] || ''}</span>
+                </td>
+                <td class="p-4">
+                    <span class="px-2 py-1 rounded bg-blue-600/10 text-blue-400 text-[8px] font-black border border-blue-500/20">
+                        ${row[3] || 'UNVERIFIED'}
+                    </span>
+                </td>
+                <td class="p-4 text-right">
+                    <button onclick="approveUser('${row[1]}')" class="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-xl text-[8px] font-black uppercase shadow-lg active:scale-95 transition-all">Approve</button>
+                </td>
+            </tr>
+        `).join('');
 
-            let sessionData;
-            // Admin Check
-            if (email === "adminrida@gmail.com" && pass === "CocoMomoPakistan@786") {
-                sessionData = { role: 'admin', email: email, name: 'Master' };
-            } else {
-                sessionData = { role: 'user', email: email, uid: 'RIDA-'+Math.floor(1000+Math.random()*9000), status: 'Unverified', balance: 0.0 };
-            }
-
-            localStorage.setItem('rida_session', JSON.stringify(sessionData));
+    } catch (err) {
+        console.error("Fetch Error:", err);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="p-10 text-center">
+                    <p class="text-red-500 font-black text-[10px] uppercase mb-2">Connection Failed</p>
+                    <p class="text-[8px] opacity-40 mb-4 font-mono">${err.message}</p>
+                    <button onclick="fetchSheetData()" class="text-[8px] bg-white/5 border border-white/10 px-4 py-2 rounded-lg font-black uppercase">Try Reconnecting</button>
+                </td>
+            </tr>`;
+    }
+}
             
-            // Force interface swap immediately
-            initView(); 
-        }
-
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        // --- INTERFACE MANAGER ---
-        function initView() {
-            const session = JSON.parse(localStorage.getItem('rida_session'));
-            
-            if (!session) {
-                document.getElementById('authPage').classList.remove('hidden');
-                document.getElementById('adminPanel').classList.add('hidden');
-                document.getElementById('userApp').classList.add('hidden');
-            } else {
-                document.getElementById('authPage').classList.add('hidden');
-                
-                if (session.role === 'admin') {
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    document.getElementById('userApp').classList.add('hidden');
-                    console.log("Admin Panel Loaded Successfully");
-                } else {
-                    document.getElementById('userApp').classList.remove('hidden');
-                    document.getElementById('adminPanel').classList.add('hidden');
-                    document.getElementById('uBal').innerText = session.balance.toFixed(6);
-                    document.getElementById('uStatus').innerText = session.status;
-                }
-            }
-            lucide.createIcons();
-        }
-
-        // --- ADMIN CLOUD SYNC ---
-        async function fetchSheetData() {
-            const tbody = document.getElementById('adminTableBody');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-blue-500 font-black animate-pulse">CONNECTING TO CLOUD...</td></tr>';
-            
-            try {
-                const response = await fetch(WEB_APP_URL);
-                const data = await response.json();
-                
-                tbody.innerHTML = data.slice(1).map((row) => `
-                    <tr class="hover:bg-white/5 border-b border-white/5">
-                        <td class="p-4 font-black">${row[1]}<br><span class="text-[7px] opacity-30">${row[0]}</span></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded bg-white/10 text-[8px] font-black">${row[3]}</span></td>
-                        <td class="p-4 text-right">
-                            <button onclick="approveUser('${row[1]}')" class="bg-blue-600 px-3 py-1.5 rounded-xl text-[8px] font-black uppercase">Approve</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-red-500">Error: Check Web App URL / Deployment</td></tr>';
-            }
-        }
-
-        async function approveUser(uid) {
-            alert(`Signal Sent for UID: ${uid}. Check your Google Sheet.`);
-            // Real fetch logic would go here
-        }
-
-        // Start View
-        window.onload = initView;
-    </script>
-</body>
-</html>
