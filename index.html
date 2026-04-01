@@ -3,173 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIDA - POP Crypto Mining</title>
+    <title>RIDA - Secure Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .mining-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
-        .drawer { transition: transform 0.3s ease-in-out; }
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: white; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .auth-card { animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <div id="drawer" class="fixed inset-y-0 left-0 w-64 glass z-50 transform -translate-x-full drawer p-5">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-xl font-bold text-blue-400">RIDA MENU</h2>
-            <button onclick="toggleDrawer()"><i data-lucide="x"></i></button>
+    <div id="authPage" class="min-h-screen flex flex-col items-center justify-center p-6">
+        <div class="mb-8 text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/50 mb-4">
+                <i data-lucide="layers" class="w-12 h-12 text-white"></i>
+            </div>
+            <h1 class="text-3xl font-black tracking-tighter">RIDA <span class="text-blue-500">NETWORK</span></h1>
+            <p class="text-gray-400 text-sm">Next Gen POP Crypto Mining</p>
         </div>
-        <nav class="space-y-6">
-            <a href="#" class="flex items-center gap-3"><i data-lucide="help-circle"></i> How to Join</a>
-            <a href="#" class="flex items-center gap-3"><i data-lucide="shield-check"></i> How to Verify</a>
-            <a href="#" class="flex items-center gap-3"><i data-lucide="info"></i> FAQ</a>
-            <a href="#" class="flex items-center gap-3"><i data-lucide="repeat"></i> How to P2P</a>
-            <a href="#" onclick="openChat()" class="flex items-center gap-3"><i data-lucide="message-square"></i> Chat Support</a>
-        </nav>
+
+        <div class="glass w-full max-w-md p-8 rounded-3xl auth-card">
+            <div id="authTitle" class="text-xl font-bold mb-6 text-center">Create Account</div>
+            
+            <div class="space-y-4">
+                <div id="regFields">
+                    <label class="text-xs text-gray-400 ml-1">Full Name</label>
+                    <input type="text" id="regName" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500" placeholder="John Doe">
+                </div>
+                
+                <div>
+                    <label class="text-xs text-gray-400 ml-1">Email Address</label>
+                    <input type="email" id="authEmail" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500" placeholder="name@example.com">
+                </div>
+
+                <div id="referralField">
+                    <label class="text-xs text-gray-400 ml-1">Referral ID (Optional)</label>
+                    <input type="text" id="regRef" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500" placeholder="REF12345">
+                </div>
+
+                <button onclick="handleAuth()" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold transition-all mt-4 shadow-lg shadow-blue-600/20">
+                    SIGN UP
+                </button>
+            </div>
+
+            <div class="mt-6 text-center text-sm">
+                <span id="toggleText" class="text-gray-400">Already have an account?</span>
+                <button onclick="toggleAuthMode()" id="toggleBtn" class="text-blue-400 font-bold ml-1">Login</button>
+            </div>
+        </div>
     </div>
 
-    <header class="p-4 flex justify-between items-center">
-        <button onclick="toggleDrawer()" class="p-2 glass rounded-full"><i data-lucide="menu"></i></button>
-        <div class="flex items-center gap-2">
-            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rida" class="w-10 h-10 rounded-full border-2 border-blue-500">
-            <div>
-                <p class="text-xs text-gray-400" id="userUID">UID: Loading...</p>
-                <p class="text-xs font-bold text-green-400" id="userStatus">Status: Pending</p>
-            </div>
-        </div>
-    </header>
-
-    <main class="px-4 space-y-6">
-        <div class="glass rounded-2xl p-4">
-            <div class="flex justify-between items-center mb-2">
-                <h3 class="text-sm font-semibold text-blue-300">Announcements</h3>
-                <button onclick="showAllAnnouncements()" class="text-xs text-gray-400 underline">Archive/More</button>
-            </div>
-            <div id="latestAnnouncement" class="text-sm">
-                Fetching most recent system update...
-            </div>
-        </div>
-
-        <div class="mining-gradient rounded-3xl p-6 shadow-2xl shadow-blue-500/20">
-            <p class="text-sm opacity-80">Current Balance</p>
-            <h1 class="text-4xl font-black mt-1"><span id="balance">0.00</span> <span class="text-xl">RIDA</span></h1>
-            <div class="mt-4 flex gap-2">
-                <button onclick="openP2P()" class="bg-white/20 px-4 py-2 rounded-lg text-sm font-semibold">P2P Transfer</button>
-            </div>
-        </div>
-
-        <div class="glass rounded-3xl p-8 text-center space-y-4">
-            <div class="relative w-40 h-40 mx-auto">
-                <div class="absolute inset-0 rounded-full border-4 border-blue-500/20"></div>
-                <div id="miningProgress" class="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <i data-lucide="pickaxe" class="w-10 h-10 text-blue-400 mb-1"></i>
-                    <p id="miningRate" class="text-xs text-gray-400">0.20 RIDA/d</p>
+    <div id="mainApp" class="hidden pb-24">
+        <header class="p-4 flex justify-between items-center">
+            <button onclick="toggleDrawer()" class="p-2 glass rounded-full"><i data-lucide="menu"></i></button>
+            <div class="flex items-center gap-2">
+                <img id="userAvatar" src="" class="w-10 h-10 rounded-full border-2 border-blue-500">
+                <div>
+                    <p class="text-[10px] text-gray-400" id="userUID">UID: --</p>
+                    <p class="text-[10px] font-bold text-green-400" id="userStatus">STATUS: --</p>
                 </div>
             </div>
-            
-            <div id="miningCounter" class="text-2xl font-mono">00:00:00</div>
-            
-            <button id="miningBtn" onclick="handleMiningAction()" class="w-full py-4 rounded-2xl bg-blue-600 font-bold hover:bg-blue-700 transition">
-                ACTIVATE NODE
-            </button>
-        </div>
-    </main>
+            <button onclick="logout()" class="text-red-400 p-2"><i data-lucide="log-out"></i></button>
+        </header>
 
-    <nav class="fixed bottom-0 w-full glass border-t border-white/5 flex justify-around p-4">
-        <button class="flex flex-col items-center text-blue-400"><i data-lucide="home"></i></button>
-        <button onclick="openAssets()" class="flex flex-col items-center text-gray-400"><i data-lucide="wallet"></i></button>
-        <button onclick="openInvite()" class="flex flex-col items-center text-gray-400"><i data-lucide="users"></i></button>
-        <button onclick="openAdmin()" class="flex flex-col items-center text-gray-400"><i data-lucide="layout-dashboard"></i></button>
-    </nav>
-
-    <div id="modalOverlay" class="fixed inset-0 bg-black/80 hidden z-[60] p-6 flex items-center justify-center">
-        <div id="modalContent" class="glass w-full max-w-md rounded-3xl p-6 relative">
-            <button onclick="closeModal()" class="absolute right-4 top-4"><i data-lucide="x"></i></button>
-            <div id="modalBody"></div>
-        </div>
+        <main class="px-4 space-y-6">
+            <div class="glass rounded-3xl p-8 text-center space-y-4">
+                <div id="miningCounter" class="text-3xl font-mono text-blue-400">00:00:00</div>
+                <button id="miningBtn" onclick="handleMiningAction()" class="w-full py-4 rounded-2xl bg-blue-600 font-bold">ACTIVATE NODE</button>
+            </div>
+            </main>
     </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxO526Lycui8XxgSe7Tt8abq9Wndq-1QHmm--wEnY0dt_vTQTxIU-M9HnCMjVjk9nsFWQ/exec";
-        let userId = "USER_123"; // This would be dynamic in production
+        let isLoginMode = false;
 
-        // Initialize Icons
-        lucide.createIcons();
+        // On Load Check
+        window.onload = () => {
+            const savedUser = localStorage.getItem('rida_user');
+            if (savedUser) {
+                showApp(JSON.parse(savedUser));
+            }
+            lucide.createIcons();
+        };
 
-        function toggleDrawer() {
-            const d = document.getElementById('drawer');
-            d.classList.toggle('-translate-x-full');
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Create Account";
+            document.getElementById('regFields').classList.toggle('hidden', isLoginMode);
+            document.getElementById('referralField').classList.toggle('hidden', isLoginMode);
+            document.getElementById('authSubmitBtn').innerText = isLoginMode ? "LOGIN" : "SIGN UP";
+            document.getElementById('toggleText').innerText = isLoginMode ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('toggleBtn').innerText = isLoginMode ? "Sign Up" : "Login";
         }
 
-        async function handleMiningAction() {
-            const btn = document.getElementById('miningBtn');
-            btn.innerText = "Processing...";
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            const btn = document.getElementById('authSubmitBtn');
             
-            const resp = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'startMining', userId: userId })
-            });
-            const data = await resp.json();
-            alert(data.message);
-            location.reload();
+            if(!email) return alert("Please enter email");
+            
+            btn.disabled = true;
+            btn.innerText = "Authenticating...";
+
+            try {
+                // Mocking API call to your GAS backend for registration/login
+                // In production, you'd add a 'login' action to your Google Script
+                const mockUser = {
+                    uid: "RIDA" + Math.floor(1000 + Math.random() * 9000),
+                    email: email,
+                    name: document.getElementById('regName').value || "User",
+                    status: "Unverified",
+                    balance: 0.00
+                };
+
+                localStorage.setItem('rida_user', JSON.stringify(mockUser));
+                showApp(mockUser);
+            } catch (e) {
+                alert("Connection Error");
+            } finally {
+                btn.disabled = false;
+            }
         }
 
-        function showAllAnnouncements() {
-            openModal(`
-                <h2 class="text-xl font-bold mb-4">System Archive</h2>
-                <div class="bg-blue-900/30 p-4 rounded-xl mb-4 text-xs text-blue-200">
-                    You must be fulfill all the tasks given below to get 100% from the system.
-                </div>
-                <div class="space-y-4 max-h-60 overflow-y-auto">
-                    <p class="text-sm text-gray-300">1. Verify BSC Wallet...</p>
-                    <p class="text-sm text-gray-300">2. Join Official Telegram...</p>
-                    <hr class="border-white/10">
-                    <p class="text-xs text-gray-500 italic">No previous announcements found.</p>
-                </div>
-            `);
-        }
-
-        function openChat() {
-            openModal(`
-                <h2 class="text-xl font-bold mb-4">Support Chat</h2>
-                <div id="chatBox" class="h-64 overflow-y-auto space-y-2 mb-4 p-2 bg-black/20 rounded-lg">
-                    <div class="text-xs text-gray-500 text-center">Connected to Admin</div>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" class="flex-1 bg-white/10 rounded-lg px-3 text-sm" placeholder="Type message...">
-                    <button class="bg-blue-600 p-2 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
-                </div>
-            `);
+        function showApp(user) {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userUID').innerText = "UID: " + user.uid;
+            document.getElementById('userStatus').innerText = "STATUS: " + user.status;
+            document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
             lucide.createIcons();
         }
 
-        function openModal(html) {
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.remove('hidden');
+        function logout() {
+            localStorage.removeItem('rida_user');
+            location.reload();
         }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.add('hidden');
-        }
-
-        // Logic for Mining Counter
-        function startCounter() {
-            let lastClaim = new Date().getTime() - (12 * 60 * 60 * 1000); // Mocking 12 hours passed
-            setInterval(() => {
-                let now = new Date().getTime();
-                let diff = now - lastClaim;
-                let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                let seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                document.getElementById('miningCounter').innerText = 
-                    `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-            }, 1000);
-        }
-
-        window.onload = startCounter;
     </script>
 </body>
 </html>
