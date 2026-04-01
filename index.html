@@ -10,10 +10,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
         body { font-family: 'Outfit', sans-serif; background-color: #020617; color: white; overflow-x: hidden; }
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .mining-glow { filter: drop-shadow(0 0 15px #3b82f6); }
         .drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .hidden { display: none !important; }
-        input::placeholder { color: #475569; }
+        .status-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
 <body>
@@ -23,15 +23,15 @@
             <div class="w-20 h-20 bg-blue-600 rounded-[2rem] mx-auto flex items-center justify-center shadow-2xl shadow-blue-500/20 mb-4 border border-blue-400/30">
                 <i data-lucide="cpu" class="w-12 h-12 text-white"></i>
             </div>
-            <h1 class="text-3xl font-black tracking-tight italic">RIDA <span class="text-blue-500 underline decoration-2 underline-offset-4">NETWORK</span></h1>
-            <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-2">Verified Mining Protocol</p>
+            <h1 class="text-3xl font-black tracking-tight italic uppercase">Rida <span class="text-blue-500 underline decoration-2 underline-offset-4">Pro Max</span></h1>
+            <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-2">v4.2 Cloud Mining</p>
         </div>
 
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
-            <div id="authTitle" class="text-xl font-bold mb-6 text-center">Join the Network</div>
+            <div id="authTitle" class="text-xl font-bold mb-6 text-center">Log In to Rida</div>
             
             <div class="space-y-4">
-                <div id="signupGroup" class="space-y-4">
+                <div id="signupGroup" class="space-y-4 hidden">
                     <input type="text" id="regName" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Full Name">
                     <input type="text" id="regRef" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Referral UID (Optional)">
                 </div>
@@ -39,7 +39,7 @@
                 <input type="email" id="authEmail" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Email Address">
                 
                 <div class="relative">
-                    <input type="password" id="authPass" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Password">
+                    <input type="password" id="authPass" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Security Password">
                 </div>
 
                 <button onclick="handleAuth()" id="authBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-black transition-all shadow-xl shadow-blue-600/20 text-xs tracking-widest mt-4">
@@ -61,76 +61,66 @@
                 <img id="userAvatar" src="" class="w-10 h-10 rounded-xl border border-blue-500/30">
                 <div>
                     <p class="text-[10px] text-gray-500 font-bold" id="userUID">UID: --</p>
-                    <p class="text-[10px] font-black text-green-500 uppercase" id="userStatus">UNVERIFIED</p>
+                    <p class="text-[10px] font-black text-green-500 uppercase" id="userStatus">ACTIVE</p>
                 </div>
             </div>
         </header>
 
         <main class="px-6 space-y-6">
             <div class="glass rounded-3xl p-5 border-l-4 border-blue-500">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-xs font-black text-blue-400 uppercase tracking-widest">Broadcast</h3>
-                    <button class="text-[10px] text-gray-500 font-bold hover:text-white" onclick="showTaskArchive()">ARCHIVE</button>
-                </div>
-                <p class="text-xs text-gray-300 leading-relaxed" id="recentBroadcast">Welcome! Complete your tasks to ensure 100% payout from the system.</p>
+                <h3 class="text-xs font-black text-blue-400 uppercase tracking-widest mb-1">System Update</h3>
+                <p class="text-xs text-gray-300 leading-relaxed">Ensure your wallet is connected to receive 100% of your mining rewards.</p>
             </div>
 
             <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
-                <p class="text-[10px] opacity-70 font-black tracking-[0.2em] uppercase">Rida Balance</p>
-                <h2 class="text-5xl font-black mt-2 tracking-tighter"><span id="balance">0.00</span></h2>
+                <p class="text-[10px] opacity-70 font-black tracking-[0.2em] uppercase">Mining Balance</p>
+                <h2 class="text-5xl font-black mt-2 tracking-tighter"><span id="balance">0.00</span> <span class="text-lg opacity-50 font-normal">RIDA</span></h2>
                 <div class="mt-8 flex gap-3">
-                    <button onclick="openP2P()" class="flex-1 bg-white/10 hover:bg-white/20 py-3.5 rounded-2xl text-[10px] font-black tracking-widest transition">P2P TRANSFER</button>
-                    <button onclick="copyUID()" class="px-4 bg-white/10 rounded-2xl text-[10px] font-black">COPY UID</button>
+                    <button onclick="copyUID()" class="flex-1 bg-white/10 hover:bg-white/20 py-3.5 rounded-2xl text-[10px] font-black tracking-widest transition">COPY UID</button>
+                    <button class="px-6 bg-white/10 rounded-2xl"><i data-lucide="qr-code" class="w-5 h-5"></i></button>
                 </div>
             </div>
 
-            <div class="glass rounded-[3rem] p-10 text-center relative">
-                <div class="absolute top-6 left-6 text-[10px] font-black text-blue-500/50 uppercase">Rida Node v4</div>
+            <div class="glass rounded-[3rem] p-10 text-center relative border border-white/5">
                 <div class="w-44 h-44 rounded-full border-2 border-dashed border-blue-500/20 mx-auto mb-8 flex flex-col items-center justify-center">
                     <div id="timerDisplay" class="text-3xl font-black tracking-tight text-blue-400">00:00:00</div>
-                    <p class="text-[9px] text-gray-500 font-bold uppercase mt-1">Countdown</p>
+                    <p class="text-[9px] text-gray-500 font-bold uppercase mt-1">Next Payout</p>
                 </div>
-                
                 <button id="miningBtn" onclick="handleMining()" class="w-full py-5 rounded-3xl bg-blue-600 font-black text-xs tracking-[0.2em] shadow-2xl shadow-blue-600/30 active:scale-95 transition-all">
-                    ACTIVATE MINING
+                    ACTIVATE NODE
                 </button>
             </div>
         </main>
 
-        <div id="drawer" class="fixed inset-y-0 left-0 w-72 glass z-50 transform -translate-x-full drawer p-8">
-            <div class="flex justify-between items-center mb-12">
-                <h3 class="text-xl font-black italic text-blue-500">RIDA PRO</h3>
-                <button onclick="toggleDrawer(false)"><i data-lucide="arrow-left"></i></button>
-            </div>
+        <div id="drawer" class="fixed inset-y-0 left-0 w-72 glass z-50 transform -translate-x-full drawer p-8 border-r border-white/5">
+            <h3 class="text-xl font-black italic text-blue-500 mb-12">RIDA MENU</h3>
             <nav class="space-y-6">
-                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="book-open" class="w-5 h-5"></i> How to Join</a>
-                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="shield-check" class="w-5 h-5"></i> Verify Account</a>
-                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="help-circle" class="w-5 h-5"></i> FAQ</a>
-                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="arrow-right-left" class="w-5 h-5"></i> P2P Guide</a>
+                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="send"></i> P2P Transfer</a>
+                <a href="#" class="flex items-center gap-4 text-sm font-bold text-gray-400 hover:text-white"><i data-lucide="history"></i> History</a>
                 <div class="pt-10 border-t border-white/5 mt-10">
-                    <button onclick="logout()" class="flex items-center gap-4 text-sm font-bold text-red-500"><i data-lucide="log-out" class="w-5 h-5"></i> Logout</button>
+                    <button onclick="logout()" class="flex items-center gap-4 text-sm font-bold text-red-500"><i data-lucide="log-out"></i> Logout</button>
                 </div>
             </nav>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbQpiDMReswJWUDBIIrSQ5QPnASALpz00nRBqRu0JCefIdP1zgc73KGabyi2W4GM5eKjg/exec";
-        let isLogin = true;
-        let userData = JSON.parse(localStorage.getItem('rida_pro_session'));
+        const API_URL = "https://script.google.com/macros/s/AKfycbzYpK0CO6ftRvWCa80b_E51hiCOApfNzPTYHcZQXhyQKIlfjr62zjgAtGNuunviA9Px/exec";
+        let isLoginMode = true;
+        let userData = JSON.parse(localStorage.getItem('rida_pro_v4'));
 
         window.onload = () => {
-            toggleAuth(); // Default to Login view
             if (userData) showDashboard();
             lucide.createIcons();
         };
 
         function toggleAuth() {
-            isLogin = !isLogin;
-            document.getElementById('signupGroup').classList.toggle('hidden', isLogin);
-            document.getElementById('authTitle').innerText = isLogin ? "Welcome Back" : "Join the Network";
-            document.getElementById('authBtn').innerText = isLogin ? "LOG IN" : "CREATE ACCOUNT";
-            document.getElementById('toggleBtn').innerText = isLogin ? "Create Account" : "Log In";
+            isLoginMode = !isLoginMode;
+            document.getElementById('signupGroup').classList.toggle('hidden', isLoginMode);
+            document.getElementById('authTitle').innerText = isLoginMode ? "Log In to Rida" : "Create Account";
+            document.getElementById('authBtn').innerText = isLoginMode ? "ACCESS SYSTEM" : "SIGN UP NOW";
+            document.getElementById('toggleBtn').innerText = isLoginMode ? "Create Account" : "Log In";
         }
 
         async function handleAuth() {
@@ -138,35 +128,38 @@
             const email = document.getElementById('authEmail').value;
             const pass = document.getElementById('authPass').value;
             
-            if (!email || !pass) return alert("Email and Password are required!");
-            
+            if (!email || !pass) return alert("Fields cannot be empty");
             btn.disabled = true;
-            btn.innerText = "VERIFYING...";
+            btn.innerText = "AUTHENTICATING...";
+
+            const payload = {
+                action: isLoginMode ? 'login' : 'register',
+                email: email,
+                password: pass,
+                name: document.getElementById('regName').value,
+                referralCode: document.getElementById('regRef').value
+            };
 
             try {
-                const payload = {
-                    action: isLogin ? 'login' : 'register',
-                    email: email,
-                    password: pass,
-                    name: document.getElementById('regName').value,
-                    referralCode: document.getElementById('regRef').value
-                };
-
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    localStorage.setItem('rida_pro_session', JSON.stringify(data.user));
+                    localStorage.setItem('rida_pro_v4', JSON.stringify(data.user));
                     userData = data.user;
                     showDashboard();
                 } else {
                     alert(data.message);
                 }
             } catch (e) {
-                alert("API Connection Failed. Please ensure your Google Script is deployed as 'Anyone'.");
+                alert("Connection Refused. Ensure you authorized the script and deployed as 'Anyone'.");
                 console.error(e);
             } finally {
                 btn.disabled = false;
+                btn.innerText = isLoginMode ? "ACCESS SYSTEM" : "SIGN UP NOW";
             }
         }
 
@@ -174,41 +167,22 @@
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userUID').innerText = "UID: " + userData.uid;
-            document.getElementById('userStatus').innerText = userData.status || "UNVERIFIED";
             document.getElementById('balance').innerText = parseFloat(userData.balance || 0).toFixed(2);
-            document.getElementById('userAvatar').src = userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.uid}`;
+            document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.uid}`;
             lucide.createIcons();
         }
 
-        async function handleMining() {
-            const btn = document.getElementById('miningBtn');
-            btn.innerText = "CONNECTING...";
-            try {
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'startMining', uid: userData.uid }) 
-                });
-                const data = await res.json();
-                if(data.status === "success") {
-                    alert("Mining Activated!");
-                    btn.innerText = "NODE ACTIVE";
-                    btn.disabled = true;
-                }
-            } catch (e) { alert("Mining activation failed."); }
-        }
-
         function toggleDrawer(open) {
-            const d = document.getElementById('drawer');
-            d.style.transform = open ? "translateX(0)" : "translateX(-100%)";
+            document.getElementById('drawer').style.transform = open ? "translateX(0)" : "translateX(-100%)";
         }
 
         function copyUID() {
             navigator.clipboard.writeText(userData.uid);
-            alert("UID Copied: " + userData.uid);
+            alert("UID Copied!");
         }
 
         function logout() {
-            localStorage.removeItem('rida_pro_session');
+            localStorage.removeItem('rida_pro_v4');
             location.reload();
         }
     </script>
