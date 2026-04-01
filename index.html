@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIDA NETWORK | Pro</title>
+    <title>RIDA NETWORK | Pro Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -23,7 +23,7 @@
 
     <div id="authPage" class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950">
         <div class="mb-8 text-center">
-            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4"><i data-lucide="zap"></i></div>
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4"><i data-lucide="zap" class="text-white"></i></div>
             <h1 class="text-3xl font-black italic uppercase text-white">RIDA <span class="text-blue-500">NETWORK</span></h1>
         </div>
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-white/10">
@@ -43,7 +43,7 @@
             <div class="flex items-center gap-3">
                 <button onclick="toggleDrawer(true)" class="p-2 glass rounded-lg text-blue-400"><i data-lucide="menu" class="w-5 h-5"></i></button>
                 <div>
-                    <h2 id="headerName" class="text-[11px] font-black uppercase text-white truncate w-24 leading-none">--</h2>
+                    <h2 id="headerName" class="text-[11px] font-black uppercase text-white leading-none truncate w-28">--</h2>
                     <p id="headerUID" class="text-[9px] font-bold text-blue-500 mt-1">UID: --</p>
                 </div>
             </div>
@@ -53,8 +53,8 @@
                     <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-slate-950 rounded-full animate-pulse"></div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[7px] font-black text-green-400 uppercase leading-none">Node Status</p>
-                    <p class="text-[10px] font-black uppercase text-white">Verified</p>
+                    <p class="text-[7px] font-black text-green-400 uppercase leading-none">Node</p>
+                    <p id="nodeStatusHeader" class="text-[9px] font-black uppercase text-white">Verified</p>
                 </div>
             </div>
         </header>
@@ -79,7 +79,7 @@
                 <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
                     <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest">Available RIDA Balance</p>
                     <h2 class="text-4xl font-black mt-1"><span id="balance">0.000000</span> <span class="text-sm font-normal opacity-50">RIDA</span></h2>
-                    <p class="text-[9px] font-black uppercase text-green-400 mt-4">Mining Active: 0.20 / 24H</p>
+                    <p class="text-[9px] font-black uppercase text-green-400 mt-4 flex items-center gap-2"><span class="w-2 h-2 bg-green-400 rounded-full"></span> Mining Active: 0.20 / 24H</p>
                 </div>
                 <div class="glass rounded-[3rem] p-10 text-center border border-white/5">
                     <div class="relative w-48 h-48 mx-auto mb-8">
@@ -91,17 +91,17 @@
                             <div id="timerDisplay" class="text-3xl font-black">24:00:00</div>
                         </div>
                     </div>
-                    <button id="miningBtn" onclick="handleMining()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform">Activate Mining Node</button>
+                    <button id="miningBtn" onclick="handleMining()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform">Activate Mining Node</button>
                 </div>
             </div>
 
             <div id="sec-me" class="hidden space-y-6">
                 <div class="glass rounded-[2.5rem] p-8 border border-white/5">
                     <div class="flex flex-col items-center text-center pb-6 border-b border-white/5">
-                        <img id="meAvatar" src="" class="w-20 h-20 rounded-3xl bg-slate-900 border-2 border-blue-500 mb-4">
+                        <img id="meAvatar" src="" class="w-20 h-20 rounded-3xl bg-slate-900 border-2 border-blue-500 mb-4 cursor-pointer">
                         <h3 id="meName" class="text-xl font-bold uppercase tracking-tight">--</h3>
                         <p id="meEmail" class="text-[10px] text-gray-500">--</p>
-                        <span class="mt-3 bg-green-500/10 text-green-400 text-[8px] font-black px-3 py-1 rounded-full border border-green-500/20 uppercase">Node Verified</span>
+                        <span class="mt-3 bg-green-500/10 text-green-400 text-[8px] font-black px-4 py-1.5 rounded-full border border-green-500/20 uppercase tracking-widest">Verified Node</span>
                     </div>
 
                     <div class="py-6 space-y-4">
@@ -110,35 +110,44 @@
                             <button onclick="copyText('meUID')" class="p-2 glass rounded-lg"><i data-lucide="copy" class="w-3 h-3"></i></button>
                         </div>
                         <div class="bg-slate-900/50 p-4 rounded-2xl flex justify-between items-center">
-                            <div class="flex-1"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">BSC (BEP20) Wallet</p><p class="text-[10px] text-gray-400 truncate">0x81...Add_in_Settings</p></div>
-                            <i data-lucide="wallet" class="w-4 h-4 text-blue-500 opacity-50"></i>
+                            <div class="flex-1"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">BSC Wallet (BEP20)</p><p class="text-[10px] text-gray-400 truncate">0x81...Submit_To_Vault</p></div>
+                            <i data-lucide="wallet" class="w-4 h-4 text-blue-500"></i>
                         </div>
                         <div class="bg-blue-600/5 p-4 rounded-2xl border border-blue-500/10 flex justify-between items-center">
-                            <div><p class="text-[8px] font-black text-blue-500 uppercase mb-1">Referral Link</p><p id="refLink" class="text-[10px] font-bold">ridanetwork.com/join?ref=9912</p></div>
+                            <div><p class="text-[8px] font-black text-blue-500 uppercase mb-1">Referral Link</p><p id="refLink" class="text-[10px] font-bold">ridanetwork.com/ref/9912</p></div>
                             <button onclick="copyText('refLink')" class="p-2 bg-blue-600 rounded-lg"><i data-lucide="share-2" class="w-3 h-3 text-white"></i></button>
                         </div>
-                        <div class="bg-white p-4 rounded-[2rem] w-40 h-40 mx-auto mt-4"><img id="meQR" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=RIDA" class="w-full h-full"></div>
+                        <div class="bg-white p-4 rounded-[2rem] w-40 h-40 mx-auto mt-4"><img id="meQR" src="" class="w-full h-full"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="sec-whitepaper" class="hidden glass rounded-[2.5rem] p-8 max-h-[500px] overflow-y-auto scroll-hide">
+            <div id="sec-whitepaper" class="hidden glass rounded-[2.5rem] p-8 max-h-[550px] overflow-y-auto scroll-hide">
                 <h2 class="text-2xl font-black text-blue-500 italic mb-4">RIDA WHITEPAPER</h2>
-                <div class="space-y-6 text-[11px] leading-relaxed text-gray-400">
-                    <p><strong class="text-white uppercase">1. Introduction:</strong> RIDA Network is a revolutionary Layer-2 solution designed to democratize blockchain participation through mobile-based neural validation.</p>
-                    <p><strong class="text-white uppercase">2. NPoS Consensus:</strong> Our Neural Proof of Stake (NPoS) mechanism ensures that every verified node contributes to the network security without the high energy cost of traditional mining.</p>
-                    <p><strong class="text-white uppercase">3. Tokenomics:</strong> Total Supply is capped at 100M RIDA. Rewards are distributed every 24 hours to active, verified nodes.</p>
-                    <p><strong class="text-white uppercase">4. Security:</strong> All communications within the RIDA ecosystem are protected by AES-256 encryption, ensuring that user data and earnings remain sovereign.</p>
-                    <p><strong class="text-white uppercase">5. Future Roadmap:</strong> Phase 1 focuses on community expansion, Phase 2 on BSC Mainnet integration, and Phase 3 on the RIDA Native Exchange.</p>
+                <div class="space-y-6 text-[11px] leading-relaxed text-gray-400 border-l border-white/10 pl-4">
+                    <div>
+                        <h4 class="text-white font-bold mb-1 uppercase tracking-tighter">1. Decentralized Identity</h4>
+                        <p>RIDA Network utilizes UID-based hashing to ensure that every miner is unique and verified on the ledger without compromising privacy.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1 uppercase tracking-tighter">2. Mining Algorithm</h4>
+                        <p>The RIDA Node protocol operates on a low-energy consensus mechanism. It validates the state of the network every 24 hours to secure the distributed cloud database.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1 uppercase tracking-tighter">3. Distribution</h4>
+                        <p>Tokens are minted at a fixed rate of 0.20 RIDA per cycle. A halving event occurs every 12 months to maintain scarcity and protect token value.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1 uppercase tracking-tighter">4. The Ecosystem</h4>
+                        <p>The network will support a RIDA DEX and an NFT marketplace for hardware miners in Phase 3 of our roadmap (2027).</p>
+                    </div>
                 </div>
             </div>
 
-            <div id="sec-ledger" class="hidden space-y-4">
-                <div id="ledgerList" class="space-y-2"></div>
-            </div>
-            <div id="sec-team" class="hidden space-y-4">
-                <div class="glass p-5 rounded-3xl text-center"><h3 class="font-bold">Kim J-Won</h3><p class="text-[9px] text-blue-500">Founder & CEO</p></div>
-                <div class="glass p-5 rounded-3xl text-center"><h3 class="font-bold">Rida J-Won</h3><p class="text-[9px] text-pink-500">Co-Founder</p></div>
+            <div id="sec-ledger" class="hidden space-y-4"><div id="ledgerList" class="space-y-2"></div></div>
+            <div id="sec-team" class="hidden space-y-6">
+                <div class="glass p-6 rounded-3xl text-center border-b-2 border-blue-500"><h3>Kim J-Won</h3><p class="text-[8px] text-blue-500 uppercase">Founder</p></div>
+                <div class="glass p-6 rounded-3xl text-center border-b-2 border-pink-500"><h3>Rida J-Won</h3><p class="text-[8px] text-pink-500 uppercase">Co-Founder</p></div>
             </div>
             <div id="sec-support" class="hidden glass rounded-[2rem] h-[400px] flex flex-col p-4">
                 <div id="cBox" class="flex-1 overflow-y-auto text-[11px] space-y-2"></div>
@@ -147,9 +156,15 @@
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 h-20 nav-glass flex items-center justify-around px-6 z-50">
-            <button onclick="switchTab('social')" id="nav-social" class="flex flex-col items-center gap-1 text-gray-500"><i data-lucide="microscope" class="w-5 h-5"></i><span class="text-[9px] font-black">SOCIAL</span></button>
-            <button onclick="switchTab('mining')" id="nav-mining" class="flex flex-col items-center gap-1 active-nav"><i data-lucide="pickaxe" class="w-6 h-6"></i><span class="text-[9px] font-black">MINING</span></button>
-            <button onclick="switchTab('me')" id="nav-me" class="flex flex-col items-center gap-1 text-gray-500"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] font-black">ME</span></button>
+            <button onclick="switchTab('social')" id="nav-social" class="flex flex-col items-center gap-1 text-gray-500 transition-all">
+                <i data-lucide="microscope" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Social</span>
+            </button>
+            <button onclick="switchTab('mining')" id="nav-mining" class="flex flex-col items-center gap-1 active-nav transition-all">
+                <i data-lucide="pickaxe" class="w-6 h-6"></i><span class="text-[9px] font-black uppercase">Mining</span>
+            </button>
+            <button onclick="switchTab('me')" id="nav-me" class="flex flex-col items-center gap-1 text-gray-500 transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Me</span>
+            </button>
         </nav>
     </div>
 
@@ -163,21 +178,15 @@
 
         async function handleAuth() {
             const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
-            if(!e || !p) return alert("Fill all fields");
-            document.getElementById('authBtn').innerText = "ESTABLISHING CONNECTION...";
+            if(!e || !p) return alert("Fill fields!");
+            document.getElementById('authBtn').innerText = "SYNCHRONIZING...";
             try {
-                // Simplified fetch to bypass CORS pre-flight triggers
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', // Bypasses CORS if headers are simple
-                    body: JSON.stringify({ action: isL ? 'login' : 'register', email: e, password: p, name: document.getElementById('regName').value || "Miner" }) 
-                });
-                // NOTE: mode: 'no-cors' won't let us read the response, so for a real login 
-                // we use a standard redirect or a simple POST.
-                const realRes = await fetch(API_URL + "?action=" + (isL ? 'login' : 'register') + "&email=" + e + "&password=" + p + "&name=" + (document.getElementById('regName').value || "Miner"));
-                const data = await realRes.json();
+                // EXTREMELY STABLE: Using URL Parameters to avoid POST/CORS hangs
+                const url = `${API_URL}?action=${isL ? 'login' : 'register'}&email=${e}&password=${p}&name=${document.getElementById('regName').value || 'Miner'}`;
+                const res = await fetch(url);
+                const data = await res.json();
                 if(data.status === "success") { localStorage.setItem('rida_user', JSON.stringify(data.user)); location.reload(); } else { alert(data.message); }
-            } catch(err) { alert("Network Error. Check Script Deployment."); }
+            } catch(err) { alert("Server Busy. Please Retry."); }
             document.getElementById('authBtn').innerText = "Access System";
         }
 
@@ -189,7 +198,7 @@
             document.getElementById('meName').innerText = user.name;
             document.getElementById('meUID').innerText = user.uid;
             document.getElementById('meEmail').innerText = user.email;
-            document.getElementById('refLink').innerText = "ridanetwork.com/join?ref=" + user.uid;
+            document.getElementById('refLink').innerText = "ridanetwork.com/ref/" + user.uid;
             const av = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
             document.getElementById('userAvatar').src = av;
             document.getElementById('meAvatar').src = av;
@@ -199,7 +208,7 @@
         }
 
         function switchTab(tab) {
-            if(tab === 'social') return alert("Social Scope Offline");
+            if(tab === 'social') return alert("Social Scope is locked for Beta.");
             document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
             document.getElementById('sec-' + tab).classList.remove('hidden');
             ['mining', 'me'].forEach(t => {
@@ -245,12 +254,11 @@
         }
 
         function prepC() {
-            document.getElementById('miningBtn').innerText = "Claim Rida";
-            document.getElementById('miningBtn').classList.replace('bg-blue-600', 'bg-green-600');
+            const b = document.getElementById('miningBtn'); b.innerText = "Claim Rida"; b.classList.replace('bg-blue-600', 'bg-green-600');
         }
 
         function startL() {
             setInterval(() => {
                 if(document.getElementById('sec-ledger').classList.contains('hidden')) return;
                 const row = document.createElement('div');
-       
+                row.className = 
