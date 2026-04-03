@@ -3,191 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIDA NETWORK — Next-Gen Crypto Mining</title>
+    <title>RIDA NETWORK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@500&display=swap');
-        :root { --neon-cyan: #00f7ff; }
-        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); }
-        .neon-glow { box-shadow: 0 0 25px -5px var(--neon-cyan), 0 0 10px -3px var(--neon-cyan); }
-        .mining-pulse { animation: miningPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes miningPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .live-counter { font-variant-numeric: tabular-nums; }
-        .toast { animation: toastIn 0.3s ease forwards; }
-        @keyframes toastIn { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); }
+        .neon-glow { box-shadow: 0 0 20px -5px #00f7ff; }
+        .mining-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
-<body class="bg-[#0a0a0f] text-white font-sans min-h-screen overflow-x-hidden">
+<body class="bg-[#0a0a0f] text-white min-h-screen">
 
     <!-- HEADER -->
-    <div id="header" class="hidden border-b border-white/10 bg-black/70 glass sticky top-0 z-50">
-        <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-x-3">
-                <div class="w-9 h-9 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-2xl flex items-center justify-center text-xl font-bold neon-glow">⛏️</div>
-                <h1 class="text-3xl font-bold tracking-[-2px]" style="font-family: 'Space Grotesk', sans-serif;">RIDA NETWORK</h1>
+    <div id="header" class="hidden sticky top-0 bg-black/80 border-b border-white/10 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">⛏️</span>
+                <h1 class="text-3xl font-bold tracking-tight">RIDA NETWORK</h1>
             </div>
-            <div onclick="navigateTo('dashboard')" class="flex items-center gap-x-4 cursor-pointer">
-                <div class="text-right">
-                    <div class="text-xs text-white/60">BALANCE</div>
-                    <div id="nav-balance" class="text-2xl font-semibold text-emerald-400 live-counter">0.000000 RIDA</div>
-                </div>
-            </div>
-            <div class="flex items-center gap-x-3">
-                <div id="nav-email" class="text-sm font-medium px-4 py-2 bg-white/5 rounded-3xl border border-white/10"></div>
-                <div id="nav-mining-badge" class="hidden items-center gap-x-2 px-4 h-10 bg-emerald-400/10 text-emerald-400 rounded-3xl text-sm font-medium border border-emerald-400/30 cursor-pointer">
-                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    MINING
-                </div>
-                <button onclick="logout()" class="w-10 h-10 bg-white/5 hover:bg-red-400/10 hover:text-red-400 rounded-2xl text-xl">⭍</button>
+            <div class="flex items-center gap-6">
+                <div id="nav-balance" class="text-emerald-400 font-semibold">0.000000 RIDA</div>
+                <div id="nav-email" class="text-sm"></div>
+                <button onclick="logout()" class="text-red-400 hover:text-red-500">Logout</button>
             </div>
         </div>
     </div>
 
     <!-- AUTH SCREEN -->
-    <div id="auth-screen" class="min-h-screen flex items-center justify-center px-6">
-        <div class="max-w-md w-full">
-            <div class="glass border border-white/10 rounded-3xl p-10 neon-glow">
-                <div class="flex justify-center mb-8">
-                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-3xl flex items-center justify-center text-5xl">⛏️</div>
-                </div>
-                <h2 id="auth-title" class="text-4xl font-bold text-center mb-2" style="font-family: 'Space Grotesk', sans-serif;">Welcome to RIDA</h2>
-                <p id="auth-subtitle" class="text-center text-white/60 mb-10">Next-gen crypto mining</p>
-
-                <div class="flex bg-white/5 rounded-3xl p-1 mb-8">
-                    <button onclick="switchAuthMode(0)" id="toggle-login" class="flex-1 py-3 text-sm font-semibold rounded-3xl data-[active=true]:bg-white data-[active=true]:text-black">LOGIN</button>
-                    <button onclick="switchAuthMode(1)" id="toggle-register" class="flex-1 py-3 text-sm font-semibold rounded-3xl data-[active=true]:bg-white data-[active=true]:text-black">REGISTER</button>
-                </div>
-
-                <div class="space-y-6">
-                    <input id="email-input" type="email" placeholder="Email" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none">
-                    <input id="password-input" type="password" placeholder="Password" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none">
-                    <div id="referral-container" class="hidden">
-                        <input id="referral-input" type="text" placeholder="Referral Code (optional)" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none uppercase">
-                    </div>
-                    <button onclick="handleAuth()" id="auth-button" class="w-full h-14 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-3xl">LOGIN / REGISTER</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN APP (simplified for reliability) -->
-    <div id="main-app" class="hidden min-h-screen pb-20 px-6">
-        <div class="max-w-2xl mx-auto mt-10">
-            <h1 class="text-4xl font-bold text-center mb-8">RIDA DASHBOARD</h1>
-            <div id="status" class="glass border border-white/10 rounded-3xl p-8 text-center">
-                <p id="welcome-text" class="text-xl mb-6"></p>
-                <button onclick="toggleMining()" class="bg-emerald-500 hover:bg-emerald-600 px-10 py-4 rounded-3xl font-bold text-lg">START MINING (24h)</button>
-                <div id="mining-area" class="hidden mt-8">
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <div class="glass border border-white/10 rounded-3xl p-8 neon-glow">
+                <div class="text-center mb-8">
                     <div class="text-6xl mb-4">⛏️</div>
-                    <div id="live-reward" class="text-5xl font-mono text-emerald-400">0.000000</div>
-                    <button onclick="claimReward()" class="mt-6 bg-white text-black px-8 py-3 rounded-3xl font-bold">CLAIM REWARD</button>
+                    <h2 id="auth-title" class="text-4xl font-bold">Welcome to RIDA</h2>
+                    <p class="text-white/60 mt-2">Crypto Mining Simulator</p>
                 </div>
+
+                <div class="flex gap-2 bg-white/10 rounded-3xl p-1 mb-8">
+                    <button onclick="switchAuth(0)" id="btn-login" class="flex-1 py-3 rounded-3xl font-medium data-[active=true]:bg-white data-[active=true]:text-black">Login</button>
+                    <button onclick="switchAuth(1)" id="btn-register" class="flex-1 py-3 rounded-3xl font-medium data-[active=true]:bg-white data-[active=true]:text-black">Register</button>
+                </div>
+
+                <input id="email" type="email" placeholder="Email" class="w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl mb-4 focus:border-cyan-400 outline-none">
+                <input id="password" type="password" placeholder="Password" class="w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl mb-6 focus:border-cyan-400 outline-none">
+
+                <div id="referral-box" class="hidden">
+                    <input id="referral" type="text" placeholder="Referral Code (optional)" class="w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl uppercase">
+                </div>
+
+                <button onclick="handleAuth()" id="auth-btn" class="w-full py-4 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-3xl mt-4">LOGIN</button>
+
+                <p id="auth-message" class="text-center mt-4 text-sm min-h-[24px]"></p>
             </div>
-            <button onclick="logout()" class="mt-8 block mx-auto text-red-400">Logout</button>
         </div>
     </div>
 
-    <!-- TOAST -->
-    <div id="toast-container" class="fixed bottom-6 right-6 space-y-2 z-50"></div>
+    <!-- MAIN DASHBOARD -->
+    <div id="main-app" class="hidden p-6 max-w-5xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 id="welcome" class="text-3xl font-bold"></h1>
+            <p class="text-emerald-400 text-xl mt-2" id="balance-display">Balance: 0.000000 RIDA</p>
+        </div>
+
+        <!-- Mining Section -->
+        <div class="glass border border-white/10 rounded-3xl p-8 mb-8">
+            <h2 class="text-2xl font-semibold mb-6">Mining Station</h2>
+            <button onclick="startMining()" id="start-btn" 
+                    class="w-full py-6 text-2xl font-bold bg-emerald-500 hover:bg-emerald-600 rounded-3xl">START MINING (24 Hours - 0.1 RIDA)</button>
+            
+            <div id="mining-active" class="hidden mt-8 text-center">
+                <div class="text-6xl mb-4 mining-pulse">⛏️</div>
+                <div id="earned-live" class="text-5xl font-mono text-emerald-400">0.000000</div>
+                <p class="text-white/70">RIDA earned so far</p>
+                <button onclick="claimReward()" class="mt-8 px-12 py-4 bg-white text-black font-bold rounded-3xl">CLAIM REWARD NOW</button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="glass border border-white/10 rounded-3xl p-6">
+                <p class="text-white/60 text-sm">Total Earned</p>
+                <p id="total-earned" class="text-3xl font-bold text-cyan-400">0.000000</p>
+            </div>
+            <div class="glass border border-white/10 rounded-3xl p-6">
+                <p class="text-white/60 text-sm">Referrals</p>
+                <p id="referral-count" class="text-3xl font-bold">0</p>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <button onclick="logout()" class="text-red-400">Logout</button>
+        </div>
+    </div>
 
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzMvRrdKuXbAuL7Gg84nZOmIeOs1OJs9Aec2tHTSH5jSgtgwS9k-_3ZDPklOQCLdw0lkQ/exec";
 
         let currentUser = null;
         let sessionToken = null;
-        let miningInterval = null;
+        let miningTimer = null;
 
-        function showToast(msg, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium ${type === 'success' ? 'bg-emerald-400 text-black' : 'bg-red-400 text-white'}`;
-            toast.textContent = msg;
-            document.getElementById('toast-container').appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+        function showMessage(text, color = 'red') {
+            const msg = document.getElementById('auth-message');
+            msg.textContent = text;
+            msg.style.color = color === 'red' ? '#f87171' : '#4ade80';
         }
 
-        async function apiCall(action, payload = {}) {
-            const bodyData = JSON.stringify({
+        async function apiCall(action, extra = {}) {
+            const payload = {
                 action: action,
-                email: currentUser ? currentUser.email : payload.email,
+                email: currentUser ? currentUser.email : extra.email,
                 token: sessionToken,
-                ...payload
-            });
+                ...extra
+            };
 
             try {
                 const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },   // ← FIXED LINE
-                    body: bodyData
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
                 const text = await res.text();
-                let json;
-                try {
-                    json = JSON.parse(text);
-                } catch(e) {
-                    throw new Error('Invalid response from server');
-                }
+                const json = JSON.parse(text);
 
-                if (!json.success) throw new Error(json.error || 'Server error');
+                if (!json.success) throw new Error(json.error || "Unknown error");
                 return json.data || json;
-            } catch (e) {
-                console.error(e);
-                showToast(e.message || 'Connection failed', 'error');
-                throw e;
+            } catch (err) {
+                console.error(err);
+                showMessage(err.message, 'red');
+                throw err;
             }
         }
 
-        // Auth
-        let authMode = 0;
-        function switchAuthMode(mode) {
-            authMode = mode;
-            document.getElementById('auth-title').textContent = mode === 0 ? 'Login' : 'Register';
+        // Switch between Login & Register
+        function switchAuth(mode) {
+            document.getElementById('btn-login').dataset.active = mode === 0;
+            document.getElementById('btn-register').dataset.active = mode === 1;
+            document.getElementById('referral-box').classList.toggle('hidden', mode === 0);
+            document.getElementById('auth-btn').textContent = mode === 0 ? "LOGIN" : "REGISTER";
         }
 
         async function handleAuth() {
-            const email = document.getElementById('email-input').value.trim().toLowerCase();
-            const password = document.getElementById('password-input').value;
-            const referral = document.getElementById('referral-input').value.trim().toUpperCase();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const referral = document.getElementById('referral').value.trim().toUpperCase();
 
-            if (!email || !password) return showToast('Email and password required', 'error');
+            if (!email || !password) {
+                showMessage("Email and password required");
+                return;
+            }
 
             try {
                 let result;
-                if (authMode === 1) {
+                if (document.getElementById('btn-register').dataset.active === "true") {
                     result = await apiCall('REGISTER', { email, password, referredByCode: referral || null });
                 } else {
                     result = await apiCall('LOGIN', { email, password });
                 }
+
                 currentUser = result.user;
-                sessionToken = result.token;
+                sessionToken = result.token || "";
+
                 localStorage.setItem('rida_session', JSON.stringify({email: currentUser.email, token: sessionToken}));
-                enterApp();
+
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('header').classList.remove('hidden');
+
+                document.getElementById('welcome').textContent = `Welcome, ${currentUser.email}`;
+                loadDashboard();
             } catch(e) {}
         }
 
-        function enterApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('header').classList.remove('hidden');
-            document.getElementById('nav-email').textContent = currentUser.email;
-            document.getElementById('welcome-text').innerHTML = `Welcome back, <strong>${currentUser.email}</strong>`;
-            showToast('Logged in successfully!', 'success');
+        async function loadDashboard() {
+            try {
+                const data = await apiCall('GET_USER');
+                currentUser = data.user;
+                document.getElementById('nav-email').textContent = currentUser.email;
+                document.getElementById('balance-display').textContent = `Balance: ${parseFloat(currentUser.balance || 0).toFixed(6)} RIDA`;
+                document.getElementById('total-earned').textContent = parseFloat(currentUser.totalEarned || 0).toFixed(6);
+            } catch(e) {}
         }
 
-        async function toggleMining() {
+        async function startMining() {
             try {
                 await apiCall('START_MINING');
-                showToast('Mining started for 24 hours!', 'success');
-                document.getElementById('mining-area').classList.remove('hidden');
+                showMessage("Mining started successfully!", "green");
+                document.getElementById('start-btn').classList.add('hidden');
+                document.getElementById('mining-active').classList.remove('hidden');
+
+                // Live counter simulation (updates every second)
+                let earned = 0;
+                if (miningTimer) clearInterval(miningTimer);
+                miningTimer = setInterval(() => {
+                    earned += 0.1 / 86400;
+                    document.getElementById('earned-live').textContent = earned.toFixed(6);
+                }, 1000);
             } catch(e) {}
         }
 
         async function claimReward() {
             try {
                 const res = await apiCall('CLAIM_REWARD');
-                showToast(`Claimed ${res.reward} RIDA!`, 'success');
+                showMessage(`Claimed ${res.reward} RIDA!`, "green");
+                document.getElementById('mining-active').classList.add('hidden');
+                document.getElementById('start-btn').classList.remove('hidden');
+                if (miningTimer) clearInterval(miningTimer);
+                loadDashboard();
             } catch(e) {}
         }
 
@@ -196,26 +220,28 @@
             location.reload();
         }
 
-        // Auto login
-        async function tryAutoLogin() {
+        // Auto-login on page load
+        async function init() {
             const saved = localStorage.getItem('rida_session');
-            if (!saved) return;
-            const {email, token} = JSON.parse(saved);
-            sessionToken = token;
-            currentUser = {email};
-            try {
-                const data = await apiCall('GET_USER');
-                currentUser = data.user || currentUser;
-                enterApp();
-            } catch(e) {
-                localStorage.removeItem('rida_session');
+            if (saved) {
+                const {email, token} = JSON.parse(saved);
+                sessionToken = token;
+                currentUser = {email};
+                try {
+                    const data = await apiCall('GET_USER');
+                    currentUser = data.user;
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    document.getElementById('header').classList.remove('hidden');
+                    document.getElementById('welcome').textContent = `Welcome, ${currentUser.email}`;
+                    loadDashboard();
+                } catch(e) {
+                    localStorage.removeItem('rida_session');
+                }
             }
         }
 
-        window.onload = () => {
-            tryAutoLogin();
-            console.log('%cRIDA NETWORK - Fixed version loaded', 'color:#00f7ff');
-        };
+        window.onload = init;
     </script>
 </body>
 </html>
