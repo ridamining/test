@@ -7,53 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@500&display=swap');
-        
-        :root {
-            --neon-cyan: #00f7ff;
-            --neon-purple: #9d00ff;
-        }
-        
-        * {
-            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
-        }
-        
-        .glass {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-        }
-        
-        .neon-glow {
-            box-shadow: 0 0 25px -5px var(--neon-cyan), 0 0 10px -3px var(--neon-cyan);
-        }
-        
-        .mining-pulse {
-            animation: miningPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes miningPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        
-        .live-counter {
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 0 30px -10px var(--neon-cyan);
-        }
-        
-        .toast {
-            animation: toastIn 0.3s ease forwards;
-        }
-        
-        @keyframes toastIn {
-            0% { transform: translateY(20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
+        :root { --neon-cyan: #00f7ff; }
+        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); }
+        .neon-glow { box-shadow: 0 0 25px -5px var(--neon-cyan), 0 0 10px -3px var(--neon-cyan); }
+        .mining-pulse { animation: miningPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes miningPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .live-counter { font-variant-numeric: tabular-nums; }
+        .toast { animation: toastIn 0.3s ease forwards; }
+        @keyframes toastIn { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="bg-[#0a0a0f] text-white font-sans min-h-screen overflow-x-hidden">
@@ -64,24 +25,20 @@
             <div class="flex items-center gap-x-3">
                 <div class="w-9 h-9 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-2xl flex items-center justify-center text-xl font-bold neon-glow">⛏️</div>
                 <h1 class="text-3xl font-bold tracking-[-2px]" style="font-family: 'Space Grotesk', sans-serif;">RIDA NETWORK</h1>
-                <span class="px-3 py-0.5 text-xs font-medium bg-emerald-400/20 text-emerald-400 rounded-3xl border border-emerald-400/30">LIVE</span>
             </div>
-
             <div onclick="navigateTo('dashboard')" class="flex items-center gap-x-4 cursor-pointer">
                 <div class="text-right">
-                    <div class="text-xs text-white/60 tracking-widest">YOUR BALANCE</div>
+                    <div class="text-xs text-white/60">BALANCE</div>
                     <div id="nav-balance" class="text-2xl font-semibold text-emerald-400 live-counter">0.000000 RIDA</div>
                 </div>
-                <div class="w-10 h-10 rounded-2xl bg-emerald-400/10 flex items-center justify-center text-3xl">💎</div>
             </div>
-
             <div class="flex items-center gap-x-3">
                 <div id="nav-email" class="text-sm font-medium px-4 py-2 bg-white/5 rounded-3xl border border-white/10"></div>
-                <div onclick="navigateTo('dashboard')" id="nav-mining-badge" class="hidden items-center gap-x-2 px-4 h-10 bg-emerald-400/10 text-emerald-400 rounded-3xl text-sm font-medium border border-emerald-400/30 cursor-pointer">
+                <div id="nav-mining-badge" class="hidden items-center gap-x-2 px-4 h-10 bg-emerald-400/10 text-emerald-400 rounded-3xl text-sm font-medium border border-emerald-400/30 cursor-pointer">
                     <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    MINING ACTIVE
+                    MINING
                 </div>
-                <button onclick="logout()" class="flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-red-400/10 hover:text-red-400 rounded-2xl text-xl">⭍</button>
+                <button onclick="logout()" class="w-10 h-10 bg-white/5 hover:bg-red-400/10 hover:text-red-400 rounded-2xl text-xl">⭍</button>
             </div>
         </div>
     </div>
@@ -89,12 +46,12 @@
     <!-- AUTH SCREEN -->
     <div id="auth-screen" class="min-h-screen flex items-center justify-center px-6">
         <div class="max-w-md w-full">
-            <div class="glass border border-white/10 rounded-3xl p-10 shadow-2xl neon-glow">
+            <div class="glass border border-white/10 rounded-3xl p-10 neon-glow">
                 <div class="flex justify-center mb-8">
-                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-3xl flex items-center justify-center text-5xl neon-glow">⛏️</div>
+                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-3xl flex items-center justify-center text-5xl">⛏️</div>
                 </div>
                 <h2 id="auth-title" class="text-4xl font-bold text-center mb-2" style="font-family: 'Space Grotesk', sans-serif;">Welcome to RIDA</h2>
-                <p id="auth-subtitle" class="text-center text-white/60 mb-10">Next-gen crypto mining simulation</p>
+                <p id="auth-subtitle" class="text-center text-white/60 mb-10">Next-gen crypto mining</p>
 
                 <div class="flex bg-white/5 rounded-3xl p-1 mb-8">
                     <button onclick="switchAuthMode(0)" id="toggle-login" class="flex-1 py-3 text-sm font-semibold rounded-3xl data-[active=true]:bg-white data-[active=true]:text-black">LOGIN</button>
@@ -102,416 +59,136 @@
                 </div>
 
                 <div class="space-y-6">
-                    <div>
-                        <label class="text-xs uppercase tracking-widest text-white/50 block mb-2">Email</label>
-                        <input id="email-input" type="email" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none text-lg placeholder:text-white/30" placeholder="you@domain.com">
-                    </div>
-                    <div>
-                        <label class="text-xs uppercase tracking-widest text-white/50 block mb-2">Password</label>
-                        <input id="password-input" type="password" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none text-lg placeholder:text-white/30" placeholder="••••••••">
-                    </div>
+                    <input id="email-input" type="email" placeholder="Email" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none">
+                    <input id="password-input" type="password" placeholder="Password" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none">
                     <div id="referral-container" class="hidden">
-                        <label class="text-xs uppercase tracking-widest text-white/50 block mb-2">Referral Code (optional)</label>
-                        <input id="referral-input" type="text" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none text-lg placeholder:text-white/30 uppercase" placeholder="RIDA-XXXXXX">
+                        <input id="referral-input" type="text" placeholder="Referral Code (optional)" class="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-2xl px-5 py-4 outline-none uppercase">
                     </div>
-
-                    <button onclick="handleAuth()" id="auth-button" class="w-full h-14 bg-gradient-to-r from-cyan-400 to-purple-500 hover:brightness-110 text-black font-semibold text-xl rounded-3xl flex items-center justify-center gap-x-3 neon-glow">
-                        <span id="auth-button-text">LOGIN TO DASHBOARD</span>
-                        <span class="text-2xl">→</span>
-                    </button>
-
-                    <div id="auth-error" class="hidden text-red-400 text-center text-sm py-2"></div>
+                    <button onclick="handleAuth()" id="auth-button" class="w-full h-14 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-3xl">LOGIN / REGISTER</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
-    <div id="main-app" class="hidden min-h-screen pb-20">
-        <!-- ANNOUNCEMENT -->
-        <div id="announcement-banner" onclick="this.style.display='none'" class="hidden mx-6 mt-6 bg-gradient-to-r from-purple-500/20 to-cyan-400/20 border border-purple-400/30 rounded-3xl p-4 text-sm flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-3">
-                <span class="text-lg">📢</span>
-                <div id="announcement-text" class="font-medium"></div>
-            </div>
-            <span class="text-xs uppercase bg-white/10 px-4 h-7 rounded-3xl flex items-center">NEW</span>
-        </div>
-
-        <!-- TABS -->
-        <div class="max-w-screen-2xl mx-auto px-6 mt-6">
-            <div class="flex border-b border-white/10 text-sm font-medium">
-                <button onclick="navigateTo('dashboard')" id="tab-dashboard" class="tab-button flex-1 md:flex-none px-8 py-4 border-b-2 border-transparent data-[active=true]:border-cyan-400 data-[active=true]:text-cyan-400">⛏️ DASHBOARD</button>
-                <button onclick="navigateTo('referral')" id="tab-referral" class="tab-button flex-1 md:flex-none px-8 py-4 border-b-2 border-transparent data-[active=true]:border-cyan-400 data-[active=true]:text-cyan-400">🔗 REFERRALS</button>
-                <button onclick="navigateTo('withdraw')" id="tab-withdraw" class="tab-button flex-1 md:flex-none px-8 py-4 border-b-2 border-transparent data-[active=true]:border-cyan-400 data-[active=true]:text-cyan-400">💸 WITHDRAW</button>
-                <button onclick="navigateTo('admin')" id="tab-admin" class="tab-button hidden flex-1 md:flex-none px-8 py-4 border-b-2 border-transparent data-[active=true]:border-cyan-400 data-[active=true]:text-cyan-400">⚙️ ADMIN</button>
-            </div>
-        </div>
-
-        <!-- DASHBOARD -->
-        <div id="page-dashboard" class="max-w-screen-2xl mx-auto px-6 pt-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Mining Card -->
-                <div class="lg:col-span-7 glass border border-white/10 rounded-3xl p-8">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <div class="uppercase text-xs tracking-[1px] text-white/50">MINING STATUS</div>
-                            <div id="mining-status-title" class="text-4xl font-semibold mt-1">Ready to mine</div>
-                        </div>
-                        <div id="mining-badge" class="hidden px-6 py-2 text-sm font-bold rounded-3xl flex items-center gap-x-2 bg-emerald-400/10 text-emerald-400 border border-emerald-400/30">
-                            <div class="w-3 h-3 rounded-full bg-emerald-400 mining-pulse"></div>
-                            ACTIVE
-                        </div>
-                    </div>
-
-                    <div onclick="toggleMining()" id="mining-button-container" class="relative cursor-pointer group">
-                        <div id="mining-button" class="h-40 rounded-3xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center text-black text-5xl font-bold neon-glow hover:brightness-110 flex-col">
-                            <span id="mining-button-text" class="text-6xl">START MINING</span>
-                            <span class="text-lg opacity-75 mt-1">24-hour session • 0.1 RIDA</span>
-                        </div>
-                        <div id="mining-active-overlay" class="hidden absolute inset-0 rounded-3xl bg-black/60 backdrop-blur-md flex flex-col items-center justify-center">
-                            <div class="text-emerald-400 text-7xl mb-4">⛏️</div>
-                            <div id="live-reward" class="text-7xl font-mono font-bold text-emerald-400 live-counter">0.000000</div>
-                            <div class="text-white/70 text-xl">RIDA earned so far</div>
-                            <div class="mt-8 w-80 h-2 bg-white/10 rounded-3xl overflow-hidden"><div id="progress-bar" class="h-2 bg-gradient-to-r from-emerald-400 to-cyan-400 w-0"></div></div>
-                            <div class="flex justify-between w-80 text-xs mt-3 text-white/60"><div>TIME LEFT</div><div id="countdown" class="font-mono">23:59:59</div></div>
-                            <button onclick="event.stopImmediatePropagation();claimReward()" id="claim-button" class="hidden mt-8 px-10 py-4 bg-white text-black font-bold rounded-3xl text-xl hover:scale-105">CLAIM 0.1 RIDA</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stats -->
-                <div class="lg:col-span-5 grid grid-cols-2 gap-6">
-                    <div class="glass border border-white/10 rounded-3xl p-6 flex flex-col dashboard-card">
-                        <div class="text-xs uppercase text-white/50">TOTAL EARNED</div>
-                        <div id="total-earned" class="text-5xl font-bold mt-auto text-cyan-400 live-counter">0.000000</div>
-                    </div>
-                    <div class="glass border border-white/10 rounded-3xl p-6 flex flex-col dashboard-card">
-                        <div class="text-xs uppercase text-white/50">BALANCE</div>
-                        <div id="balance-card" class="text-5xl font-bold mt-auto text-emerald-400 live-counter">0.000000</div>
-                    </div>
-                    <div class="glass border border-white/10 rounded-3xl p-6 col-span-2 flex items-center justify-between dashboard-card">
-                        <div><div class="text-xs uppercase text-white/50">REFERRALS</div><div id="dashboard-referrals-count" class="text-5xl font-bold">0</div></div>
-                        <div class="text-7xl">🔗</div>
-                        <div class="text-right"><div class="text-xs uppercase text-white/50">BONUS</div><div id="dashboard-referral-earnings" class="text-5xl font-bold text-purple-400">0.000000</div></div>
-                    </div>
+    <!-- MAIN APP (simplified for reliability) -->
+    <div id="main-app" class="hidden min-h-screen pb-20 px-6">
+        <div class="max-w-2xl mx-auto mt-10">
+            <h1 class="text-4xl font-bold text-center mb-8">RIDA DASHBOARD</h1>
+            <div id="status" class="glass border border-white/10 rounded-3xl p-8 text-center">
+                <p id="welcome-text" class="text-xl mb-6"></p>
+                <button onclick="toggleMining()" class="bg-emerald-500 hover:bg-emerald-600 px-10 py-4 rounded-3xl font-bold text-lg">START MINING (24h)</button>
+                <div id="mining-area" class="hidden mt-8">
+                    <div class="text-6xl mb-4">⛏️</div>
+                    <div id="live-reward" class="text-5xl font-mono text-emerald-400">0.000000</div>
+                    <button onclick="claimReward()" class="mt-6 bg-white text-black px-8 py-3 rounded-3xl font-bold">CLAIM REWARD</button>
                 </div>
             </div>
-        </div>
-
-        <!-- REFERRAL PAGE -->
-        <div id="page-referral" class="hidden max-w-screen-2xl mx-auto px-6 pt-8">
-            <div class="glass border border-white/10 rounded-3xl p-8">
-                <h2 class="text-3xl font-bold mb-8">Referral Program</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div>
-                        <div class="text-sm text-white/60 mb-3">YOUR REFERRAL CODE</div>
-                        <div class="flex items-center gap-x-4 bg-white/5 rounded-3xl p-2 pr-6">
-                            <div id="referral-code-display" class="flex-1 font-mono text-4xl px-6 py-4">RIDA-XXXXXX</div>
-                            <button onclick="copyReferralCode()" class="bg-white text-black px-8 h-14 rounded-3xl font-semibold">COPY</button>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-sm text-white/60 mb-3">YOUR REFERRALS</div>
-                        <div class="flex justify-between">
-                            <div class="text-center"><div id="total-referred" class="text-7xl font-bold">0</div><div class="text-xs uppercase">Friends</div></div>
-                            <div class="text-center"><div id="referral-total-earnings" class="text-7xl font-bold text-purple-400">0.000000</div><div class="text-xs uppercase">Bonus</div></div>
-                        </div>
-                        <div id="referral-list" class="mt-8 space-y-4 max-h-80 overflow-auto"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- WITHDRAW PAGE -->
-        <div id="page-withdraw" class="hidden max-w-screen-2xl mx-auto px-6 pt-8">
-            <div class="glass border border-white/10 rounded-3xl p-8 max-w-xl mx-auto">
-                <h2 class="text-3xl font-bold mb-2">Withdraw RIDA</h2>
-                <p class="text-white/60 mb-8">Minimum 0.5 RIDA • Instant on approval</p>
-                <div class="space-y-8">
-                    <div>
-                        <label class="block text-xs uppercase text-white/60 mb-2">Wallet Address</label>
-                        <input id="wallet-input" type="text" class="w-full px-6 py-5 bg-white/5 border border-white/10 rounded-3xl text-lg font-mono outline-none focus:border-cyan-400" placeholder="0x...">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase text-white/60 mb-2">Amount (RIDA)</label>
-                        <input id="withdraw-amount" type="text" class="w-full px-6 py-5 bg-white/5 border border-white/10 rounded-3xl text-4xl font-mono outline-none focus:border-cyan-400" placeholder="0.00">
-                    </div>
-                    <button onclick="requestWithdrawal()" class="w-full h-16 bg-gradient-to-r from-amber-400 to-red-400 text-black font-bold text-2xl rounded-3xl">REQUEST WITHDRAWAL</button>
-                </div>
-                <div class="mt-12">
-                    <h3 class="uppercase text-xs tracking-widest mb-4">History</h3>
-                    <div id="withdraw-history" class="space-y-3"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ADMIN PAGE -->
-        <div id="page-admin" class="hidden max-w-screen-2xl mx-auto px-6 pt-8">
-            <div class="flex justify-between mb-6">
-                <h2 class="text-4xl font-bold">Admin Control Center</h2>
-                <button onclick="refreshAdminData()" class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-3xl">⟳ REFRESH</button>
-            </div>
-            <div class="grid grid-cols-4 gap-6 mb-8">
-                <div class="glass rounded-3xl p-6"><div class="text-xs uppercase">Total Users</div><div id="admin-total-users" class="text-6xl font-bold">0</div></div>
-                <div class="glass rounded-3xl p-6"><div class="text-xs uppercase">Total Mined</div><div id="admin-total-mined" class="text-6xl font-bold text-emerald-400">0.000000</div></div>
-                <div class="glass rounded-3xl p-6"><div class="text-xs uppercase">Active Miners</div><div id="admin-active-miners" class="text-6xl font-bold text-cyan-400">0</div></div>
-                <div class="glass rounded-3xl p-6"><div class="text-xs uppercase">Pending WD</div><div id="admin-pending-withdrawals" class="text-6xl font-bold text-amber-400">0</div></div>
-            </div>
-            <div class="glass rounded-3xl p-2 overflow-x-auto">
-                <table class="w-full">
-                    <thead><tr class="border-b border-white/10 text-xs uppercase text-white/60"><th class="px-6 py-4 text-left">Email</th><th class="px-6 py-4 text-left">Balance</th><th class="px-6 py-4 text-left">Role</th><th class="px-6 py-4 text-left">Status</th><th class="px-6 py-4 text-center">Actions</th></tr></thead>
-                    <tbody id="admin-users-table"></tbody>
-                </table>
-            </div>
+            <button onclick="logout()" class="mt-8 block mx-auto text-red-400">Logout</button>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] space-y-2"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 space-y-2 z-50"></div>
 
     <script>
-        // ==================== CONFIG ====================
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzMvRrdKuXbAuL7Gg84nZOmIeOs1OJs9Aec2tHTSH5jSgtgwS9k-_3ZDPklOQCLdw0lkQ/exec";
-        
+
         let currentUser = null;
-        let miningInterval = null;
         let sessionToken = null;
-        let currentPage = 'dashboard';
+        let miningInterval = null;
 
         function showToast(msg, type = 'success') {
-            const t = document.createElement('div');
-            t.className = `toast flex items-center gap-3 px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium ${type === 'success' ? 'bg-emerald-400 text-black' : 'bg-red-400 text-white'}`;
-            t.innerHTML = `\( {type === 'success' ? '✅' : '⚠️'} <span> \){msg}</span>`;
-            document.getElementById('toast-container').appendChild(t);
-            setTimeout(() => t.remove(), 3500);
+            const toast = document.createElement('div');
+            toast.className = `toast px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium ${type === 'success' ? 'bg-emerald-400 text-black' : 'bg-red-400 text-white'}`;
+            toast.textContent = msg;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
-        function formatNumber(n) { return parseFloat(n || 0).toFixed(6); }
-
         async function apiCall(action, payload = {}) {
-            const body = JSON.stringify({
+            const bodyData = JSON.stringify({
                 action: action,
                 email: currentUser ? currentUser.email : payload.email,
                 token: sessionToken,
                 ...payload
             });
+
             try {
-                const res = await fetch(WEB_APP_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body });
-                const json = await res.json();
+                const res = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },   // ← FIXED LINE
+                    body: bodyData
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const text = await res.text();
+                let json;
+                try {
+                    json = JSON.parse(text);
+                } catch(e) {
+                    throw new Error('Invalid response from server');
+                }
+
                 if (!json.success) throw new Error(json.error || 'Server error');
                 return json.data || json;
             } catch (e) {
-                showToast(e.message, 'error');
+                console.error(e);
+                showToast(e.message || 'Connection failed', 'error');
                 throw e;
             }
         }
 
-        // ==================== AUTH ====================
+        // Auth
         let authMode = 0;
-        function switchAuthMode(m) {
-            authMode = m;
-            document.getElementById('toggle-login').dataset.active = m === 0;
-            document.getElementById('toggle-register').dataset.active = m === 1;
-            document.getElementById('auth-title').textContent = m === 0 ? 'Login to RIDA' : 'Create account';
-            document.getElementById('auth-button-text').textContent = m === 0 ? 'LOGIN' : 'REGISTER';
-            document.getElementById('referral-container').classList.toggle('hidden', m === 0);
+        function switchAuthMode(mode) {
+            authMode = mode;
+            document.getElementById('auth-title').textContent = mode === 0 ? 'Login' : 'Register';
         }
 
         async function handleAuth() {
             const email = document.getElementById('email-input').value.trim().toLowerCase();
-            const pass = document.getElementById('password-input').value;
-            const refCode = document.getElementById('referral-input').value.trim().toUpperCase();
+            const password = document.getElementById('password-input').value;
+            const referral = document.getElementById('referral-input').value.trim().toUpperCase();
 
-            if (!email || !pass) return showToast('Email & password required', 'error');
-
-            const btn = document.getElementById('auth-button');
-            btn.disabled = true;
-            document.getElementById('auth-button-text').innerHTML = 'PROCESSING...';
+            if (!email || !password) return showToast('Email and password required', 'error');
 
             try {
+                let result;
                 if (authMode === 1) {
-                    const r = await apiCall('REGISTER', {email, password: pass, referredByCode: refCode || null});
-                    currentUser = r.user;
-                    sessionToken = r.token;
+                    result = await apiCall('REGISTER', { email, password, referredByCode: referral || null });
                 } else {
-                    const r = await apiCall('LOGIN', {email, password: pass});
-                    currentUser = r.user;
-                    sessionToken = r.token;
+                    result = await apiCall('LOGIN', { email, password });
                 }
+                currentUser = result.user;
+                sessionToken = result.token;
                 localStorage.setItem('rida_session', JSON.stringify({email: currentUser.email, token: sessionToken}));
                 enterApp();
-            } finally {
-                btn.disabled = false;
-                document.getElementById('auth-button-text').textContent = authMode === 0 ? 'LOGIN' : 'REGISTER';
-            }
+            } catch(e) {}
         }
 
         function enterApp() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             document.getElementById('header').classList.remove('hidden');
-            document.getElementById('nav-email').innerHTML = `\( {currentUser.email} <span class="text-[10px] bg-white/10 px-2 rounded-full"> \){currentUser.role}</span>`;
-            loadUserData();
-            loadAnnouncements();
-            if (currentUser.role === 'admin') document.getElementById('tab-admin').classList.remove('hidden');
+            document.getElementById('nav-email').textContent = currentUser.email;
+            document.getElementById('welcome-text').innerHTML = `Welcome back, <strong>${currentUser.email}</strong>`;
+            showToast('Logged in successfully!', 'success');
         }
 
-        async function loadUserData() {
-            try {
-                const d = await apiCall('GET_USER');
-                currentUser = d.user;
-                document.getElementById('nav-balance').textContent = formatNumber(currentUser.balance) + ' RIDA';
-                document.getElementById('balance-card').textContent = formatNumber(currentUser.balance);
-                document.getElementById('total-earned').textContent = formatNumber(currentUser.totalEarned);
-                loadMiningStatus();
-            } catch(e) {}
-        }
-
-        // ==================== MINING ====================
         async function toggleMining() {
             try {
                 await apiCall('START_MINING');
-                showToast('Mining started!', 'success');
-                loadMiningStatus();
+                showToast('Mining started for 24 hours!', 'success');
+                document.getElementById('mining-area').classList.remove('hidden');
             } catch(e) {}
-        }
-
-        async function loadMiningStatus() {
-            try {
-                const s = await apiCall('GET_MINING_STATUS');
-                const btn = document.getElementById('mining-button');
-                const overlay = document.getElementById('mining-active-overlay');
-                const badge = document.getElementById('mining-badge');
-                const navBadge = document.getElementById('nav-mining-badge');
-
-                if (s.active) {
-                    btn.classList.add('hidden');
-                    overlay.classList.remove('hidden');
-                    badge.classList.remove('hidden');
-                    navBadge.classList.remove('hidden');
-                    if (miningInterval) clearInterval(miningInterval);
-                    miningInterval = setInterval(() => updateLiveMiningUI(s.startTime), 1000);
-                    updateLiveMiningUI(s.startTime);
-                    if (s.canClaim) document.getElementById('claim-button').classList.remove('hidden');
-                } else {
-                    if (miningInterval) clearInterval(miningInterval);
-                    btn.classList.remove('hidden');
-                    overlay.classList.add('hidden');
-                    badge.classList.add('hidden');
-                    navBadge.classList.add('hidden');
-                }
-            } catch(e) {}
-        }
-
-        function updateLiveMiningUI(startISO) {
-            const start = new Date(startISO).getTime();
-            const elapsed = Date.now() - start;
-            const fraction = Math.min(1, elapsed / 86400000);
-            document.getElementById('live-reward').textContent = formatNumber(fraction * 0.1);
-            document.getElementById('progress-bar').style.width = (fraction * 100) + '%';
-            const rem = Math.max(0, 86400000 - elapsed);
-            const h = Math.floor(rem / 3600000);
-            const m = Math.floor((rem % 3600000) / 60000);
-            const sec = Math.floor((rem % 60000) / 1000);
-            document.getElementById('countdown').textContent = `\( {h.toString().padStart(2,'0')}: \){m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-            if (fraction >= 1) document.getElementById('claim-button').classList.remove('hidden');
         }
 
         async function claimReward() {
             try {
-                const r = await apiCall('CLAIM_REWARD');
-                showToast(`Claimed ${r.reward} RIDA!`, 'success');
-                if (miningInterval) clearInterval(miningInterval);
-                loadUserData();
-                loadMiningStatus();
+                const res = await apiCall('CLAIM_REWARD');
+                showToast(`Claimed ${res.reward} RIDA!`, 'success');
             } catch(e) {}
-        }
-
-        // ==================== OTHER PAGES ====================
-        async function loadReferrals() {
-            try {
-                const d = await apiCall('GET_REFERRALS');
-                document.getElementById('referral-code-display').textContent = d.referralCode;
-                document.getElementById('total-referred').textContent = d.totalReferred;
-                document.getElementById('referral-total-earnings').textContent = formatNumber(d.referralEarnings);
-                const list = document.getElementById('referral-list');
-                list.innerHTML = d.referrals.map(r => `<div class="flex justify-between bg-white/5 rounded-2xl px-5 py-4"><div>\( {r.email}</div><div class="text-emerald-400"> \){formatNumber(r.contributed)} RIDA</div></div>`).join('');
-            } catch(e) {}
-        }
-
-        function copyReferralCode() {
-            const code = document.getElementById('referral-code-display').textContent;
-            navigator.clipboard.writeText(code).then(() => showToast('Copied!', 'success'));
-        }
-
-        async function requestWithdrawal() {
-            const wallet = document.getElementById('wallet-input').value.trim();
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            if (!wallet || amount < 0.5) return showToast('Invalid amount or wallet', 'error');
-            try {
-                await apiCall('REQUEST_WITHDRAWAL', {amount, wallet});
-                showToast('Withdrawal requested!', 'success');
-                loadWithdrawHistory();
-            } catch(e) {}
-        }
-
-        async function loadWithdrawHistory() {
-            try {
-                const d = await apiCall('GET_WITHDRAWALS');
-                const container = document.getElementById('withdraw-history');
-                container.innerHTML = d.withdrawals.map(w => `
-                    <div class="flex justify-between bg-white/5 rounded-2xl px-6 py-4">
-                        <div class="font-mono">${w.wallet}</div>
-                        <div class="text-right">
-                            <div class="font-bold">${formatNumber(w.amount)}</div>
-                            <div class="text-xs uppercase \( {w.status === 'approved' ? 'text-emerald-400' : 'text-amber-400'}"> \){w.status}</div>
-                        </div>
-                    </div>
-                `).join('') || '<p class="text-white/40 text-center py-8">No withdrawals yet</p>';
-            } catch(e) {}
-        }
-
-        async function refreshAdminData() {
-            try {
-                const d = await apiCall('GET_ANALYTICS');
-                document.getElementById('admin-total-users').textContent = d.totalUsers;
-                document.getElementById('admin-total-mined').textContent = formatNumber(d.totalMined);
-                document.getElementById('admin-active-miners').textContent = d.activeMiners;
-                document.getElementById('admin-pending-withdrawals').textContent = d.pendingWithdrawals;
-                const tbody = document.getElementById('admin-users-table');
-                tbody.innerHTML = d.users.map(u => `
-                    <tr class="border-b border-white/10 hover:bg-white/5">
-                        <td class="px-6 py-4">${u.email}</td>
-                        <td class="px-6 py-4 font-semibold">${formatNumber(u.balance)}</td>
-                        <td class="px-6 py-4">${u.role}</td>
-                        <td class="px-6 py-4">${u.status}</td>
-                        <td class="px-6 py-4 text-center">
-                            <button onclick="alert('Edit coming soon')" class="text-xs bg-cyan-400 text-black px-4 py-1 rounded-3xl">EDIT</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch(e) {}
-        }
-
-        async function loadAnnouncements() {
-            try {
-                const d = await apiCall('GET_ANNOUNCEMENTS');
-                if (d.announcements && d.announcements.length) {
-                    const a = d.announcements[0];
-                    document.getElementById('announcement-text').innerHTML = `<strong>${a.title}</strong> — ${a.message}`;
-                    document.getElementById('announcement-banner').style.display = 'flex';
-                }
-            } catch(e) {}
-        }
-
-        function navigateTo(page) {
-            currentPage = page;
-            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            document.getElementById('page-' + page).classList.remove('hidden');
-            document.querySelectorAll('.tab-button').forEach(t => t.dataset.active = t.id === 'tab-' + page);
-            if (page === 'referral') loadReferrals();
-            if (page === 'withdraw') loadWithdrawHistory();
-            if (page === 'admin') refreshAdminData();
         }
 
         function logout() {
@@ -519,34 +196,26 @@
             location.reload();
         }
 
+        // Auto login
         async function tryAutoLogin() {
             const saved = localStorage.getItem('rida_session');
-            if (!saved) return false;
+            if (!saved) return;
             const {email, token} = JSON.parse(saved);
             sessionToken = token;
             currentUser = {email};
             try {
-                const d = await apiCall('GET_USER');
-                currentUser = d.user;
-                sessionToken = d.token || token;
+                const data = await apiCall('GET_USER');
+                currentUser = data.user || currentUser;
                 enterApp();
-                return true;
             } catch(e) {
                 localStorage.removeItem('rida_session');
-                return false;
             }
         }
 
-        async function initialize() {
-            const logged = await tryAutoLogin();
-            if (!logged) {
-                document.getElementById('auth-screen').classList.remove('hidden');
-                switchAuthMode(0);
-            }
-            console.log('%c✅ RIDA NETWORK ready — deployed on GitHub Pages!', 'color:#00f7ff;font-family:monospace');
-        }
-
-        window.onload = initialize;
+        window.onload = () => {
+            tryAutoLogin();
+            console.log('%cRIDA NETWORK - Fixed version loaded', 'color:#00f7ff');
+        };
     </script>
 </body>
 </html>
