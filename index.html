@@ -385,8 +385,8 @@
 </div>
 
 <script>
-    // ⚠️ IMPORTANT: Replace this URL with your actual Google Apps Script Web App URL
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwJ9KFU84I9EBpdaajx0SKiuRYwT6EcErN1eYUmqWYcpGwymsIC-rYZ-5iUhm2VwuN2pw/exec';
+    // ⚠️ IMPORTANT: This is YOUR web app URL - already configured!
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxeClVLioDeirWyz41Dvx21bbf65zGYLt50NsyJQlLMmgG1RXHCjNLeJ2qASd2xLFE7Nw/exec';
     
     let currentUser = null;
     let miningInterval = null;
@@ -401,7 +401,7 @@
             
             window[callbackName] = function(response) {
                 delete window[callbackName];
-                document.body.removeChild(script);
+                if (script && script.parentNode) document.body.removeChild(script);
                 resolve(response);
             };
             
@@ -409,8 +409,8 @@
             script.src = url;
             script.onerror = function() {
                 delete window[callbackName];
-                document.body.removeChild(script);
-                reject(new Error('Network request failed - check your API URL'));
+                if (script && script.parentNode) document.body.removeChild(script);
+                reject(new Error('Network request failed - check your API URL and CORS settings'));
             };
             document.body.appendChild(script);
             
@@ -418,7 +418,7 @@
             setTimeout(() => {
                 if (window[callbackName]) {
                     delete window[callbackName];
-                    document.body.removeChild(script);
+                    if (script && script.parentNode) document.body.removeChild(script);
                     reject(new Error('Request timeout'));
                 }
             }, 30000);
@@ -476,7 +476,7 @@
                     updateCountdown();
                     countdownInterval = setInterval(updateCountdown, 1000);
                 } else if (status.canClaim) {
-    miningIdleDiv.style.display = 'none';
+                    miningIdleDiv.style.display = 'none';
                     miningActiveDiv.style.display = 'block';
                     document.getElementById('currentReward').innerText = '0.100000';
                     document.getElementById('countdown').innerText = '00:00:00';
