@@ -3,249 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Network</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Rida Mining App</title>
 
 <style>
-.glow { box-shadow: 0 0 20px #facc15; }
+body {
+  margin:0;
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+}
+
+.container {
+  max-width:400px;
+  margin:auto;
+  padding:20px;
+}
+
+.card {
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  margin-top:20px;
+}
+
+input,button {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+input {
+  background:#0f172a;
+  color:#fff;
+}
+
+button {
+  background:#22c55e;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover {
+  opacity:0.9;
+}
+
+.center { text-align:center; }
+
+.hidden { display:none; }
+
+.nav {
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px;
+}
+
+.nav button {
+  width:32%;
+  background:#334155;
+}
+
+.admin { background:#ef4444 !important; }
 </style>
 
 </head>
+<body>
 
-<body class="bg-gray-900 text-white">
+<div class="container">
 
-<div class="flex min-h-screen">
+<h2 class="center">🚀 Rida Mining</h2>
 
-<!-- SIDEBAR -->
-<div class="w-20 bg-gray-800 flex flex-col items-center py-6">
-  <div class="text-yellow-400 text-2xl">⛏</div>
+<!-- LOGIN -->
+<div id="loginBox" class="card">
+  <h3>Login</h3>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p onclick="showRegister()">No account? Register</p>
 </div>
 
-<!-- MAIN -->
-<div class="flex-1 p-5 max-w-3xl mx-auto">
-
-<h1 class="text-2xl text-yellow-400 mb-4">Rida Network</h1>
-
-<!-- AUTH -->
-<div id="auth">
-
-<input id="email" placeholder="Email" class="p-2 w-full mb-2 text-black rounded">
-<input id="password" type="password" placeholder="Password" class="p-2 w-full mb-3 text-black rounded">
-
-<button onclick="register()" class="bg-blue-500 w-full p-2 mb-2 rounded">Register</button>
-<button onclick="login()" class="bg-green-500 w-full p-2 rounded">Login</button>
-
+<!-- REGISTER -->
+<div id="registerBox" class="card hidden">
+  <h3>Register</h3>
+  <input id="rEmail" placeholder="Email">
+  <input id="rPass" type="password" placeholder="Password">
+  <input id="ref" placeholder="Referral Code (optional)">
+  <button onclick="register()">Register</button>
+  <p onclick="showLogin()">Back to login</p>
 </div>
 
-<!-- APP -->
-<div id="app" class="hidden">
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
 
-<!-- BALANCE -->
-<div class="bg-gray-800 p-4 rounded mb-4">
-  <p class="text-gray-400">Balance</p>
-  <p class="text-3xl text-green-400" id="balance">0</p>
-</div>
+  <div class="card">
+    <h3>Balance: <span id="bal">0</span></h3>
+    <p>Referral Code: <span id="refCode"></span></p>
+    <p>KYC: <span id="kyc"></span></p>
+  </div>
 
-<!-- MINING -->
-<div class="bg-gray-800 p-5 rounded text-center glow mb-4">
+  <div class="card center">
+    <h3 id="timer">Loading...</h3>
+    <button onclick="claim()">Start Mining</button>
+  </div>
 
-<p id="miningStatus">Idle</p>
+  <div class="card">
+    <h3>Withdraw</h3>
+    <input id="amount" placeholder="Amount">
+    <button onclick="withdraw()">Withdraw</button>
+  </div>
 
-<p class="text-3xl text-yellow-400 my-3" id="counter">0.000</p>
+  <div class="card">
+    <h3>KYC</h3>
+    <input id="name" placeholder="Full Name">
+    <input id="cnic" placeholder="CNIC">
+    <button onclick="submitKYC()">Submit KYC</button>
+  </div>
 
-<button onclick="startMining()" class="bg-yellow-500 px-5 py-2 rounded">
-Start Mining
-</button>
-
-</div>
-
-<!-- WITHDRAW -->
-<div class="bg-gray-800 p-4 rounded mb-4">
-  <h3 class="mb-2">Withdraw</h3>
-  <input id="amount" placeholder="Amount" class="p-2 w-full text-black rounded mb-2">
-  <button onclick="withdraw()" class="bg-purple-500 w-full p-2 rounded">
-    Request Withdraw
-  </button>
-</div>
-
-<!-- ADMIN PANEL -->
-<div id="admin" class="hidden bg-gray-800 p-4 rounded mb-4">
-
-<h2 class="text-red-400 text-xl mb-2">Admin Panel</h2>
-
-<button onclick="loadUsers()" class="bg-gray-700 p-2 w-full mb-2">Load Users</button>
-<div id="users"></div>
-
-<button onclick="loadWithdraws()" class="bg-gray-700 p-2 w-full mt-3 mb-2">Load Withdraws</button>
-<div id="withdraws"></div>
+  <div class="nav">
+    <button onclick="load()">Refresh</button>
+    <button onclick="logout()">Logout</button>
+    <button id="adminBtn" class="admin hidden" onclick="admin()">Admin</button>
+  </div>
 
 </div>
 
-<button onclick="logout()" class="bg-red-500 w-full p-2 rounded">
-Logout
-</button>
-
-<p id="msg" class="mt-3 text-center text-gray-400"></p>
-
-</div>
-
-</div>
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbycildE5hjtNtGxcJbSdTkPQih-0WMi3hBl_zit42enkhuPdvdflWOAMPvl1J6VlhNh/exec";
+const API = "https://script.google.com/macros/s/AKfycbw3AR5966w3Va-VNWzbOTeFAx2UCIiYMuf6pGzrE7ji7qTlRI5L9Z8uAw_ehf5IeszX/exec";
 
-let user = null;
-let mining = false;
-let counter = 0;
-let interval;
+let token = localStorage.getItem("token");
+
+if(token) startApp();
 
 /******** API ********/
-async function api(data){
+async function send(data){
   const res = await fetch(API,{
     method:"POST",
-    headers:{ "Content-Type":"text/plain" },
-    body: JSON.stringify(data)
+    body:JSON.stringify(data)
   });
-  return JSON.parse(await res.text());
+  return await res.json();
 }
 
 /******** AUTH ********/
-async function register(){
-  const res = await api({
-    action:"register",
-    email:email.value,
-    password:password.value
-  });
-  alert(JSON.stringify(res));
-}
-
 async function login(){
-  const res = await api({
+  const res = await send({
     action:"login",
     email:email.value,
     password:password.value
   });
 
-  if(res.success){
-    user = res.user;
-    localStorage.setItem("user", JSON.stringify(user));
-    showApp();
-  } else {
-    alert(res.error);
-  }
+  if(res.token){
+    localStorage.setItem("token",res.token);
+    startApp(res.user);
+  } else alert(res.error);
+}
+
+async function register(){
+  const res = await send({
+    action:"register",
+    email:rEmail.value,
+    password:rPass.value,
+    ref:ref.value
+  });
+
+  alert("Registered! Login now");
+  showLogin();
+}
+
+function logout(){
+  localStorage.removeItem("token");
+  location.reload();
 }
 
 /******** UI ********/
-function showApp(){
-  auth.style.display="none";
-  app.style.display="block";
-
-  balance.innerText = user.balance;
-
-  if(user.role === "admin"){
-    admin.style.display="block";
-  }
+function showRegister(){
+  loginBox.classList.add("hidden");
+  registerBox.classList.remove("hidden");
 }
 
-/******** MINING ********/
-function startMining(){
+function showLogin(){
+  registerBox.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+}
 
-  if(mining) return;
+/******** APP ********/
+async function startApp(user){
+  loginBox.style.display="none";
+  registerBox.style.display="none";
+  dashboard.style.display="block";
 
-  mining = true;
-  counter = 0;
+  if(user && user.role==="admin"){
+    adminBtn.classList.remove("hidden");
+  }
 
-  miningStatus.innerText = "Mining Active";
+  load();
+}
 
-  interval = setInterval(()=>{
-    counter += 0.001;
-    counterEl().innerText = counter.toFixed(3);
-  },1000);
+/******** LOAD ********/
+async function load(){
+  const res = await send({
+    action:"getStatus",
+    token
+  });
 
-  setTimeout(async ()=>{
-    clearInterval(interval);
+  bal.innerText = res.balance;
+  refCode.innerText = res.referralCode;
+  kyc.innerText = res.kycStatus;
 
-    const res = await api({
-      action:"claim",
-      userId:user.userId
-    });
+  startTimer(res.remaining);
+}
 
-    if(res.success){
-      user.balance = res.balance;
-      balance.innerText = res.balance;
-      msg.innerText = "✅ Reward Added";
-    } else {
-      msg.innerText = res.error;
+/******** TIMER ********/
+function startTimer(ms){
+  function update(){
+    if(ms<=0){
+      timer.innerText="Ready to Mine";
+      return;
     }
+    let h=Math.floor(ms/3600000);
+    let m=Math.floor(ms%3600000/60000);
+    let s=Math.floor(ms%60000/1000);
+    timer.innerText=`${h}h ${m}m ${s}s`;
+    ms-=1000;
+    setTimeout(update,1000);
+  }
+  update();
+}
 
-    mining = false;
-    miningStatus.innerText = "Idle";
+/******** CLAIM ********/
+async function claim(){
+  const res = await send({
+    action:"claim",
+    token
+  });
 
-  },5000); // demo animation
+  alert(res.success ? "Mining reward added!" : res.error);
+  load();
 }
 
 /******** WITHDRAW ********/
 async function withdraw(){
-  const res = await api({
+  const res = await send({
     action:"withdraw",
-    userId:user.userId,
+    token,
     amount:amount.value
   });
 
-  msg.innerText = JSON.stringify(res);
+  alert(res.success ? "Withdraw requested" : res.error);
+}
+
+/******** KYC ********/
+async function submitKYC(){
+  const res = await send({
+    action:"submitKYC",
+    token,
+    kyc:{
+      name:name.value,
+      cnic:cnic.value
+    }
+  });
+
+  alert("KYC Submitted");
 }
 
 /******** ADMIN ********/
-async function loadUsers(){
-  const data = await api({action:"getUsers"});
-
-  users.innerHTML = data.map(u =>
-    `<div class="bg-gray-700 p-2 mt-1 rounded">
-      ${u.email} | ${u.balance} | ${u.role}
-    </div>`
-  ).join("");
-}
-
-async function loadWithdraws(){
-  const data = await api({action:"getWithdraws"});
-
-  withdraws.innerHTML = data.map(w =>
-    `<div class="bg-gray-700 p-2 mt-1 rounded">
-      ${w.userId} - ${w.amount} (${w.status})
-      ${w.status==="pending" ? 
-      `<button onclick="approve('${w.txId}')" class="bg-green-500 px-2 ml-2">Approve</button>` : ""}
-    </div>`
-  ).join("");
-}
-
-async function approve(id){
-  await api({
-    action:"approveWithdraw",
-    txId:id
+async function admin(){
+  const users = await send({
+    action:"getUsers",
+    token
   });
-  loadWithdraws();
+
+  console.log(users);
+  alert("Check console for admin data");
 }
-
-/******** LOGOUT ********/
-function logout(){
-  localStorage.clear();
-  location.reload();
-}
-
-/******** HELPERS ********/
-const counterEl = ()=>document.getElementById("counter");
-
-/******** AUTO LOGIN ********/
-window.onload = ()=>{
-  const saved = localStorage.getItem("user");
-  if(saved){
-    user = JSON.parse(saved);
-    showApp();
-  }
-};
 
 </script>
 
