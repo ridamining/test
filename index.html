@@ -7,76 +7,53 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .card { background: linear-gradient(145deg, #1a1a1a, #111111); }
+    body { font-family: system-ui, -apple-system, sans-serif; }
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
-  <div id="app" class="min-h-screen"></div>
+  <div id="app" class="min-h-screen">
+    <!-- Static fallback if JS fails -->
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="text-6xl mb-6">⛏️</div>
+        <h1 class="text-4xl font-bold mb-4">Rida Network</h1>
+        <p class="text-zinc-400">Loading...</p>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // ================== CONFIG ==================
     const API_URL = "https://script.google.com/macros/s/AKfycbwIjEOJzg2X20aEhYLvDKv0jOf_0QnPajJ5Jb4DrZhDl7GYF4uKkaSVSLOPwNiu8Df9/exec";
     let currentToken = localStorage.getItem('ridaToken') || null;
-    let currentUser = null;
 
-    // Initialize Tailwind safely
-    function initTailwind() {
-      if (typeof tailwind === 'undefined') {
-        console.warn("Tailwind CDN failed to load");
-        return;
-      }
-      tailwind.config = {
-        content: ["./**/*.{html,js}"],
-        darkMode: 'class',
-      };
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.style.cssText = `position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:12px;color:white;z-index:9999;${type==='success'?'background:#10b981':'background:#ef4444'}`;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
     }
 
     async function apiCall(action, body = {}) {
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, token: currentToken, ...body })
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({action, token: currentToken, ...body})
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed');
         return data;
-      } catch (err) {
-        showToast(err.message, 'error');
-        throw err;
+      } catch (e) {
+        console.error(e);
+        showToast(e.message, 'error');
+        throw e;
       }
     }
 
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.style.cssText = `position:fixed; bottom:24px; right:24px; padding:16px 24px; border-radius:16px; z-index:9999; display:flex; align-items:center; gap:12px; font-weight:500; ${
-        type === 'success' ? 'background:#10b981; color:white;' : 'background:#ef4444; color:white;'
-      }`;
-      toast.innerHTML = `<i class="fa-solid \( {type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i><span> \){message}</span>`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 4500);
-    }
-
-    function logout() {
-      localStorage.removeItem('ridaToken');
-      currentToken = null;
-      currentUser = null;
-      render('landing');
-    }
-
-    function navigate(page) {
-      render(page);
-    }
-
-    async function render(view) {
+    function render(view = 'landing') {
       const app = document.getElementById('app');
       app.innerHTML = '';
-
-      if (!currentToken && !['landing', 'login', 'register'].includes(view)) {
-        view = 'landing';
-      }
 
       if (view === 'landing') {
         app.innerHTML = `
@@ -84,98 +61,39 @@
             <div class="text-center px-6">
               <div class="text-7xl mb-8">⛏️</div>
               <h1 class="text-6xl font-bold mb-6">Rida Network</h1>
-              <p class="text-2xl text-zinc-400 mb-12">Daily Mining • Real Rewards</p>
-              <div class="flex gap-4 justify-center">
-                <button onclick="navigate('login')" class="px-8 py-4 border border-white/30 rounded-2xl hover:bg-white/10">Login</button>
+              <p class="text-xl text-zinc-400 mb-10">Daily Mining • Real Rewards</p>
+              <div class="flex gap-4 justify-center flex-wrap">
+                <button onclick="navigate('login')" class="px-8 py-4 border border-white/40 rounded-2xl hover:bg-white/10">Login</button>
                 <button onclick="navigate('register')" class="px-10 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold">Join Free</button>
               </div>
             </div>
           </div>`;
-        return;
       }
+      // Add more views later once basic loading works
+    }
 
-      // Register & Login pages (same as before)
-      if (view === 'register') {
-        app.innerHTML = `<div class="min-h-screen flex items-center justify-center"><div class="card max-w-md w-full p-10 rounded-3xl"><h2 class="text-3xl font-bold text-center mb-8">Create Account</h2><input id="regEmail" type="email" placeholder="Email" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-4"><input id="regPassword" type="password" placeholder="Password" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-6"><button onclick="handleRegister()" class="w-full py-4 bg-emerald-500 rounded-2xl font-semibold">Register</button></div></div>`;
-        return;
-      }
+    function navigate(page) {
+      render(page);
+    }
 
-      if (view === 'login') {
-        app.innerHTML = `<div class="min-h-screen flex items-center justify-center"><div class="card max-w-md w-full p-10 rounded-3xl"><h2 class="text-3xl font-bold text-center mb-8">Login</h2><input id="loginEmail" type="email" placeholder="Email" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-4"><input id="loginPassword" type="password" placeholder="Password" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-6"><button onclick="handleLogin()" class="w-full py-4 bg-emerald-500 rounded-2xl font-semibold">Login</button></div></div>`;
-        return;
-      }
-
-      // Dashboard (core view)
-      if (!currentUser) {
-        try {
-          const data = await apiCall('getDashboard');
-          currentUser = data;
-        } catch (e) {
-          logout();
-          return;
+    // Safe initialization
+    window.onload = function() {
+      try {
+        // Try to init Tailwind
+        if (typeof tailwind !== 'undefined') {
+          tailwind.config = { darkMode: 'class' };
         }
-      }
-
-      if (view === 'dashboard') {
-        app.innerHTML = `
-          <div class="flex h-screen">
-            <div class="w-72 bg-zinc-900 p-6 flex flex-col border-r border-white/10">
-              <div class="flex items-center gap-3 mb-12">
-                <i class="fa-solid fa-link text-4xl text-emerald-500"></i>
-                <span class="font-bold text-2xl">Rida Network</span>
-              </div>
-              <button onclick="navigate('dashboard')" class="w-full text-left px-6 py-4 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-1">Dashboard</button>
-              <button onclick="navigate('referrals')" class="w-full text-left px-6 py-4 rounded-2xl hover:bg-white/5">Referrals</button>
-              <button onclick="logout()" class="mt-auto text-red-400 hover:bg-red-500/10 py-4 rounded-2xl">Logout</button>
-            </div>
-            <div class="flex-1 p-10">
-              <h1 class="text-4xl font-bold mb-8">Dashboard</h1>
-              <div class="card p-10 rounded-3xl text-center">
-                <div class="text-7xl mb-4">Balance</div>
-                <div class="text-8xl font-bold text-emerald-400">${parseFloat(currentUser.balance || 0).toFixed(2)} Rida</div>
-                <button onclick="makeClaim()" class="mt-10 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-xl font-semibold">Claim Now (Every 24h)</button>
-              </div>
+        render(currentToken ? 'dashboard' : 'landing');
+      } catch (err) {
+        console.error("App failed to start:", err);
+        document.getElementById('app').innerHTML = `
+          <div class="min-h-screen flex items-center justify-center text-center p-6">
+            <div>
+              <p class="text-red-400 mb-4">Something went wrong while loading the app.</p>
+              <p class="text-zinc-400">Open browser console (F12) and check for errors.</p>
             </div>
           </div>`;
       }
-    }
-
-    async function handleRegister() {
-      const email = document.getElementById('regEmail').value;
-      const password = document.getElementById('regPassword').value;
-      if (!email || !password) return showToast('Fill all fields', 'error');
-      try {
-        await apiCall('register', { email, password });
-        showToast('Account created! Login now.', 'success');
-        navigate('login');
-      } catch(e){}
-    }
-
-    async function handleLogin() {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      if (!email || !password) return showToast('Fill all fields', 'error');
-      try {
-        const data = await apiCall('login', { email, password });
-        currentToken = data.token;
-        localStorage.setItem('ridaToken', currentToken);
-        showToast('Login successful!', 'success');
-        render('dashboard');
-      } catch(e){}
-    }
-
-    async function makeClaim() {
-      try {
-        const data = await apiCall('claim');
-        showToast('Claim successful!', 'success');
-        render('dashboard');
-      } catch(e){}
-    }
-
-    // Start the app
-    window.onload = () => {
-      initTailwind();
-      render(currentToken ? 'dashboard' : 'landing');
     };
   </script>
 </body>
