@@ -7,20 +7,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
-  <div id="app" class="min-h-screen">
-    <!-- Static fallback if JS fails -->
-    <div class="flex items-center justify-center min-h-screen">
-      <div class="text-center">
-        <div class="text-6xl mb-6">⛏️</div>
-        <h1 class="text-4xl font-bold mb-4">Rida Network</h1>
-        <p class="text-zinc-400">Loading...</p>
-      </div>
-    </div>
-  </div>
+  <div id="app" class="min-h-screen"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwIjEOJzg2X20aEhYLvDKv0jOf_0QnPajJ5Jb4DrZhDl7GYF4uKkaSVSLOPwNiu8Df9/exec";
@@ -28,7 +20,7 @@
 
     function showToast(msg, type = 'success') {
       const t = document.createElement('div');
-      t.style.cssText = `position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:12px;color:white;z-index:9999;${type==='success'?'background:#10b981':'background:#ef4444'}`;
+      t.style.cssText = `position:fixed;bottom:24px;right:24px;padding:14px 24px;border-radius:16px;color:white;z-index:9999;font-weight:500;${type==='success' ? 'background:#10b981' : 'background:#ef4444'}`;
       t.textContent = msg;
       document.body.appendChild(t);
       setTimeout(() => t.remove(), 4000);
@@ -42,7 +34,7 @@
           body: JSON.stringify({action, token: currentToken, ...body})
         });
         const data = await res.json();
-        if (!data.success) throw new Error(data.error || 'Failed');
+        if (!data.success) throw new Error(data.error || 'Request failed');
         return data;
       } catch (e) {
         console.error(e);
@@ -57,43 +49,72 @@
 
       if (view === 'landing') {
         app.innerHTML = `
-          <div class="min-h-screen bg-gradient-to-br from-zinc-950 to-black flex items-center justify-center">
-            <div class="text-center px-6">
-              <div class="text-7xl mb-8">⛏️</div>
-              <h1 class="text-6xl font-bold mb-6">Rida Network</h1>
-              <p class="text-xl text-zinc-400 mb-10">Daily Mining • Real Rewards</p>
-              <div class="flex gap-4 justify-center flex-wrap">
-                <button onclick="navigate('login')" class="px-8 py-4 border border-white/40 rounded-2xl hover:bg-white/10">Login</button>
-                <button onclick="navigate('register')" class="px-10 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold">Join Free</button>
+          <div class="min-h-screen bg-gradient-to-br from-zinc-950 via-black to-zinc-950 flex items-center justify-center px-6">
+            <div class="text-center max-w-md">
+              <div class="text-8xl mb-8">⛏️</div>
+              <h1 class="text-6xl font-bold tracking-tight mb-4">Rida Network</h1>
+              <p class="text-2xl text-zinc-400 mb-12">Daily Mining • Real Rewards</p>
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="navigate('login')" 
+                  class="px-10 py-4 border border-white/30 hover:bg-white/10 rounded-2xl text-lg font-medium transition">Login</button>
+                <button onclick="navigate('register')" 
+                  class="px-10 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-lg font-semibold transition">Join Free</button>
               </div>
             </div>
           </div>`;
+      } else if (view === 'login' || view === 'register') {
+        const isLogin = view === 'login';
+        app.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center bg-zinc-950">
+            <div class="bg-zinc-900 p-10 rounded-3xl w-full max-w-md">
+              <h2 class="text-3xl font-bold text-center mb-8">${isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+              <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4 focus:outline-none focus:border-emerald-500">
+              <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8 focus:outline-none focus:border-emerald-500">
+              <button onclick="${isLogin ? 'handleLogin()' : 'handleRegister()'}" 
+                class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold text-lg">${isLogin ? 'Login' : 'Register'}</button>
+              <p class="text-center mt-6 text-zinc-400">
+                ${isLogin ? 'No account?' : 'Already have an account?'} 
+                <span onclick="navigate('\( {isLogin ? 'register' : 'login'}')" class="text-emerald-400 cursor-pointer hover:underline"> \){isLogin ? 'Register' : 'Login'}</span>
+              </p>
+            </div>
+          </div>`;
       }
-      // Add more views later once basic loading works
     }
 
     function navigate(page) {
       render(page);
     }
 
-    // Safe initialization
-    window.onload = function() {
+    async function handleRegister() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!email || !password) return showToast('Please fill all fields', 'error');
       try {
-        // Try to init Tailwind
-        if (typeof tailwind !== 'undefined') {
-          tailwind.config = { darkMode: 'class' };
-        }
-        render(currentToken ? 'dashboard' : 'landing');
-      } catch (err) {
-        console.error("App failed to start:", err);
-        document.getElementById('app').innerHTML = `
-          <div class="min-h-screen flex items-center justify-center text-center p-6">
-            <div>
-              <p class="text-red-400 mb-4">Something went wrong while loading the app.</p>
-              <p class="text-zinc-400">Open browser console (F12) and check for errors.</p>
-            </div>
-          </div>`;
-      }
+        await apiCall('register', { email, password });
+        showToast('Account created successfully! Please login.', 'success');
+        navigate('login');
+      } catch (e) {}
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!email || !password) return showToast('Please fill all fields', 'error');
+      try {
+        const data = await apiCall('login', { email, password });
+        currentToken = data.token;
+        localStorage.setItem('ridaToken', currentToken);
+        showToast('Login successful!', 'success');
+        // For now show success - full dashboard coming next
+        document.getElementById('app').innerHTML = `<div class="min-h-screen flex items-center justify-center"><div class="text-center"><p class="text-3xl">Login Successful!</p><p class="text-emerald-400 mt-4">Dashboard coming in next update...</p></div></div>`;
+      } catch (e) {}
+    }
+
+    // Initialize with delay for Tailwind
+    window.onload = () => {
+      setTimeout(() => {
+        render(currentToken ? 'dashboard' : 'landing');   // Try to render landing first
+      }, 300);
     };
   </script>
 </body>
