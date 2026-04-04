@@ -12,7 +12,16 @@
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
-  <div id="app" class="min-h-screen"></div>
+  <div id="app" class="min-h-screen p-6">
+    <!-- Static fallback content -->
+    <div class="max-w-md mx-auto text-center mt-20">
+      <div class="text-8xl mb-6">⛏️</div>
+      <h1 class="text-5xl font-bold mb-4">Rida Network</h1>
+      <p class="text-xl text-zinc-400 mb-10">Daily Mining Platform</p>
+      <button onclick="showLogin()" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-lg font-semibold mr-4">Login</button>
+      <button onclick="showRegister()" class="px-8 py-4 border border-white/30 hover:bg-white/10 rounded-2xl text-lg font-semibold">Join Free</button>
+    </div>
+  </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyMYNHXZ7g40fD6GVpSFMWCHFh6leDEqij-HeZ8i5RWUR5JFvXlTZc3XJ2DEa_LjAEF/exec";
@@ -38,75 +47,68 @@
         return data;
       } catch (err) {
         console.error(err);
-        showToast(err.message || 'Cannot connect to server', 'error');
+        showToast(err.message || 'Cannot reach server', 'error');
         throw err;
       }
     }
 
-    function render(view) {
-      const app = document.getElementById('app');
-      app.innerHTML = '';
-
-      if (view === 'landing' || !currentToken) {
-        app.innerHTML = `
-          <div class="min-h-screen bg-gradient-to-br from-zinc-950 to-black flex items-center justify-center px-6">
-            <div class="text-center max-w-md">
-              <div class="text-8xl mb-8">⛏️</div>
-              <h1 class="text-6xl font-bold mb-6">Rida Network</h1>
-              <p class="text-2xl text-zinc-400 mb-12">Daily 5 Rida mining with referrals</p>
-              <div class="flex gap-4 justify-center">
-                <button onclick="navigate('login')" class="px-10 py-4 border border-white/40 hover:bg-white/10 rounded-2xl">Login</button>
-                <button onclick="navigate('register')" class="px-12 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold">Join Free</button>
-              </div>
-            </div>
-          </div>`;
-      } else if (view === 'register' || view === 'login') {
-        const isRegister = view === 'register';
-        app.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center">
-            <div class="bg-zinc-900 p-10 rounded-3xl w-full max-w-md">
-              <h2 class="text-3xl font-bold text-center mb-8">${isRegister ? 'Create Account' : 'Login'}</h2>
-              <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4">
-              <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8">
-              <button onclick="\( {isRegister ? 'handleRegister()' : 'handleLogin()'}" class="w-full py-4 bg-emerald-500 rounded-2xl font-semibold"> \){isRegister ? 'Register' : 'Login'}</button>
-            </div>
-          </div>`;
-      } else {
-        app.innerHTML = `<div class="min-h-screen flex items-center justify-center text-center"><div><p class="text-3xl">Welcome to Dashboard</p><p class="text-emerald-400 mt-4">Claim button coming soon...</p></div></div>`;
-      }
+    function showLogin() {
+      document.getElementById('app').innerHTML = `
+        <div class="max-w-md mx-auto mt-20 bg-zinc-900 p-10 rounded-3xl">
+          <h2 class="text-3xl font-bold text-center mb-8">Login</h2>
+          <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4">
+          <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8">
+          <button onclick="handleLogin()" class="w-full py-4 bg-emerald-500 rounded-2xl font-semibold">Login</button>
+          <p class="text-center mt-6 text-zinc-400">New user? <span onclick="showRegister()" class="text-emerald-400 cursor-pointer">Register</span></p>
+        </div>`;
     }
 
-    function navigate(page) {
-      render(page);
+    function showRegister() {
+      document.getElementById('app').innerHTML = `
+        <div class="max-w-md mx-auto mt-20 bg-zinc-900 p-10 rounded-3xl">
+          <h2 class="text-3xl font-bold text-center mb-8">Create Account</h2>
+          <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4">
+          <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8">
+          <button onclick="handleRegister()" class="w-full py-4 bg-emerald-500 rounded-2xl font-semibold">Register</button>
+          <p class="text-center mt-6 text-zinc-400">Already have account? <span onclick="showLogin()" class="text-emerald-400 cursor-pointer">Login</span></p>
+        </div>`;
     }
 
     async function handleRegister() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-      if (!email || !password) return showToast('Please fill all fields', 'error');
+      if (!email || !password) return showToast('Fill all fields', 'error');
       try {
         await apiCall('register', {email, password});
         showToast('Account created! Please login.', 'success');
-        navigate('login');
+        showLogin();
       } catch(e){}
     }
 
     async function handleLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-      if (!email || !password) return showToast('Please fill all fields', 'error');
+      if (!email || !password) return showToast('Fill all fields', 'error');
       try {
         const data = await apiCall('login', {email, password});
         currentToken = data.token;
         localStorage.setItem('ridaToken', currentToken);
         showToast('Login successful!', 'success');
-        render('dashboard');
+        document.getElementById('app').innerHTML = `<div class="max-w-md mx-auto mt-20 text-center"><p class="text-4xl">✅ Welcome to Dashboard</p><p class="text-emerald-400 mt-6">Balance & Claim features ready in next update</p></div>`;
       } catch(e){}
     }
 
-    // Start the app safely
+    // Start
     window.onload = () => {
-      setTimeout(() => render(currentToken ? 'dashboard' : 'landing'), 300);
+      // Show basic landing immediately
+      document.getElementById('app').innerHTML = `
+        <div class="max-w-md mx-auto text-center mt-20">
+          <div class="text-8xl mb-6">⛏️</div>
+          <h1 class="text-5xl font-bold mb-4">Rida Network</h1>
+          <p class="text-xl text-zinc-400 mb-10">Claim 5 Rida every 24 hours</p>
+          <button onclick="showLogin()" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-lg font-semibold mr-3">Login</button>
+          <button onclick="showRegister()" class="px-8 py-4 border border-white/30 hover:bg-white/10 rounded-2xl text-lg font-semibold">Join Free</button>
+        </div>`;
     };
   </script>
 </body>
