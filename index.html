@@ -3,29 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rida Network</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Rida Network - Mine Rida Daily</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 420px;
+      margin: 80px auto;
+      padding: 40px 24px;
+      background: #111;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #10b981;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #059669;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #555;
+      color: #ddd;
+    }
+    .btn-secondary:hover {
+      background: #222;
+    }
+    input {
+      width: 100%;
+      padding: 16px;
+      margin: 10px 0;
+      background: #1f1f1f;
+      border: 1px solid #444;
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+    }
+  </style>
 </head>
-<body class="bg-zinc-950 text-white min-h-screen flex items-center justify-center">
-  <div class="max-w-md w-full px-6">
-    <div class="text-center mb-12">
-      <div class="text-8xl mb-6">⛏️</div>
-      <h1 class="text-5xl font-bold mb-3">Rida Network</h1>
-      <p class="text-zinc-400 text-lg">Daily Mining Platform</p>
-    </div>
-
-    <div class="space-y-4">
-      <button onclick="showLogin()" 
-        class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-xl font-semibold">
-        Login
-      </button>
-      <button onclick="showRegister()" 
-        class="w-full py-5 border border-white/30 hover:bg-white/10 rounded-2xl text-xl font-semibold">
-        Join Free
-      </button>
-    </div>
-  </div>
+<body>
+  <div id="app" class="min-h-screen"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyMYNHXZ7g40fD6GVpSFMWCHFh6leDEqij-HeZ8i5RWUR5JFvXlTZc3XJ2DEa_LjAEF/exec";
@@ -33,7 +68,7 @@
 
     function showToast(msg, type = 'success') {
       const t = document.createElement('div');
-      t.style.cssText = `position:fixed;bottom:30px;right:30px;padding:16px 24px;border-radius:16px;color:white;z-index:9999;${type==='success'?'background:#10b981':'background:#ef4444'}`;
+      t.style.cssText = `position:fixed;bottom:30px;right:30px;padding:16px 24px;border-radius:12px;color:white;z-index:9999;${type==='success'?'background:#10b981':'background:#ef4444'}`;
       t.innerHTML = `<i class="fa-solid \( {type==='success'?'fa-check-circle':'fa-exclamation-circle'} mr-2"></i> \){msg}`;
       document.body.appendChild(t);
       setTimeout(() => t.remove(), 4000);
@@ -50,41 +85,48 @@
         if (!data.success) throw new Error(data.error || 'Failed');
         return data;
       } catch (err) {
-        showToast(err.message || 'Server connection issue', 'error');
+        showToast(err.message || 'Cannot connect to server', 'error');
         throw err;
       }
     }
 
+    function renderLanding() {
+      document.getElementById('app').innerHTML = `
+        <div class="container">
+          <div style="font-size:80px;margin-bottom:20px;">⛏️</div>
+          <h1 style="font-size:42px;margin-bottom:8px;">Rida Network</h1>
+          <p style="color:#aaa;font-size:18px;margin-bottom:30px;">Claim 5 Rida every 24 hours</p>
+          <button onclick="showLogin()" class="btn btn-primary">Login</button>
+          <button onclick="showRegister()" class="btn btn-secondary">Join Free</button>
+        </div>`;
+    }
+
     function showLogin() {
-      document.body.innerHTML = `
-        <div class="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
-          <div class="bg-zinc-900 p-10 rounded-3xl w-full max-w-md">
-            <h2 class="text-3xl font-bold text-center mb-8">Login</h2>
-            <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4">
-            <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8">
-            <button onclick="handleLogin()" class="w-full py-5 bg-emerald-500 rounded-2xl font-semibold text-lg">Login</button>
-            <p class="text-center mt-6 text-zinc-400">New user? <span onclick="showRegister()" class="text-emerald-400 cursor-pointer">Register</span></p>
-          </div>
+      document.getElementById('app').innerHTML = `
+        <div class="container">
+          <h2 style="font-size:28px;margin-bottom:24px;">Login</h2>
+          <input id="email" type="email" placeholder="Email">
+          <input id="password" type="password" placeholder="Password">
+          <button onclick="handleLogin()" class="btn btn-primary">Login</button>
+          <p style="margin-top:20px;color:#aaa;">New user? <span onclick="showRegister()" style="color:#10b981;cursor:pointer;">Register</span></p>
         </div>`;
     }
 
     function showRegister() {
-      document.body.innerHTML = `
-        <div class="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
-          <div class="bg-zinc-900 p-10 rounded-3xl w-full max-w-md">
-            <h2 class="text-3xl font-bold text-center mb-8">Create Account</h2>
-            <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4">
-            <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8">
-            <button onclick="handleRegister()" class="w-full py-5 bg-emerald-500 rounded-2xl font-semibold text-lg">Register</button>
-            <p class="text-center mt-6 text-zinc-400">Already have account? <span onclick="showLogin()" class="text-emerald-400 cursor-pointer">Login</span></p>
-          </div>
+      document.getElementById('app').innerHTML = `
+        <div class="container">
+          <h2 style="font-size:28px;margin-bottom:24px;">Create Account</h2>
+          <input id="email" type="email" placeholder="Email">
+          <input id="password" type="password" placeholder="Password">
+          <button onclick="handleRegister()" class="btn btn-primary">Register</button>
+          <p style="margin-top:20px;color:#aaa;">Already have account? <span onclick="showLogin()" style="color:#10b981;cursor:pointer;">Login</span></p>
         </div>`;
     }
 
     async function handleRegister() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-      if (!email || !password) return showToast('Fill all fields', 'error');
+      if (!email || !password) return showToast('Please fill all fields', 'error');
       try {
         await apiCall('register', {email, password});
         showToast('Account created! Please login.', 'success');
@@ -95,18 +137,22 @@
     async function handleLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-      if (!email || !password) return showToast('Fill all fields', 'error');
+      if (!email || !password) return showToast('Please fill all fields', 'error');
       try {
         const data = await apiCall('login', {email, password});
         currentToken = data.token;
         localStorage.setItem('ridaToken', currentToken);
         showToast('Login successful! 🎉', 'success');
-        document.body.innerHTML = `<div class="min-h-screen bg-zinc-950 flex items-center justify-center"><div class="text-center text-3xl">✅ Logged in successfully!<br><span class="text-emerald-400">Full dashboard coming next</span></div></div>`;
+        document.getElementById('app').innerHTML = `
+          <div class="container text-center">
+            <p style="font-size:32px;margin-bottom:16px;">✅ Welcome!</p>
+            <p style="color:#10b981;">You are logged in.<br>Full dashboard with claim button coming next.</p>
+          </div>`;
       } catch(e) {}
     }
 
-    // Auto start
-    window.onload = () => {};
+    // Start
+    window.onload = renderLanding;
   </script>
 </body>
 </html>
