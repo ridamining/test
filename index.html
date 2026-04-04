@@ -145,10 +145,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
         .page {
             display: none;
             animation: fadeInUp 0.4s ease-out;
@@ -216,14 +212,20 @@
             color: #00ffff;
         }
 
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .loading-spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: #00ffff;
             animation: spin 0.6s linear infinite;
+            margin-right: 8px;
         }
 
         @keyframes spin {
@@ -383,33 +385,44 @@
 </div>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbw7eOrq39ho38FtIvPmVgHqVy32K9lkGDiDw2eFydFJ91fSKG1tTDNrxr8vQq30sSPccA/exec';
+    // ⚠️ IMPORTANT: Replace this URL with your actual Google Apps Script Web App URL
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwJ9KFU84I9EBpdaajx0SKiuRYwT6EcErN1eYUmqWYcpGwymsIC-rYZ-5iUhm2VwuN2pw/exec';
     
     let currentUser = null;
     let miningInterval = null;
+    let countdownInterval = null;
 
+    // JSONP API call (bypasses CORS)
     async function callAPI(action, data = {}) {
-        const params = new URLSearchParams({ action, ...data });
-        const url = `${API_URL}?${params.toString()}`;
-        
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                mode: 'cors'
-            });
+        return new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const params = new URLSearchParams({ action, ...data, callback: callbackName });
+            const url = `${API_URL}?${params.toString()}`;
             
-            const text = await response.text();
+            window[callbackName] = function(response) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                resolve(response);
+            };
             
-            // Try to parse JSON, handle empty responses
-            if (!text || text.trim() === '') {
-                return { success: false, error: 'Empty response from server' };
-            }
+            const script = document.createElement('script');
+            script.src = url;
+            script.onerror = function() {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                reject(new Error('Network request failed - check your API URL'));
+            };
+            document.body.appendChild(script);
             
-            return JSON.parse(text);
-        } catch (error) {
-            console.error('API Error:', error);
-            return { success: false, error: error.message };
-        }
+            // Timeout after 30 seconds
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    reject(new Error('Request timeout'));
+                }
+            }, 30000);
+        });
     }
 
     function showToast(message, type = 'info') {
@@ -432,59 +445,101 @@
     async function checkMiningStatus() {
         if (!currentUser) return;
         
-        const result = await callAPI('GET_MINING_STATUS', { uid: currentUser.uid });
-        if (result.success && result.data) {
-            const status = result.data;
-            const miningIdleDiv = document.getElementById('miningIdle');
-            const miningActiveDiv = document.getElementById('miningActive');
-            
-            if (status.active && !status.canClaim) {
-                miningIdleDiv.style.display = 'none';
-                miningActiveDiv.style.display = 'block';
-                document.getElementById('currentReward').innerText = status.currentReward.toFixed(6);
-                document.getElementById('claimRewardBtn').style.display = 'block';
+        try {
+            const result = await callAPI('GET_MINING_STATUS', { uid: currentUser.uid });
+            if (result.success && result.data) {
+                const status = result.data;
+                const miningIdleDiv = document.getElementById('miningIdle');
+                const miningActiveDiv = document.getElementById('miningActive');
                 
-                const remainingMs = status.remainingMs || 0;
-                const hours = Math.floor(remainingMs / (1000 * 60 * 60));
-                const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
-                document.getElementById('countdown').innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-            } else if (status.canClaim) {
-                miningIdleDiv.style.display = 'none';
-                miningActiveDiv.style.display = 'block';
-                document.getElementById('currentReward').innerText = '0.100000';
-                document.getElementById('countdown').innerText = '00:00:00';
-            } else {
-                miningIdleDiv.style.display = 'block';
-                miningActiveDiv.style.display = 'none';
+                if (status.active && !status.canClaim) {
+                    miningIdleDiv.style.display = 'none';
+                    miningActiveDiv.style.display = 'block';
+                    document.getElementById('currentReward').innerText = status.currentReward.toFixed(6);
+                    document.getElementById('claimRewardBtn').style.display = 'block';
+                    
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    
+                    let remainingMs = status.remainingMs;
+                    const updateCountdown = () => {
+                        if (remainingMs <= 0) {
+                            clearInterval(countdownInterval);
+                            checkMiningStatus();
+                            return;
+                        }
+                        const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+                        document.getElementById('countdown').innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                        remainingMs -= 1000;
+                    };
+                    updateCountdown();
+                    countdownInterval = setInterval(updateCountdown, 1000);
+                } else if (status.canClaim) {
+    miningIdleDiv.style.display = 'none';
+                    miningActiveDiv.style.display = 'block';
+                    document.getElementById('currentReward').innerText = '0.100000';
+                    document.getElementById('countdown').innerText = '00:00:00';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                } else {
+                    miningIdleDiv.style.display = 'block';
+                    miningActiveDiv.style.display = 'none';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                }
             }
+        } catch (error) {
+            console.error('Mining status check failed:', error);
         }
     }
 
     async function startMining() {
         if (!currentUser) return;
         
-        const result = await callAPI('START_MINING', { uid: currentUser.uid });
-        if (result.success) {
-            showToast('Mining started! Come back in 24 hours.', 'success');
-            checkMiningStatus();
-        } else {
-            showToast(result.error || 'Failed to start mining', 'error');
+        const btn = document.getElementById('startMiningBtn');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Starting...';
+        
+        try {
+            const result = await callAPI('START_MINING', { uid: currentUser.uid });
+            if (result.success) {
+                showToast('Mining started! Come back in 24 hours.', 'success');
+                checkMiningStatus();
+            } else {
+                showToast(result.error || 'Failed to start mining', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
 
     async function claimReward() {
         if (!currentUser) return;
         
-        const result = await callAPI('CLAIM_REWARD', { uid: currentUser.uid });
-        if (result.success) {
-            showToast(`Claimed ${result.data.reward} RIDA!`, 'success');
-            currentUser.balance = result.data.balance;
-            updateBalanceUI(currentUser.balance);
-            checkMiningStatus();
-            loadDashboard();
-        } else {
-            showToast(result.error || 'Failed to claim reward', 'error');
+        const btn = document.getElementById('claimRewardBtn');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Claiming...';
+        
+        try {
+            const result = await callAPI('CLAIM_REWARD', { uid: currentUser.uid });
+            if (result.success) {
+                showToast(`Claimed ${result.data.reward} RIDA!`, 'success');
+                currentUser.balance = result.data.balance;
+                updateBalanceUI(currentUser.balance);
+                checkMiningStatus();
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Failed to claim reward', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
 
@@ -497,38 +552,52 @@
             document.getElementById('adminTabBtn').style.display = 'block';
         }
         
-        const balanceResult = await callAPI('GET_BALANCE', { uid: currentUser.uid });
-        if (balanceResult.success) {
-            currentUser.balance = balanceResult.data.balance;
-            updateBalanceUI(currentUser.balance);
+        try {
+            const balanceResult = await callAPI('GET_BALANCE', { uid: currentUser.uid });
+            if (balanceResult.success) {
+                currentUser.balance = balanceResult.data.balance;
+                updateBalanceUI(currentUser.balance);
+            }
+        } catch (error) {
+            console.error('Failed to load balance:', error);
         }
         
-        const referralResult = await callAPI('GET_REFERRALS', { uid: currentUser.uid });
-        if (referralResult.success) {
-            document.getElementById('totalReferrals').innerText = referralResult.data.total;
-            document.getElementById('referralCodeDisplay').innerText = currentUser.referralCode || 'N/A';
-            const container = document.getElementById('referralsContainer');
-            if (referralResult.data.referrals && referralResult.data.referrals.length > 0) {
-                container.innerHTML = referralResult.data.referrals.map(ref => 
-                    `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">${ref.email} - Joined ${new Date(ref.createdAt).toLocaleDateString()}</div>`
-                ).join('');
-            } else {
-                container.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No referrals yet</p>';
+        try {
+            const referralResult = await callAPI('GET_REFERRALS', { uid: currentUser.uid });
+            if (referralResult.success) {
+                document.getElementById('totalReferrals').innerText = referralResult.data.total;
+                document.getElementById('referralCodeDisplay').innerText = currentUser.referralCode || 'N/A';
+                const container = document.getElementById('referralsContainer');
+                if (referralResult.data.referrals && referralResult.data.referrals.length > 0) {
+                    container.innerHTML = referralResult.data.referrals.map(ref => 
+                        `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            ${ref.email} - Joined ${new Date(ref.createdAt).toLocaleDateString()}
+                        </div>`
+                    ).join('');
+                } else {
+                    container.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No referrals yet</p>';
+                }
             }
+        } catch (error) {
+            console.error('Failed to load referrals:', error);
         }
         
-        const withdrawalsResult = await callAPI('GET_WITHDRAWALS', { uid: currentUser.uid });
-        if (withdrawalsResult.success && withdrawalsResult.data.withdrawals) {
-            const historyDiv = document.getElementById('withdrawalsHistory');
-            if (withdrawalsResult.data.withdrawals.length > 0) {
-                historyDiv.innerHTML = withdrawalsResult.data.withdrawals.map(wd =>
-                    `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        ${wd.amount} RIDA - ${wd.status} - ${new Date(wd.requestedAt).toLocaleDateString()}
-                    </div>`
-                ).join('');
-            } else {
-                historyDiv.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No withdrawals yet</p>';
+        try {
+            const withdrawalsResult = await callAPI('GET_WITHDRAWALS', { uid: currentUser.uid });
+            if (withdrawalsResult.success && withdrawalsResult.data.withdrawals) {
+                const historyDiv = document.getElementById('withdrawalsHistory');
+                if (withdrawalsResult.data.withdrawals.length > 0) {
+                    historyDiv.innerHTML = withdrawalsResult.data.withdrawals.map(wd =>
+                        `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            ${wd.amount} RIDA - ${wd.status} - ${new Date(wd.requestedAt).toLocaleDateString()}
+                        </div>`
+                    ).join('');
+                } else {
+                    historyDiv.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No withdrawals yet</p>';
+                }
             }
+        } catch (error) {
+            console.error('Failed to load withdrawals:', error);
         }
         
         if (currentUser.role === 'admin') {
@@ -539,64 +608,81 @@
     }
 
     async function loadAdminData() {
-        const analytics = await callAPI('GET_ANALYTICS', { adminUid: currentUser.uid });
-        if (analytics.success) {
-            document.getElementById('statTotalUsers').innerText = analytics.data.totalUsers;
-            document.getElementById('statActiveMiners').innerText = analytics.data.activeMiners;
-            document.getElementById('statTotalMined').innerText = analytics.data.totalMined.toFixed(2);
-            document.getElementById('statTotalWithdrawn').innerText = analytics.data.totalWithdrawn.toFixed(2);
+        try {
+            const analytics = await callAPI('GET_ANALYTICS', { adminUid: currentUser.uid });
+            if (analytics.success) {
+                document.getElementById('statTotalUsers').innerText = analytics.data.totalUsers;
+                document.getElementById('statActiveMiners').innerText = analytics.data.activeMiners;
+                document.getElementById('statTotalMined').innerText = analytics.data.totalMined.toFixed(2);
+                document.getElementById('statTotalWithdrawn').innerText = analytics.data.totalWithdrawn.toFixed(2);
+            }
+        } catch (error) {
+            console.error('Failed to load analytics:', error);
         }
         
-        const users = await callAPI('GET_ALL_USERS', { adminUid: currentUser.uid });
-        if (users.success && users.data.users) {
-            const container = document.getElementById('usersTableContainer');
-            container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr><th>Email</th><th>Balance</th><th>Status</th><th>Action</th></tr>
-                    </thead>
-                    <tbody>
-                        ${users.data.users.map(user => `
-                            <tr>
-                                <td>${user.email}</td>
-                                <td><input type="number" id="balance_${user.uid}" value="${user.balance}" style="width:100px; background:rgba(255,255,255,0.1); border:none; color:white; padding:5px; border-radius:5px;"></td>
-                                <td>${user.status}</td>
-                                <td>
-                                    <button onclick="adminUpdateBalance('${user.uid}')" style="background:#00d4ff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">Update</button>
-                                    <button onclick="adminBanUser('${user.uid}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">${user.status === 'banned' ? 'Unban' : 'Ban'}</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+        try {
+            const users = await callAPI('GET_ALL_USERS', { adminUid: currentUser.uid });
+            if (users.success && users.data.users) {
+                const container = document.getElementById('usersTableContainer');
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr><th>Email</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            ${users.data.users.map(user => `
+                                <tr>
+                                    <td>${user.email}</td>
+                                    <td><input type="number" id="balance_${user.uid}" value="${user.balance}" style="width:100px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:5px; border-radius:5px;"></td>
+                                    <td>${user.status}</td>
+                                    <td>
+                                        <button onclick="adminUpdateBalance('${user.uid}')" style="background:#00d4ff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">Update</button>
+                                        <button onclick="adminBanUser('${user.uid}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">${user.status === 'banned' ? 'Unban' : 'Ban'}</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        } catch (error) {
+            console.error('Failed to load users:', error);
         }
     }
 
     window.adminUpdateBalance = async function(uid) {
         const amount = document.getElementById(`balance_${uid}`).value;
-        const result = await callAPI('UPDATE_USER', { uid, field: 'balance', value: amount, adminUid: currentUser.uid });
-        if (result.success) {
-            showToast('Balance updated', 'success');
-            loadAdminData();
-        } else {
-            showToast(result.error || 'Update failed', 'error');
+        try {
+            const result = await callAPI('UPDATE_USER', { uid, field: 'balance', value: amount, adminUid: currentUser.uid });
+            if (result.success) {
+                showToast('Balance updated', 'success');
+                loadAdminData();
+            } else {
+                showToast(result.error || 'Update failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
         }
     };
     
     window.adminBanUser = async function(uid) {
-        const result = await callAPI('BAN_USER', { uid, adminUid: currentUser.uid });
-        if (result.success) {
-            showToast(result.data.message, 'success');
-            loadAdminData();
-        } else {
-            showToast(result.error || 'Action failed', 'error');
+        try {
+            const result = await callAPI('BAN_USER', { uid, adminUid: currentUser.uid });
+            if (result.success) {
+                showToast(result.data.message, 'success');
+                loadAdminData();
+            } else {
+                showToast(result.error || 'Action failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
         }
     };
     
     async function requestWithdrawal() {
         const walletAddress = document.getElementById('walletAddress').value;
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        
         if (!walletAddress || !amount) {
             showToast('Please fill all fields', 'error');
             return;
@@ -605,50 +691,91 @@
             showToast('Minimum withdrawal is 10 RIDA', 'error');
             return;
         }
-        const result = await callAPI('REQUEST_WITHDRAWAL', { uid: currentUser.uid, walletAddress, amount });
-        if (result.success) {
-            showToast('Withdrawal request submitted', 'success');
-            document.getElementById('walletAddress').value = '';
-            document.getElementById('withdrawAmount').value = '';
-            loadDashboard();
-        } else {
-            showToast(result.error || 'Request failed', 'error');
+        
+        const btn = document.getElementById('requestWithdrawBtn');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+        
+        try {
+            const result = await callAPI('REQUEST_WITHDRAWAL', { uid: currentUser.uid, walletAddress, amount });
+            if (result.success) {
+                showToast('Withdrawal request submitted', 'success');
+                document.getElementById('walletAddress').value = '';
+                document.getElementById('withdrawAmount').value = '';
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Request failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
     
     async function sendAnnouncement() {
         const title = document.getElementById('announcementTitle').value;
         const message = document.getElementById('announcementMessage').value;
+        
         if (!title || !message) {
             showToast('Please fill title and message', 'error');
             return;
         }
-        const result = await callAPI('SEND_ANNOUNCEMENT', { title, message, adminUid: currentUser.uid });
-        if (result.success) {
-            showToast('Announcement sent', 'success');
-            document.getElementById('announcementTitle').value = '';
-            document.getElementById('announcementMessage').value = '';
-        } else {
-            showToast(result.error || 'Failed to send', 'error');
+        
+        const btn = document.getElementById('sendAnnouncementBtn');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Sending...';
+        
+        try {
+            const result = await callAPI('SEND_ANNOUNCEMENT', { title, message, adminUid: currentUser.uid });
+            if (result.success) {
+                showToast('Announcement sent', 'success');
+                document.getElementById('announcementTitle').value = '';
+                document.getElementById('announcementMessage').value = '';
+            } else {
+                showToast(result.error || 'Failed to send', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
     
     async function login() {
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
+        
         if (!email || !password) {
             showToast('Please enter email and password', 'error');
             return;
         }
-        const result = await callAPI('LOGIN', { email, password });
-        if (result.success) {
-            currentUser = result.data;
-            localStorage.setItem('ridaUser', JSON.stringify(currentUser));
-            showToast('Login successful!', 'success');
-            switchToDashboard();
-            loadDashboard();
-        } else {
-            showToast(result.error || 'Login failed', 'error');
+        
+        const btn = document.getElementById('loginButton');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
+        
+        try {
+            const result = await callAPI('LOGIN', { email, password });
+            if (result.success) {
+                currentUser = result.data;
+                localStorage.setItem('ridaUser', JSON.stringify(currentUser));
+                showToast('Login successful!', 'success');
+                switchToDashboard();
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Login failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
     
@@ -656,6 +783,7 @@
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
         const referralCode = document.getElementById('regReferral').value;
+        
         if (!email || !password) {
             showToast('Please enter email and password', 'error');
             return;
@@ -664,15 +792,28 @@
             showToast('Password must be at least 6 characters', 'error');
             return;
         }
-        const result = await callAPI('REGISTER', { email, password, referralCode });
-        if (result.success) {
-            showToast('Registration successful! Please login.', 'success');
-            document.getElementById('showLoginBtn').click();
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regReferral').value = '';
-        } else {
-            showToast(result.error || 'Registration failed', 'error');
+        
+        const btn = document.getElementById('registerButton');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Creating account...';
+        
+        try {
+            const result = await callAPI('REGISTER', { email, password, referralCode });
+            if (result.success) {
+                showToast('Registration successful! Please login.', 'success');
+                document.getElementById('showLoginBtn').click();
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regReferral').value = '';
+            } else {
+                showToast(result.error || 'Registration failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
     
@@ -680,6 +821,7 @@
         localStorage.removeItem('ridaUser');
         currentUser = null;
         if (miningInterval) clearInterval(miningInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
         switchToAuth();
         showToast('Logged out', 'success');
     }
@@ -688,13 +830,14 @@
         document.getElementById('authPage').classList.remove('active');
         document.getElementById('dashboardPage').classList.add('active');
         if (miningInterval) clearInterval(miningInterval);
-        miningInterval = setInterval(checkMiningStatus, 1000);
+        miningInterval = setInterval(checkMiningStatus, 5000);
     }
     
     function switchToAuth() {
         document.getElementById('authPage').classList.add('active');
         document.getElementById('dashboardPage').classList.remove('active');
         if (miningInterval) clearInterval(miningInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
     }
     
     // Tab switching
