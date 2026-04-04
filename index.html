@@ -8,65 +8,85 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-.glow {
-  box-shadow: 0 0 20px #facc15;
-}
+.glow { box-shadow: 0 0 20px #facc15; }
 </style>
 
 </head>
 
 <body class="bg-gray-900 text-white">
 
-<div class="flex">
+<div class="flex min-h-screen">
 
 <!-- SIDEBAR -->
-<div class="w-20 bg-gray-800 h-screen flex flex-col items-center py-5">
+<div class="w-20 bg-gray-800 flex flex-col items-center py-6">
   <div class="text-yellow-400 text-2xl">⛏</div>
 </div>
 
 <!-- MAIN -->
-<div class="flex-1 p-5">
+<div class="flex-1 p-5 max-w-3xl mx-auto">
 
-<h1 class="text-2xl mb-4 text-yellow-400">Rida Network</h1>
+<h1 class="text-2xl text-yellow-400 mb-4">Rida Network</h1>
 
 <!-- AUTH -->
 <div id="auth">
 
 <input id="email" placeholder="Email" class="p-2 w-full mb-2 text-black rounded">
-<input id="password" type="password" placeholder="Password" class="p-2 w-full mb-2 text-black rounded">
+<input id="password" type="password" placeholder="Password" class="p-2 w-full mb-3 text-black rounded">
 
 <button onclick="register()" class="bg-blue-500 w-full p-2 mb-2 rounded">Register</button>
 <button onclick="login()" class="bg-green-500 w-full p-2 rounded">Login</button>
 
 </div>
 
-<!-- DASHBOARD -->
+<!-- APP -->
 <div id="app" class="hidden">
 
+<!-- BALANCE -->
 <div class="bg-gray-800 p-4 rounded mb-4">
-<p class="text-gray-400">Balance</p>
-<p class="text-4xl text-green-400" id="balance">0</p>
+  <p class="text-gray-400">Balance</p>
+  <p class="text-3xl text-green-400" id="balance">0</p>
 </div>
 
 <!-- MINING -->
-<div class="bg-gray-800 p-5 rounded text-center glow">
+<div class="bg-gray-800 p-5 rounded text-center glow mb-4">
 
 <p id="miningStatus">Idle</p>
 
-<p class="text-3xl my-3 text-yellow-400" id="counter">0.000</p>
+<p class="text-3xl text-yellow-400 my-3" id="counter">0.000</p>
 
-<button onclick="startMining()" 
-class="bg-yellow-500 px-5 py-2 rounded">
+<button onclick="startMining()" class="bg-yellow-500 px-5 py-2 rounded">
 Start Mining
 </button>
 
 </div>
 
-<p id="msg" class="mt-3 text-gray-400"></p>
+<!-- WITHDRAW -->
+<div class="bg-gray-800 p-4 rounded mb-4">
+  <h3 class="mb-2">Withdraw</h3>
+  <input id="amount" placeholder="Amount" class="p-2 w-full text-black rounded mb-2">
+  <button onclick="withdraw()" class="bg-purple-500 w-full p-2 rounded">
+    Request Withdraw
+  </button>
+</div>
 
-<button onclick="logout()" class="mt-5 bg-red-500 p-2 rounded w-full">
+<!-- ADMIN PANEL -->
+<div id="admin" class="hidden bg-gray-800 p-4 rounded mb-4">
+
+<h2 class="text-red-400 text-xl mb-2">Admin Panel</h2>
+
+<button onclick="loadUsers()" class="bg-gray-700 p-2 w-full mb-2">Load Users</button>
+<div id="users"></div>
+
+<button onclick="loadWithdraws()" class="bg-gray-700 p-2 w-full mt-3 mb-2">Load Withdraws</button>
+<div id="withdraws"></div>
+
+</div>
+
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded">
 Logout
 </button>
+
+<p id="msg" class="mt-3 text-center text-gray-400"></p>
 
 </div>
 
@@ -75,7 +95,7 @@ Logout
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbxI3vMoMaGF0Ia4s_zxZX7k6vP5r4FKDKtbq0Zxq6gPuqanwcizwo-OvVg6SYFI-3nw/exec";
+const API = "https://script.google.com/macros/s/AKfycbycildE5hjtNtGxcJbSdTkPQih-0WMi3hBl_zit42enkhuPdvdflWOAMPvl1J6VlhNh/exec";
 
 let user = null;
 let mining = false;
@@ -89,36 +109,45 @@ async function api(data){
     headers:{ "Content-Type":"text/plain" },
     body: JSON.stringify(data)
   });
-
   return JSON.parse(await res.text());
 }
 
 /******** AUTH ********/
 async function register(){
-  const email = emailEl().value;
-  const password = passEl().value;
-
-  alert(JSON.stringify(await api({action:"register",email,password})));
+  const res = await api({
+    action:"register",
+    email:email.value,
+    password:password.value
+  });
+  alert(JSON.stringify(res));
 }
 
 async function login(){
-  const email = emailEl().value;
-  const password = passEl().value;
-
-  const res = await api({action:"login",email,password});
+  const res = await api({
+    action:"login",
+    email:email.value,
+    password:password.value
+  });
 
   if(res.success){
     user = res.user;
-    save();
+    localStorage.setItem("user", JSON.stringify(user));
     showApp();
-  }else alert(res.error);
+  } else {
+    alert(res.error);
+  }
 }
 
-/******** APP ********/
+/******** UI ********/
 function showApp(){
   auth.style.display="none";
   app.style.display="block";
+
   balance.innerText = user.balance;
+
+  if(user.role === "admin"){
+    admin.style.display="block";
+  }
 }
 
 /******** MINING ********/
@@ -147,28 +176,57 @@ function startMining(){
     if(res.success){
       user.balance = res.balance;
       balance.innerText = res.balance;
-      msg.innerText = "✅ Reward added!";
-    }else{
+      msg.innerText = "✅ Reward Added";
+    } else {
       msg.innerText = res.error;
     }
 
-    mining=false;
+    mining = false;
     miningStatus.innerText = "Idle";
 
-  },5000); // demo speed
+  },5000); // demo animation
 }
 
-/******** STORAGE ********/
-function save(){
-  localStorage.setItem("user", JSON.stringify(user));
+/******** WITHDRAW ********/
+async function withdraw(){
+  const res = await api({
+    action:"withdraw",
+    userId:user.userId,
+    amount:amount.value
+  });
+
+  msg.innerText = JSON.stringify(res);
 }
 
-function load(){
-  const u = localStorage.getItem("user");
-  if(u){
-    user = JSON.parse(u);
-    showApp();
-  }
+/******** ADMIN ********/
+async function loadUsers(){
+  const data = await api({action:"getUsers"});
+
+  users.innerHTML = data.map(u =>
+    `<div class="bg-gray-700 p-2 mt-1 rounded">
+      ${u.email} | ${u.balance} | ${u.role}
+    </div>`
+  ).join("");
+}
+
+async function loadWithdraws(){
+  const data = await api({action:"getWithdraws"});
+
+  withdraws.innerHTML = data.map(w =>
+    `<div class="bg-gray-700 p-2 mt-1 rounded">
+      ${w.userId} - ${w.amount} (${w.status})
+      ${w.status==="pending" ? 
+      `<button onclick="approve('${w.txId}')" class="bg-green-500 px-2 ml-2">Approve</button>` : ""}
+    </div>`
+  ).join("");
+}
+
+async function approve(id){
+  await api({
+    action:"approveWithdraw",
+    txId:id
+  });
+  loadWithdraws();
 }
 
 /******** LOGOUT ********/
@@ -177,13 +235,17 @@ function logout(){
   location.reload();
 }
 
-/******** SHORTCUTS ********/
-const emailEl = ()=>document.getElementById("email");
-const passEl = ()=>document.getElementById("password");
+/******** HELPERS ********/
 const counterEl = ()=>document.getElementById("counter");
 
-/******** INIT ********/
-load();
+/******** AUTO LOGIN ********/
+window.onload = ()=>{
+  const saved = localStorage.getItem("user");
+  if(saved){
+    user = JSON.parse(saved);
+    showApp();
+  }
+};
 
 </script>
 
