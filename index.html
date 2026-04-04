@@ -6,12 +6,7 @@
     <title>RIDA NETWORK | Next-Gen Mining Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: radial-gradient(circle at 20% 50%, #0a0a0f 0%, #050508 100%);
@@ -19,234 +14,38 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0,255,255,0.3);
-            border-radius: 10px;
-        }
-
-        .glass {
-            background: rgba(15, 15, 25, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
-            border-radius: 24px;
-        }
-
-        .glass-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 28px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card:hover {
-            border-color: rgba(0, 255, 255, 0.5);
-            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
-            transform: translateY(-4px);
-        }
-
-        .neon-text {
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6), 0 0 20px rgba(0, 255, 255, 0.3);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            border: none;
-            padding: 14px 32px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            padding: 12px 28px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 255, 255, 0.15);
-            border-color: #00ffff;
-        }
-
-        @keyframes miningPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.9); transform: scale(1.03); }
-        }
-
-        .mining-active-btn {
-            animation: miningPulse 1.5s ease-in-out infinite;
-            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%) !important;
-        }
-
-        .futuristic-input {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 40px;
-            padding: 14px 20px;
-            color: white;
-            font-size: 1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .futuristic-input:focus {
-            outline: none;
-            border-color: #00ffff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(12px);
-            border-left: 4px solid;
-            border-radius: 12px;
-            padding: 12px 20px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-            max-width: 300px;
-            font-size: 0.9rem;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .page {
-            display: none;
-            animation: fadeInUp 0.4s ease-out;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .balance-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00ff88, #00d4ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .stat-card {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 16px;
-            text-align: center;
-            border: 1px solid rgba(0,255,255,0.1);
-        }
-
-        @media (max-width: 768px) {
-            .balance-number { font-size: 1.8rem; }
-            .glass-card { margin: 12px; padding: 20px; }
-        }
-
-        .nav-tab {
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.6);
-            padding: 12px 20px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-bottom: 2px solid transparent;
-        }
-
-        .nav-tab.active {
-            color: #00ffff;
-            border-bottom-color: #00ffff;
-        }
-
-        .admin-table {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .admin-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .admin-table th, .admin-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .admin-table th {
-            color: #00ffff;
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #00ffff;
-            animation: spin 0.6s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .transaction-item {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .transaction-positive {
-            color: #00ff88;
-        }
-
-        .transaction-negative {
-            color: #ff4444;
-        }
+        .glass { background: rgba(15,15,25,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(0,255,255,0.15); border-radius: 24px; }
+        .glass-card { background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); backdrop-filter: blur(12px); border: 1px solid rgba(0,255,255,0.2); border-radius: 28px; transition: all 0.4s; }
+        .glass-card:hover { border-color: rgba(0,255,255,0.5); box-shadow: 0 8px 32px rgba(0,255,255,0.1); transform: translateY(-4px); }
+        .neon-text { text-shadow: 0 0 10px rgba(0,255,255,0.6), 0 0 20px rgba(0,255,255,0.3); }
+        .btn-primary { background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); border: none; padding: 14px 32px; border-radius: 40px; color: white; font-weight: 700; cursor: pointer; transition: all 0.3s; width: 100%; }
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 6px 25px rgba(0,212,255,0.5); }
+        .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(0,255,255,0.3); padding: 12px 28px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-secondary:hover { background: rgba(0,255,255,0.15); border-color: #00ffff; }
+        @keyframes miningPulse { 0%,100% { box-shadow: 0 0 20px rgba(0,255,255,0.5); transform: scale(1); } 50% { box-shadow: 0 0 50px rgba(0,255,255,0.9); transform: scale(1.03); } }
+        .mining-active-btn { animation: miningPulse 1.5s ease-in-out infinite; background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%) !important; }
+        .futuristic-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 40px; padding: 14px 20px; color: white; font-size: 1rem; width: 100%; transition: all 0.3s; }
+        .futuristic-input:focus { outline: none; border-color: #00ffff; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.95); backdrop-filter: blur(12px); border-left: 4px solid; border-radius: 12px; padding: 12px 20px; z-index: 1000; animation: slideIn 0.3s; max-width: 300px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .page { display: none; animation: fadeInUp 0.4s; }
+        .page.active { display: block; }
+        .balance-number { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #00ff88, #00d4ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .stat-card { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 16px; text-align: center; border: 1px solid rgba(0,255,255,0.1); }
+        @media (max-width: 768px) { .balance-number { font-size: 1.8rem; } .glass-card { margin: 12px; padding: 20px; } }
+        .nav-tab { background: transparent; border: none; color: rgba(255,255,255,0.6); padding: 12px 20px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; }
+        .nav-tab.active { color: #00ffff; border-bottom-color: #00ffff; }
+        .admin-table { width: 100%; overflow-x: auto; }
+        .admin-table table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .admin-table th { color: #00ffff; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #00ffff; animation: spin 0.6s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .transaction-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .transaction-positive { color: #00ff88; }
+        .transaction-negative { color: #ff4444; }
     </style>
 </head>
 <body>
@@ -303,7 +102,6 @@
             <button id="adminTabBtn" class="nav-tab" data-tab="admin" style="display: none;">⚙️ Admin</button>
         </div>
 
-        <!-- Mining Tab -->
         <div id="miningTab" class="tab-content active">
             <div class="glass-card" style="padding: 30px; text-align: center;">
                 <div style="margin-bottom: 20px;">
@@ -311,11 +109,10 @@
                     <div class="balance-number" id="balanceDisplay">0.00</div>
                     <p style="color: #00ff88; font-size: 0.9rem;">RIDA Tokens</p>
                 </div>
-
                 <div id="miningSection">
                     <div id="miningIdle">
                         <button id="startMiningBtn" class="btn-primary" style="max-width: 300px; margin: 0 auto;">⛏️ Start Mining (24h)</button>
-                        <p style="margin-top: 15px; color: rgba(255,255,255,0.5); font-size: 0.85rem;">Earn 0.1 RIDA per day</p>
+                        <p style="margin-top: 15px; color: rgba(255,255,255,0.5);">Earn 0.1 RIDA per day</p>
                     </div>
                     <div id="miningActive" style="display: none;">
                         <button id="miningActiveBtn" class="btn-primary mining-active-btn" style="max-width: 300px; margin: 0 auto;">⛏️ MINING ACTIVE</button>
@@ -329,33 +126,25 @@
             </div>
         </div>
 
-        <!-- Referral Tab -->
         <div id="referralTab" class="tab-content" style="display: none;">
             <div class="glass-card" style="padding: 30px;">
-                <h3 style="margin-bottom: 20px;">Your Referral Program</h3>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                <h3>Your Referral Program</h3>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin: 20px 0;">
                     <p style="color: rgba(255,255,255,0.6); margin-bottom: 10px;">Your Referral Code</p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <code id="referralCodeDisplay" style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px; font-size: 1.2rem;">Loading...</code>
+                    <div style="display: flex; gap: 10px;">
+                        <code id="referralCodeDisplay" style="flex:1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px;">Loading...</code>
                         <button id="copyReferralBtn" class="btn-secondary" style="width: auto;">Copy</button>
                     </div>
                 </div>
-                <div class="stat-card" style="margin-bottom: 20px;">
-                    <p>Total Referrals</p>
-                    <h2 id="totalReferrals">0</h2>
-                </div>
-                <div id="referralsList">
-                    <h4 style="margin-bottom: 15px;">Referred Users</h4>
-                    <div id="referralsContainer"></div>
-                </div>
+                <div class="stat-card"><p>Total Referrals</p><h2 id="totalReferrals">0</h2></div>
+                <div id="referralsContainer" style="margin-top: 20px;"></div>
             </div>
         </div>
 
-        <!-- Withdraw Tab -->
         <div id="withdrawTab" class="tab-content" style="display: none;">
             <div class="glass-card" style="padding: 30px;">
-                <h3 style="margin-bottom: 20px;">Request Withdrawal</h3>
-                <input type="text" id="walletAddress" class="futuristic-input" placeholder="Wallet Address (TRC20/ERC20)" style="margin-bottom: 15px;">
+                <h3>Request Withdrawal</h3>
+                <input type="text" id="walletAddress" class="futuristic-input" placeholder="Wallet Address" style="margin: 15px 0;">
                 <input type="number" id="withdrawAmount" class="futuristic-input" placeholder="Amount (min 10 RIDA)" style="margin-bottom: 15px;">
                 <button id="requestWithdrawBtn" class="btn-primary">Request Withdrawal</button>
             </div>
@@ -365,17 +154,15 @@
             </div>
         </div>
 
-        <!-- History Tab -->
         <div id="historyTab" class="tab-content" style="display: none;">
             <div class="glass-card" style="padding: 20px;">
-                <h3 style="margin-bottom: 20px;">Transaction History</h3>
+                <h3>Transaction History</h3>
                 <div id="transactionsHistory"></div>
             </div>
         </div>
 
-        <!-- Admin Tab -->
         <div id="adminTab" class="tab-content" style="display: none;">
-            <div class="glass-card" style="padding: 20px; margin-bottom: 20px;">
+            <div class="glass-card" style="padding: 20px;">
                 <h3>Platform Analytics</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
                     <div class="stat-card"><p>Total Users</p><h3 id="statTotalUsers">0</h3></div>
@@ -384,15 +171,7 @@
                     <div class="stat-card"><p>Total Withdrawn</p><h3 id="statTotalWithdrawn">0</h3></div>
                 </div>
             </div>
-
-            <div class="glass-card" style="padding: 20px; margin-bottom: 20px;">
-                <h3>Send Announcement</h3>
-                <input type="text" id="announcementTitle" class="futuristic-input" placeholder="Title" style="margin-bottom: 10px;">
-                <textarea id="announcementMessage" class="futuristic-input" rows="3" placeholder="Message" style="margin-bottom: 10px;"></textarea>
-                <button id="sendAnnouncementBtn" class="btn-primary">Send to All Users</button>
-            </div>
-
-            <div class="glass-card" style="padding: 20px;">
+            <div class="glass-card" style="margin-top: 20px; padding: 20px;">
                 <h3>Manage Users</h3>
                 <div class="admin-table" id="usersTableContainer"></div>
             </div>
@@ -402,41 +181,46 @@
 
 <script>
     // ============================================
-    // COMPLETE FRONTEND WITH ALL FUNCTIONS
-    // All data stored in localStorage (no backend needed)
+    // CONNECTED TO GOOGLE SHEETS BACKEND
+    // Replace this URL with your actual Web App URL
     // ============================================
+    
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxeClVLioDeirWyz41Dvx21bbf65zGYLt50NsyJQlLMmgG1RXHCjNLeJ2qASd2xLFE7Nw/exec';
     
     let currentUser = null;
     let miningInterval = null;
     let countdownInterval = null;
 
-    // Initialize localStorage data
-    function initStorage() {
-        if (!localStorage.getItem('rida_users')) {
-            const users = [{
-                uid: 'ADMIN_001',
-                email: 'admin@rida.com',
-                password: btoa('admin123'),
-                balance: 1000,
-                role: 'admin',
-                status: 'active',
-                miningActive: false,
-                miningStartTime: null,
-                miningEndTime: null,
-                referralCode: 'ADMIN123',
-                referredBy: '',
-                totalEarned: 0,
-                createdAt: new Date().toISOString(),
-                transactions: []
-            }];
-            localStorage.setItem('rida_users', JSON.stringify(users));
-        }
-        if (!localStorage.getItem('rida_withdrawals')) {
-            localStorage.setItem('rida_withdrawals', JSON.stringify([]));
-        }
-        if (!localStorage.getItem('rida_announcements')) {
-            localStorage.setItem('rida_announcements', JSON.stringify([]));
-        }
+    // JSONP API call (bypasses CORS)
+    async function callAPI(action, data = {}) {
+        return new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const params = new URLSearchParams({ action, ...data, callback: callbackName });
+            const url = `${API_URL}?${params.toString()}`;
+            
+            window[callbackName] = function(response) {
+                delete window[callbackName];
+                if (script && script.parentNode) document.body.removeChild(script);
+                resolve(response);
+            };
+            
+            const script = document.createElement('script');
+            script.src = url;
+            script.onerror = function() {
+                delete window[callbackName];
+                if (script && script.parentNode) document.body.removeChild(script);
+                reject(new Error('Network request failed - check API URL'));
+            };
+            document.body.appendChild(script);
+            
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                    if (script && script.parentNode) document.body.removeChild(script);
+                    reject(new Error('Request timeout'));
+                }
+            }, 30000);
+        });
     }
 
     function showToast(message, type = 'info') {
@@ -450,150 +234,103 @@
     }
 
     function updateBalanceUI(balance) {
-        const balanceElem = document.getElementById('balanceDisplay');
-        if (balanceElem) {
-            balanceElem.innerText = parseFloat(balance).toFixed(4);
-        }
+        document.getElementById('balanceDisplay').innerText = parseFloat(balance).toFixed(4);
     }
 
-    function addTransaction(uid, type, amount, description) {
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const userIndex = users.findIndex(u => u.uid === uid);
-        
-        if (userIndex !== -1) {
-            if (!users[userIndex].transactions) {
-                users[userIndex].transactions = [];
-            }
-            users[userIndex].transactions.unshift({
-                id: Date.now(),
-                type: type,
-                amount: amount,
-                description: description,
-                date: new Date().toISOString()
-            });
-            localStorage.setItem('rida_users', JSON.stringify(users));
-            
-            if (currentUser && currentUser.uid === uid) {
-                currentUser.transactions = users[userIndex].transactions;
-                localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
-            }
-        }
-    }
-
-    // Mining functions
     async function checkMiningStatus() {
         if (!currentUser) return;
-        
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const userIndex = users.findIndex(u => u.uid === currentUser.uid);
-        
-        if (userIndex === -1) return;
-        
-        const user = users[userIndex];
-        
-        if (user.miningActive && user.miningEndTime) {
-            const now = new Date();
-            const end = new Date(user.miningEndTime);
-            const remaining = end.getTime() - now.getTime();
-            
-            if (remaining <= 0) {
-                document.getElementById('miningIdle').style.display = 'none';
-                document.getElementById('miningActive').style.display = 'block';
-                document.getElementById('currentReward').innerText = '0.100000';
-                document.getElementById('countdown').innerText = '00:00:00';
-            } else if (remaining > 0) {
-     document.getElementById('miningIdle').style.display = 'none';
-                document.getElementById('miningActive').style.display = 'block';
+        try {
+            const result = await callAPI('GET_MINING_STATUS', { uid: currentUser.uid });
+            if (result.success && result.data) {
+                const status = result.data;
+                const miningIdle = document.getElementById('miningIdle');
+                const miningActive = document.getElementById('miningActive');
                 
-                const start = new Date(user.miningStartTime);
-                const elapsedSeconds = (now.getTime() - start.getTime()) / 1000;
-                const currentReward = (0.1 / 86400) * Math.min(86400, elapsedSeconds);
-                document.getElementById('currentReward').innerText = currentReward.toFixed(6);
-                
-                const hours = Math.floor(remaining / (1000 * 60 * 60));
-                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-                document.getElementById('countdown').innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                if (status.active && !status.canClaim) {
+                    miningIdle.style.display = 'none';
+                    miningActive.style.display = 'block';
+                    document.getElementById('currentReward').innerText = status.currentReward.toFixed(6);
+                    
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    let remainingMs = status.remainingMs;
+                    const updateCountdown = () => {
+                        if (remainingMs <= 0) {
+                            clearInterval(countdownInterval);
+                            checkMiningStatus();
+                            return;
+                        }
+                        const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+                        document.getElementById('countdown').innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                        remainingMs -= 1000;
+                    };
+                    updateCountdown();
+                    countdownInterval = setInterval(updateCountdown, 1000);
+                } else if (status.canClaim) {
+                    miningIdle.style.display = 'none';
+                    miningActive.style.display = 'block';
+                    document.getElementById('currentReward').innerText = '0.100000';
+                    document.getElementById('countdown').innerText = '00:00:00';
+                } else {
+                    miningIdle.style.display = 'block';
+                    miningActive.style.display = 'none';
+                }
             }
-        } else {
-            document.getElementById('miningIdle').style.display = 'block';
-            document.getElementById('miningActive').style.display = 'none';
+        } catch (error) {
+            console.error('Mining status check failed:', error);
         }
     }
 
-    function startMining() {
+    async function startMining() {
         if (!currentUser) return;
+        const btn = document.getElementById('startMiningBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Starting...';
         
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const userIndex = users.findIndex(u => u.uid === currentUser.uid);
-        
-        if (userIndex === -1) return;
-        
-        if (users[userIndex].miningActive) {
-            showToast('Mining already active!', 'error');
-            return;
+        try {
+            const result = await callAPI('START_MINING', { uid: currentUser.uid });
+            if (result.success) {
+                showToast('Mining started! Come back in 24 hours.', 'success');
+                checkMiningStatus();
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Failed to start mining', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '⛏️ Start Mining (24h)';
         }
-        
-        const now = new Date();
-        const endTime = new Date(now.getTime() + (24 * 60 * 60 * 1000));
-        
-        users[userIndex].miningActive = true;
-        users[userIndex].miningStartTime = now.toISOString();
-        users[userIndex].miningEndTime = endTime.toISOString();
-        
-        localStorage.setItem('rida_users', JSON.stringify(users));
-        currentUser = users[userIndex];
-        localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
-        
-        addTransaction(currentUser.uid, 'MINING_START', 0, 'Started 24-hour mining session');
-        showToast('Mining started! Come back in 24 hours.', 'success');
-        checkMiningStatus();
     }
 
-    function claimReward() {
+    async function claimReward() {
         if (!currentUser) return;
+        const btn = document.getElementById('claimRewardBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Claiming...';
         
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const userIndex = users.findIndex(u => u.uid === currentUser.uid);
-        
-        if (userIndex === -1) return;
-        
-        const user = users[userIndex];
-        
-        if (!user.miningActive) {
-            showToast('No active mining session', 'error');
-            return;
+        try {
+            const result = await callAPI('CLAIM_REWARD', { uid: currentUser.uid });
+            if (result.success) {
+                showToast(`Claimed ${result.data.reward} RIDA!`, 'success');
+                currentUser.balance = result.data.balance;
+                updateBalanceUI(currentUser.balance);
+                checkMiningStatus();
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Failed to claim reward', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Claim Reward';
         }
-        
-        const now = new Date();
-        const end = new Date(user.miningEndTime);
-        
-        if (now < end) {
-            const remainingHours = ((end.getTime() - now.getTime()) / (1000 * 60 * 60)).toFixed(1);
-            showToast(`Mining session not complete! ${remainingHours} hours remaining`, 'error');
-            return;
-        }
-        
-        const reward = 0.1;
-        users[userIndex].balance += reward;
-        users[userIndex].totalEarned += reward;
-        users[userIndex].miningActive = false;
-        users[userIndex].miningStartTime = null;
-        users[userIndex].miningEndTime = null;
-        
-        localStorage.setItem('rida_users', JSON.stringify(users));
-        currentUser = users[userIndex];
-        localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
-        
-        addTransaction(currentUser.uid, 'MINING_REWARD', reward, 'Mining reward claimed');
-        updateBalanceUI(currentUser.balance);
-        showToast(`Claimed ${reward} RIDA!`, 'success');
-        checkMiningStatus();
-        loadTransactions();
     }
 
-    // Auth functions
-    function register() {
+    async function register() {
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
         const referralCode = document.getElementById('regReferral').value;
@@ -606,61 +343,31 @@
             showToast('Password must be at least 6 characters', 'error');
             return;
         }
-        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            showToast('Invalid email format', 'error');
-            return;
-        }
         
-        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const btn = document.getElementById('registerButton');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Creating...';
         
-        if (users.find(u => u.email === email)) {
-            showToast('Email already registered', 'error');
-            return;
-        }
-        
-        const uid = 'UID_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-        const newReferralCode = generateReferralCode();
-        
-        const newUser = {
-            uid: uid,
-            email: email,
-            password: btoa(password),
-            balance: 0,
-            role: 'user',
-            status: 'active',
-            miningActive: false,
-            miningStartTime: null,
-            miningEndTime: null,
-            referralCode: newReferralCode,
-            referredBy: '',
-            totalEarned: 0,
-            createdAt: new Date().toISOString(),
-            transactions: []
-        };
-        
-        // Handle referral
-        if (referralCode) {
-            const referrer = users.find(u => u.referralCode === referralCode && u.uid !== uid);
-            if (referrer) {
-                newUser.referredBy = referrer.uid;
-                const referrerIndex = users.findIndex(u => u.uid === referrer.uid);
-                users[referrerIndex].balance += 5;
-                addTransaction(referrer.uid, 'REFERRAL_BONUS', 5, `Bonus for referring ${email}`);
-                showToast(`Referral bonus applied! You got 5 RIDA`, 'success');
+        try {
+            const result = await callAPI('REGISTER', { email, password, referralCode });
+            if (result.success) {
+                showToast('Registration successful! Please login.', 'success');
+                document.getElementById('showLoginBtn').click();
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regReferral').value = '';
+            } else {
+                showToast(result.error || 'Registration failed', 'error');
             }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Create Account';
         }
-        
-        users.push(newUser);
-        localStorage.setItem('rida_users', JSON.stringify(users));
-        
-        showToast('Registration successful! Please login.', 'success');
-        document.getElementById('showLoginBtn').click();
-        document.getElementById('regEmail').value = '';
-        document.getElementById('regPassword').value = '';
-        document.getElementById('regReferral').value = '';
     }
 
-    function login() {
+    async function login() {
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
         
@@ -669,43 +376,35 @@
             return;
         }
         
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const user = users.find(u => u.email === email && u.password === btoa(password));
+        const btn = document.getElementById('loginButton');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
         
-        if (!user) {
-            showToast('Invalid credentials', 'error');
-            return;
+        try {
+            const result = await callAPI('LOGIN', { email, password });
+            if (result.success) {
+                currentUser = result.data;
+                localStorage.setItem('ridaUser', JSON.stringify(currentUser));
+                showToast('Login successful!', 'success');
+                switchToDashboard();
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Login failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Login';
         }
-        
-        if (user.status === 'banned') {
-            showToast('Account is banned. Contact admin.', 'error');
-            return;
-        }
-        
-        currentUser = user;
-        localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
-        
-        showToast('Login successful!', 'success');
-        switchToDashboard();
-        loadDashboard();
     }
 
-    function logout() {
-        localStorage.removeItem('rida_currentUser');
-        currentUser = null;
-        if (miningInterval) clearInterval(miningInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
-        switchToAuth();
-        showToast('Logged out', 'success');
-    }
-
-    // Dashboard functions
-    function loadDashboard() {
+    async function loadDashboard() {
         if (!currentUser) return;
         
         document.getElementById('userEmail').innerText = currentUser.email;
         updateBalanceUI(currentUser.balance);
-        document.getElementById('referralCodeDisplay').innerText = currentUser.referralCode;
+        document.getElementById('referralCodeDisplay').innerText = currentUser.referralCode || 'N/A';
         
         if (currentUser.role === 'admin') {
             document.getElementById('userRoleBadge').innerText = '👑 Admin Access';
@@ -713,185 +412,119 @@
             loadAdminData();
         }
         
-        loadReferrals();
-        loadWithdrawals();
-        loadTransactions();
-        checkMiningStatus();
-        loadAnnouncements();
-        
-        if (miningInterval) clearInterval(miningInterval);
-        miningInterval = setInterval(checkMiningStatus, 1000);
-    }
-
-    function loadReferrals() {
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const referrals = users.filter(u => u.referredBy === currentUser.uid);
-        document.getElementById('totalReferrals').innerText = referrals.length;
-        
-        const container = document.getElementById('referralsContainer');
-        if (referrals.length > 0) {
-            container.innerHTML = referrals.map(ref => 
-                `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <strong>${ref.email}</strong><br>
-                    <small>Joined: ${new Date(ref.createdAt).toLocaleDateString()}</small>
-                </div>`
-            ).join('');
-        } else {
-            container.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No referrals yet. Share your code!</p>';
-        }
-    }
-
-    function loadWithdrawals() {
-        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
-        const userWithdrawals = withdrawals.filter(w => w.uid === currentUser.uid);
-        const historyDiv = document.getElementById('withdrawalsHistory');
-        
-        if (userWithdrawals.length > 0) {
-            historyDiv.innerHTML = userWithdrawals.map(wd =>
-                `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
-                    <span>${wd.amount} RIDA</span>
-                    <span style="color: ${wd.status === 'approved' ? '#00ff88' : '#ffaa00'}">${wd.status}</span>
-                    <small>${new Date(wd.requestedAt).toLocaleDateString()}</small>
-                </div>`
-            ).join('');
-        } else {
-            historyDiv.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No withdrawal requests yet</p>';
-        }
-    }
-
-    function loadTransactions() {
-        const container = document.getElementById('transactionsHistory');
-        
-        if (currentUser.transactions && currentUser.transactions.length > 0) {
-            container.innerHTML = currentUser.transactions.map(tx => `
-                <div class="transaction-item">
-                    <div>
-                        <strong>${tx.type.replace('_', ' ')}</strong><br>
-                        <small>${new Date(tx.date).toLocaleString()}</small>
-                    </div>
-                    <div class="${tx.amount > 0 ? 'transaction-positive' : 'transaction-negative'}">
-                        ${tx.amount > 0 ? '+' : ''}${tx.amount.toFixed(4)} RIDA
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            container.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No transactions yet</p>';
-        }
-    }
-
-    function loadAdminData() {
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
-        
-        const activeMiners = users.filter(u => u.miningActive === true).length;
-        const totalMined = users.reduce((sum, u) => sum + (u.totalEarned || 0), 0);
-        const totalWithdrawn = withdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + w.amount, 0);
-        
-        document.getElementById('statTotalUsers').innerText = users.length;
-        document.getElementById('statActiveMiners').innerText = activeMiners;
-        document.getElementById('statTotalMined').innerText = totalMined.toFixed(2);
-        document.getElementById('statTotalWithdrawn').innerText = totalWithdrawn.toFixed(2);
-        
-        const container = document.getElementById('usersTableContainer');
-        container.innerHTML = `
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="padding: 12px; text-align: left;">Email</th>
-                        <th style="padding: 12px; text-align: left;">Balance</th>
-                        <th style="padding: 12px; text-align: left;">Status</th>
-                        <th style="padding: 12px; text-align: left;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${users.map(user => `
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">${user.email}</td>
-                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <input type="number" id="balance_${user.uid}" value="${user.balance}" style="width:100px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:5px; border-radius:5px;">
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span style="color: ${user.status === 'active' ? '#00ff88' : '#ff4444'}">${user.status}</span>
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <button onclick="adminUpdateBalance('${user.uid}')" style="background:#00d4ff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">Update</button>
-                                <button onclick="adminBanUser('${user.uid}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">${user.status === 'banned' ? 'Unban' : 'Ban'}</button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-        
-        // Load pending withdrawals for admin
-        const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
-        if (pendingWithdrawals.length > 0) {
-            const withdrawalDiv = document.createElement('div');
-            withdrawalDiv.style.marginTop = '20px';
-            withdrawalDiv.innerHTML = '<h4>Pending Withdrawals</h4>';
-            pendingWithdrawals.forEach(w => {
-                const user = users.find(u => u.uid === w.uid);
-                withdrawalDiv.innerHTML += `
-                    <div style="padding: 10px; border: 1px solid rgba(255,255,255,0.1); margin: 5px 0; border-radius: 10px;">
-                        <strong>${user?.email}</strong><br>
-                        Amount: ${w.amount} RIDA<br>
-                        Wallet: ${w.walletAddress}<br>
-                        <button onclick="adminApproveWithdrawal('${w.id}')" style="background:#00ff88; border:none; padding:5px 15px; border-radius:5px; cursor:pointer; margin-top:5px;">Approve</button>
-                    </div>
-                `;
-            });
-            container.appendChild(withdrawalDiv);
-        }
-    }
-
-    window.adminUpdateBalance = function(uid) {
-        const amount = parseFloat(document.getElementById(`balance_${uid}`).value);
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const userIndex = users.findIndex(u => u.uid === uid);
-        
-        if (userIndex !== -1) {
-            const oldBalance = users[userIndex].balance;
-            users[userIndex].balance = amount;
-            localStorage.setItem('rida_users', JSON.stringify(users));
-            addTransaction(uid, 'ADMIN_UPDATE', amount - oldBalance, 'Admin balance adjustment');
-            showToast('Balance updated', 'success');
-            if (currentUser.uid === uid) {
-                currentUser = users[userIndex];
-                localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
-                updateBalanceUI(currentUser.balance);
+        try {
+            const referrals = await callAPI('GET_REFERRALS', { uid: currentUser.uid });
+            if (referrals.success) {
+                document.getElementById('totalReferrals').innerText = referrals.data.total;
+                const container = document.getElementById('referralsContainer');
+                if (referrals.data.referrals && referrals.data.referrals.length > 0) {
+                    container.innerHTML = referrals.data.referrals.map(ref => 
+                        `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            ${ref.email} - Joined ${new Date(ref.createdAt).toLocaleDateString()}
+                        </div>`
+                    ).join('');
+                } else {
+                    container.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No referrals yet</p>';
+                }
             }
-            loadAdminData();
+        } catch (error) {
+            console.error('Failed to load referrals:', error);
         }
-    };
-
-    window.adminBanUser = function(uid) {
-        const users = JSON.parse(localStorage.getItem('rida_users'));
-        const userIndex = users.findIndex(u => u.uid === uid);
         
-        if (userIndex !== -1) {
-            users[userIndex].status = users[userIndex].status === 'banned' ? 'active' : 'banned';
-            localStorage.setItem('rida_users', JSON.stringify(users));
-            showToast(`User ${users[userIndex].status === 'banned' ? 'banned' : 'unbanned'}`, 'success');
-            loadAdminData();
+        try {
+            const withdrawals = await callAPI('GET_WITHDRAWALS', { uid: currentUser.uid });
+            if (withdrawals.success && withdrawals.data.withdrawals) {
+                const historyDiv = document.getElementById('withdrawalsHistory');
+                if (withdrawals.data.withdrawals.length > 0) {
+                    historyDiv.innerHTML = withdrawals.data.withdrawals.map(wd =>
+                        `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            ${wd.amount} RIDA - ${wd.status} - ${new Date(wd.requestedAt).toLocaleDateString()}
+                        </div>`
+                    ).join('');
+                } else {
+                    historyDiv.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No withdrawals yet</p>';
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load withdrawals:', error);
         }
-    };
-
-    window.adminApproveWithdrawal = function(withdrawId) {
-        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
-        const withdrawalIndex = withdrawals.findIndex(w => w.id === withdrawId);
         
-        if (withdrawalIndex !== -1) {
-            withdrawals[withdrawalIndex].status = 'approved';
-            withdrawals[withdrawalIndex].processedAt = new Date().toISOString();
-            localStorage.setItem('rida_withdrawals', JSON.stringify(withdrawals));
-            
-            addTransaction(withdrawals[withdrawalIndex].uid, 'WITHDRAWAL', -withdrawals[withdrawalIndex].amount, 'Withdrawal approved');
-            showToast('Withdrawal approved', 'success');
-            loadAdminData();
+        checkMiningStatus();
+        if (miningInterval) clearInterval(miningInterval);
+        miningInterval = setInterval(checkMiningStatus, 5000);
+    }
+
+    async function loadAdminData() {
+        try {
+            const analytics = await callAPI('GET_ANALYTICS', { adminUid: currentUser.uid });
+            if (analytics.success) {
+                document.getElementById('statTotalUsers').innerText = analytics.data.totalUsers;
+                document.getElementById('statActiveMiners').innerText = analytics.data.activeMiners;
+                document.getElementById('statTotalMined').innerText = analytics.data.totalMined.toFixed(2);
+                document.getElementById('statTotalWithdrawn').innerText = analytics.data.totalWithdrawn.toFixed(2);
+            }
+        } catch (error) {
+            console.error('Failed to load analytics:', error);
+        }
+        
+        try {
+            const users = await callAPI('GET_ALL_USERS', { adminUid: currentUser.uid });
+            if (users.success && users.data.users) {
+                const container = document.getElementById('usersTableContainer');
+                container.innerHTML = `
+                    <table style="width:100%">
+                        <thead><tr><th>Email</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            ${users.data.users.map(user => `
+                                <tr>
+                                    <td>${user.email}</td>
+                                    <td><input type="number" id="balance_${user.uid}" value="${user.balance}" style="width:100px; background:rgba(255,255,255,0.1); border:none; color:white; padding:5px;"></td>
+                                    <td>${user.status}</td>
+                                    <td>
+                                        <button onclick="adminUpdateBalance('${user.uid}')" style="background:#00d4ff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Update</button>
+                                        <button onclick="adminBanUser('${user.uid}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">${user.status === 'banned' ? 'Unban' : 'Ban'}</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        } catch (error) {
+            console.error('Failed to load users:', error);
+        }
+    }
+
+    window.adminUpdateBalance = async function(uid) {
+        const amount = document.getElementById(`balance_${uid}`).value;
+        try {
+            const result = await callAPI('UPDATE_USER', { uid, field: 'balance', value: amount, adminUid: currentUser.uid });
+            if (result.success) {
+                showToast('Balance updated', 'success');
+                loadAdminData();
+            } else {
+                showToast(result.error || 'Update failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
         }
     };
-
-    function requestWithdrawal() {
+    
+    window.adminBanUser = async function(uid) {
+        try {
+            const result = await callAPI('BAN_USER', { uid, adminUid: currentUser.uid });
+            if (result.success) {
+                showToast(result.data.message, 'success');
+                loadAdminData();
+            } else {
+                showToast(result.error || 'Action failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        }
+    };
+    
+    async function requestWithdrawal() {
         const walletAddress = document.getElementById('walletAddress').value;
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
         
@@ -903,123 +536,48 @@
             showToast('Minimum withdrawal is 10 RIDA', 'error');
             return;
         }
-        if (currentUser.balance < amount) {
-            showToast('Insufficient balance', 'error');
-            return;
-        }
-        if (!walletAddress.match(/^(T|0x)/)) {
-            showToast('Please enter a valid wallet address (TRC20 or ERC20)', 'error');
-            return;
-        }
         
-        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
-        withdrawals.push({
-            id: 'WD_' + Date.now(),
-            uid: currentUser.uid,
-            walletAddress: walletAddress,
-            amount: amount,
-            status: 'pending',
-            requestedAt: new Date().toISOString()
-        });
-        localStorage.setItem('rida_withdrawals', JSON.stringify(withdrawals));
+        const btn = document.getElementById('requestWithdrawBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
         
-        addTransaction(currentUser.uid, 'WITHDRAWAL_REQUEST', -amount, `Withdrawal request to ${walletAddress.substring(0, 10)}...`);
-        showToast('Withdrawal request submitted', 'success');
-        document.getElementById('walletAddress').value = '';
-        document.getElementById('withdrawAmount').value = '';
-        loadWithdrawals();
-    }
-
-    function sendAnnouncement() {
-        const title = document.getElementById('announcementTitle').value;
-        const message = document.getElementById('announcementMessage').value;
-        
-        if (!title || !message) {
-            showToast('Please fill title and message', 'error');
-            return;
-        }
-        
-        const announcements = JSON.parse(localStorage.getItem('rida_announcements'));
-        announcements.unshift({
-            id: Date.now(),
-            title: title,
-            message: message,
-            createdAt: new Date().toISOString(),
-            createdBy: currentUser.email
-        });
-        localStorage.setItem('rida_announcements', JSON.stringify(announcements));
-        
-        showToast('Announcement sent to all users', 'success');
-        document.getElementById('announcementTitle').value = '';
-      document.getElementById('announcementMessage').value = '';
-    }
-
-    function loadAnnouncements() {
-        const announcements = JSON.parse(localStorage.getItem('rida_announcements'));
-        if (announcements.length > 0) {
-            const latest = announcements[0];
-            showToast(`📢 ${latest.title}: ${latest.message}`, 'info');
+        try {
+            const result = await callAPI('REQUEST_WITHDRAWAL', { uid: currentUser.uid, walletAddress, amount });
+            if (result.success) {
+                showToast('Withdrawal request submitted', 'success');
+                document.getElementById('walletAddress').value = '';
+                document.getElementById('withdrawAmount').value = '';
+                loadDashboard();
+            } else {
+                showToast(result.error || 'Request failed', 'error');
+            }
+        } catch (error) {
+            showToast('Network error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Request Withdrawal';
         }
     }
-
-    function generateReferralCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-        for (let i = 0; i < 8; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return code;
+    
+    function logout() {
+        localStorage.removeItem('ridaUser');
+        currentUser = null;
+        if (miningInterval) clearInterval(miningInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+        switchToAuth();
+        showToast('Logged out', 'success');
     }
-
-    // Navigation
+    
     function switchToDashboard() {
         document.getElementById('authPage').classList.remove('active');
         document.getElementById('dashboardPage').classList.add('active');
     }
-
+    
     function switchToAuth() {
         document.getElementById('authPage').classList.add('active');
         document.getElementById('dashboardPage').classList.remove('active');
     }
-
-    // Initialize
-    initStorage();
     
-    // Check for existing session
-    const savedUser = localStorage.getItem('rida_currentUser');
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        switchToDashboard();
-        loadDashboard();
-    }
-
-    // Event listeners
-    document.getElementById('showLoginBtn').addEventListener('click', () => {
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('showLoginBtn').classList.add('active');
-        document.getElementById('showRegisterBtn').classList.remove('active');
-    });
-
-    document.getElementById('showRegisterBtn').addEventListener('click', () => {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'block';
-        document.getElementById('showRegisterBtn').classList.add('active');
-        document.getElementById('showLoginBtn').classList.remove('active');
-    });
-
-    document.getElementById('loginButton').addEventListener('click', login);
-    document.getElementById('registerButton').addEventListener('click', register);
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('startMiningBtn').addEventListener('click', startMining);
-    document.getElementById('claimRewardBtn').addEventListener('click', claimReward);
-    document.getElementById('requestWithdrawBtn').addEventListener('click', requestWithdrawal);
-    document.getElementById('sendAnnouncementBtn').addEventListener('click', sendAnnouncement);
-    document.getElementById('copyReferralBtn').addEventListener('click', () => {
-        navigator.clipboard.writeText(document.getElementById('referralCodeDisplay').innerText);
-        showToast('Referral code copied!', 'success');
-    });
-
     // Tab switching
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1030,6 +588,44 @@
             btn.classList.add('active');
         });
     });
+    
+    // Event listeners
+    document.getElementById('showLoginBtn').addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('showLoginBtn').classList.add('active');
+        document.getElementById('showRegisterBtn').classList.remove('active');
+    });
+    
+    document.getElementById('showRegisterBtn').addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('showRegisterBtn').classList.add('active');
+        document.getElementById('showLoginBtn').classList.remove('active');
+    });
+    
+    document.getElementById('loginButton').addEventListener('click', login);
+    document.getElementById('registerButton').addEventListener('click', register);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('startMiningBtn').addEventListener('click', startMining);
+    document.getElementById('claimRewardBtn').addEventListener('click', claimReward);
+    document.getElementById('requestWithdrawBtn').addEventListener('click', requestWithdrawal);
+    document.getElementById('copyReferralBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.getElementById('referralCodeDisplay').innerText);
+        showToast('Referral code copied!', 'success');
+    });
+    
+    // Auto-login check
+    const savedUser = localStorage.getItem('ridaUser');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            switchToDashboard();
+            loadDashboard();
+        } catch (e) {
+            console.error('Failed to parse saved user');
+        }
+    }
 </script>
 </body>
 </html>
