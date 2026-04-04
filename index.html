@@ -231,6 +231,22 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .transaction-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-positive {
+            color: #00ff88;
+        }
+
+        .transaction-negative {
+            color: #ff4444;
+        }
     </style>
 </head>
 <body>
@@ -339,7 +355,7 @@
         <div id="withdrawTab" class="tab-content" style="display: none;">
             <div class="glass-card" style="padding: 30px;">
                 <h3 style="margin-bottom: 20px;">Request Withdrawal</h3>
-                <input type="text" id="walletAddress" class="futuristic-input" placeholder="Wallet Address" style="margin-bottom: 15px;">
+                <input type="text" id="walletAddress" class="futuristic-input" placeholder="Wallet Address (TRC20/ERC20)" style="margin-bottom: 15px;">
                 <input type="number" id="withdrawAmount" class="futuristic-input" placeholder="Amount (min 10 RIDA)" style="margin-bottom: 15px;">
                 <button id="requestWithdrawBtn" class="btn-primary">Request Withdrawal</button>
             </div>
@@ -353,7 +369,7 @@
         <div id="historyTab" class="tab-content" style="display: none;">
             <div class="glass-card" style="padding: 20px;">
                 <h3 style="margin-bottom: 20px;">Transaction History</h3>
-                <div id="transactionsHistory">Coming soon...</div>
+                <div id="transactionsHistory"></div>
             </div>
         </div>
 
@@ -385,44 +401,42 @@
 </div>
 
 <script>
-    // ⚠️ IMPORTANT: This is YOUR web app URL - already configured!
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxpH4LE7PXrJI2iOArfFHU2QAtSS1MWT3_IfEoHquFaU4xr0NZoG3q4kQVT_mRJPev3Xw/exec';
+    // ============================================
+    // COMPLETE FRONTEND WITH ALL FUNCTIONS
+    // All data stored in localStorage (no backend needed)
+    // ============================================
     
     let currentUser = null;
     let miningInterval = null;
     let countdownInterval = null;
 
-    // JSONP API call (bypasses CORS)
-    async function callAPI(action, data = {}) {
-        return new Promise((resolve, reject) => {
-            const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            const params = new URLSearchParams({ action, ...data, callback: callbackName });
-            const url = `${API_URL}?${params.toString()}`;
-            
-            window[callbackName] = function(response) {
-                delete window[callbackName];
-                if (script && script.parentNode) document.body.removeChild(script);
-                resolve(response);
-            };
-            
-            const script = document.createElement('script');
-            script.src = url;
-            script.onerror = function() {
-                delete window[callbackName];
-                if (script && script.parentNode) document.body.removeChild(script);
-                reject(new Error('Network request failed - check your API URL and CORS settings'));
-            };
-            document.body.appendChild(script);
-            
-            // Timeout after 30 seconds
-            setTimeout(() => {
-                if (window[callbackName]) {
-                    delete window[callbackName];
-                    if (script && script.parentNode) document.body.removeChild(script);
-                    reject(new Error('Request timeout'));
-                }
-            }, 30000);
-        });
+    // Initialize localStorage data
+    function initStorage() {
+        if (!localStorage.getItem('rida_users')) {
+            const users = [{
+                uid: 'ADMIN_001',
+                email: 'admin@rida.com',
+                password: btoa('admin123'),
+                balance: 1000,
+                role: 'admin',
+                status: 'active',
+                miningActive: false,
+                miningStartTime: null,
+                miningEndTime: null,
+                referralCode: 'ADMIN123',
+                referredBy: '',
+                totalEarned: 0,
+                createdAt: new Date().toISOString(),
+                transactions: []
+            }];
+            localStorage.setItem('rida_users', JSON.stringify(users));
+        }
+        if (!localStorage.getItem('rida_withdrawals')) {
+            localStorage.setItem('rida_withdrawals', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('rida_announcements')) {
+            localStorage.setItem('rida_announcements', JSON.stringify([]));
+        }
     }
 
     function showToast(message, type = 'info') {
@@ -442,244 +456,442 @@
         }
     }
 
+    function addTransaction(uid, type, amount, description) {
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const userIndex = users.findIndex(u => u.uid === uid);
+        
+        if (userIndex !== -1) {
+            if (!users[userIndex].transactions) {
+                users[userIndex].transactions = [];
+            }
+            users[userIndex].transactions.unshift({
+                id: Date.now(),
+                type: type,
+                amount: amount,
+                description: description,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('rida_users', JSON.stringify(users));
+            
+            if (currentUser && currentUser.uid === uid) {
+                currentUser.transactions = users[userIndex].transactions;
+                localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
+            }
+        }
+    }
+
+    // Mining functions
     async function checkMiningStatus() {
         if (!currentUser) return;
         
-        try {
-            const result = await callAPI('GET_MINING_STATUS', { uid: currentUser.uid });
-            if (result.success && result.data) {
-                const status = result.data;
-                const miningIdleDiv = document.getElementById('miningIdle');
-                const miningActiveDiv = document.getElementById('miningActive');
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const userIndex = users.findIndex(u => u.uid === currentUser.uid);
+        
+        if (userIndex === -1) return;
+        
+        const user = users[userIndex];
+        
+        if (user.miningActive && user.miningEndTime) {
+            const now = new Date();
+            const end = new Date(user.miningEndTime);
+            const remaining = end.getTime() - now.getTime();
+            
+            if (remaining <= 0) {
+                document.getElementById('miningIdle').style.display = 'none';
+                document.getElementById('miningActive').style.display = 'block';
+                document.getElementById('currentReward').innerText = '0.100000';
+                document.getElementById('countdown').innerText = '00:00:00';
+            } else if (remaining > 0) {
+     document.getElementById('miningIdle').style.display = 'none';
+                document.getElementById('miningActive').style.display = 'block';
                 
-                if (status.active && !status.canClaim) {
-                    miningIdleDiv.style.display = 'none';
-                    miningActiveDiv.style.display = 'block';
-                    document.getElementById('currentReward').innerText = status.currentReward.toFixed(6);
-                    document.getElementById('claimRewardBtn').style.display = 'block';
-                    
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    
-                    let remainingMs = status.remainingMs;
-                    const updateCountdown = () => {
-                        if (remainingMs <= 0) {
-                            clearInterval(countdownInterval);
-                            checkMiningStatus();
-                            return;
-                        }
-                        const hours = Math.floor(remainingMs / (1000 * 60 * 60));
-                        const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
-                        document.getElementById('countdown').innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-                        remainingMs -= 1000;
-                    };
-                    updateCountdown();
-                    countdownInterval = setInterval(updateCountdown, 1000);
-                } else if (status.canClaim) {
-                    miningIdleDiv.style.display = 'none';
-                    miningActiveDiv.style.display = 'block';
-                    document.getElementById('currentReward').innerText = '0.100000';
-                    document.getElementById('countdown').innerText = '00:00:00';
-                    if (countdownInterval) clearInterval(countdownInterval);
-                } else {
-                    miningIdleDiv.style.display = 'block';
-                    miningActiveDiv.style.display = 'none';
-                    if (countdownInterval) clearInterval(countdownInterval);
-                }
+                const start = new Date(user.miningStartTime);
+                const elapsedSeconds = (now.getTime() - start.getTime()) / 1000;
+                const currentReward = (0.1 / 86400) * Math.min(86400, elapsedSeconds);
+                document.getElementById('currentReward').innerText = currentReward.toFixed(6);
+                
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                document.getElementById('countdown').innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
             }
-        } catch (error) {
-            console.error('Mining status check failed:', error);
+        } else {
+            document.getElementById('miningIdle').style.display = 'block';
+            document.getElementById('miningActive').style.display = 'none';
         }
     }
 
-    async function startMining() {
+    function startMining() {
         if (!currentUser) return;
         
-        const btn = document.getElementById('startMiningBtn');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Starting...';
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const userIndex = users.findIndex(u => u.uid === currentUser.uid);
         
-        try {
-            const result = await callAPI('START_MINING', { uid: currentUser.uid });
-            if (result.success) {
-                showToast('Mining started! Come back in 24 hours.', 'success');
-                checkMiningStatus();
-            } else {
-                showToast(result.error || 'Failed to start mining', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-    }
-
-    async function claimReward() {
-        if (!currentUser) return;
+        if (userIndex === -1) return;
         
-        const btn = document.getElementById('claimRewardBtn');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Claiming...';
-        
-        try {
-            const result = await callAPI('CLAIM_REWARD', { uid: currentUser.uid });
-            if (result.success) {
-                showToast(`Claimed ${result.data.reward} RIDA!`, 'success');
-                currentUser.balance = result.data.balance;
-                updateBalanceUI(currentUser.balance);
-                checkMiningStatus();
-                loadDashboard();
-            } else {
-                showToast(result.error || 'Failed to claim reward', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-    }
-
-    async function loadDashboard() {
-        if (!currentUser) return;
-        
-        document.getElementById('userEmail').innerText = currentUser.email;
-        if (currentUser.role === 'admin') {
-            document.getElementById('userRoleBadge').innerText = '👑 Admin Access';
-            document.getElementById('adminTabBtn').style.display = 'block';
+        if (users[userIndex].miningActive) {
+            showToast('Mining already active!', 'error');
+            return;
         }
         
-        try {
-            const balanceResult = await callAPI('GET_BALANCE', { uid: currentUser.uid });
-            if (balanceResult.success) {
-                currentUser.balance = balanceResult.data.balance;
-                updateBalanceUI(currentUser.balance);
-            }
-        } catch (error) {
-            console.error('Failed to load balance:', error);
-        }
+        const now = new Date();
+        const endTime = new Date(now.getTime() + (24 * 60 * 60 * 1000));
         
-        try {
-            const referralResult = await callAPI('GET_REFERRALS', { uid: currentUser.uid });
-            if (referralResult.success) {
-                document.getElementById('totalReferrals').innerText = referralResult.data.total;
-                document.getElementById('referralCodeDisplay').innerText = currentUser.referralCode || 'N/A';
-                const container = document.getElementById('referralsContainer');
-                if (referralResult.data.referrals && referralResult.data.referrals.length > 0) {
-                    container.innerHTML = referralResult.data.referrals.map(ref => 
-                        `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            ${ref.email} - Joined ${new Date(ref.createdAt).toLocaleDateString()}
-                        </div>`
-                    ).join('');
-                } else {
-                    container.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No referrals yet</p>';
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load referrals:', error);
-        }
+        users[userIndex].miningActive = true;
+        users[userIndex].miningStartTime = now.toISOString();
+        users[userIndex].miningEndTime = endTime.toISOString();
         
-        try {
-            const withdrawalsResult = await callAPI('GET_WITHDRAWALS', { uid: currentUser.uid });
-            if (withdrawalsResult.success && withdrawalsResult.data.withdrawals) {
-                const historyDiv = document.getElementById('withdrawalsHistory');
-                if (withdrawalsResult.data.withdrawals.length > 0) {
-                    historyDiv.innerHTML = withdrawalsResult.data.withdrawals.map(wd =>
-                        `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            ${wd.amount} RIDA - ${wd.status} - ${new Date(wd.requestedAt).toLocaleDateString()}
-                        </div>`
-                    ).join('');
-                } else {
-                    historyDiv.innerHTML = '<p style="color: rgba(255,255,255,0.5);">No withdrawals yet</p>';
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load withdrawals:', error);
-        }
+        localStorage.setItem('rida_users', JSON.stringify(users));
+        currentUser = users[userIndex];
+        localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
         
-        if (currentUser.role === 'admin') {
-            loadAdminData();
-        }
-        
+        addTransaction(currentUser.uid, 'MINING_START', 0, 'Started 24-hour mining session');
+        showToast('Mining started! Come back in 24 hours.', 'success');
         checkMiningStatus();
     }
 
-    async function loadAdminData() {
-        try {
-            const analytics = await callAPI('GET_ANALYTICS', { adminUid: currentUser.uid });
-            if (analytics.success) {
-                document.getElementById('statTotalUsers').innerText = analytics.data.totalUsers;
-                document.getElementById('statActiveMiners').innerText = analytics.data.activeMiners;
-                document.getElementById('statTotalMined').innerText = analytics.data.totalMined.toFixed(2);
-                document.getElementById('statTotalWithdrawn').innerText = analytics.data.totalWithdrawn.toFixed(2);
-            }
-        } catch (error) {
-            console.error('Failed to load analytics:', error);
+    function claimReward() {
+        if (!currentUser) return;
+        
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const userIndex = users.findIndex(u => u.uid === currentUser.uid);
+        
+        if (userIndex === -1) return;
+        
+        const user = users[userIndex];
+        
+        if (!user.miningActive) {
+            showToast('No active mining session', 'error');
+            return;
         }
         
-        try {
-            const users = await callAPI('GET_ALL_USERS', { adminUid: currentUser.uid });
-            if (users.success && users.data.users) {
-                const container = document.getElementById('usersTableContainer');
-                container.innerHTML = `
-                    <table>
-                        <thead>
-                            <tr><th>Email</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            ${users.data.users.map(user => `
-                                <tr>
-                                    <td>${user.email}</td>
-                                    <td><input type="number" id="balance_${user.uid}" value="${user.balance}" style="width:100px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:5px; border-radius:5px;"></td>
-                                    <td>${user.status}</td>
-                                    <td>
-                                        <button onclick="adminUpdateBalance('${user.uid}')" style="background:#00d4ff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">Update</button>
-                                        <button onclick="adminBanUser('${user.uid}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">${user.status === 'banned' ? 'Unban' : 'Ban'}</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
+        const now = new Date();
+        const end = new Date(user.miningEndTime);
+        
+        if (now < end) {
+            const remainingHours = ((end.getTime() - now.getTime()) / (1000 * 60 * 60)).toFixed(1);
+            showToast(`Mining session not complete! ${remainingHours} hours remaining`, 'error');
+            return;
+        }
+        
+        const reward = 0.1;
+        users[userIndex].balance += reward;
+        users[userIndex].totalEarned += reward;
+        users[userIndex].miningActive = false;
+        users[userIndex].miningStartTime = null;
+        users[userIndex].miningEndTime = null;
+        
+        localStorage.setItem('rida_users', JSON.stringify(users));
+        currentUser = users[userIndex];
+        localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
+        
+        addTransaction(currentUser.uid, 'MINING_REWARD', reward, 'Mining reward claimed');
+        updateBalanceUI(currentUser.balance);
+        showToast(`Claimed ${reward} RIDA!`, 'success');
+        checkMiningStatus();
+        loadTransactions();
+    }
+
+    // Auth functions
+    function register() {
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const referralCode = document.getElementById('regReferral').value;
+        
+        if (!email || !password) {
+            showToast('Please fill all fields', 'error');
+            return;
+        }
+        if (password.length < 6) {
+            showToast('Password must be at least 6 characters', 'error');
+            return;
+        }
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            showToast('Invalid email format', 'error');
+            return;
+        }
+        
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        
+        if (users.find(u => u.email === email)) {
+            showToast('Email already registered', 'error');
+            return;
+        }
+        
+        const uid = 'UID_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        const newReferralCode = generateReferralCode();
+        
+        const newUser = {
+            uid: uid,
+            email: email,
+            password: btoa(password),
+            balance: 0,
+            role: 'user',
+            status: 'active',
+            miningActive: false,
+            miningStartTime: null,
+            miningEndTime: null,
+            referralCode: newReferralCode,
+            referredBy: '',
+            totalEarned: 0,
+            createdAt: new Date().toISOString(),
+            transactions: []
+        };
+        
+        // Handle referral
+        if (referralCode) {
+            const referrer = users.find(u => u.referralCode === referralCode && u.uid !== uid);
+            if (referrer) {
+                newUser.referredBy = referrer.uid;
+                const referrerIndex = users.findIndex(u => u.uid === referrer.uid);
+                users[referrerIndex].balance += 5;
+                addTransaction(referrer.uid, 'REFERRAL_BONUS', 5, `Bonus for referring ${email}`);
+                showToast(`Referral bonus applied! You got 5 RIDA`, 'success');
             }
-        } catch (error) {
-            console.error('Failed to load users:', error);
+        }
+        
+        users.push(newUser);
+        localStorage.setItem('rida_users', JSON.stringify(users));
+        
+        showToast('Registration successful! Please login.', 'success');
+        document.getElementById('showLoginBtn').click();
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regReferral').value = '';
+    }
+
+    function login() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        if (!email || !password) {
+            showToast('Please enter email and password', 'error');
+            return;
+        }
+        
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const user = users.find(u => u.email === email && u.password === btoa(password));
+        
+        if (!user) {
+            showToast('Invalid credentials', 'error');
+            return;
+        }
+        
+        if (user.status === 'banned') {
+            showToast('Account is banned. Contact admin.', 'error');
+            return;
+        }
+        
+        currentUser = user;
+        localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
+        
+        showToast('Login successful!', 'success');
+        switchToDashboard();
+        loadDashboard();
+    }
+
+    function logout() {
+        localStorage.removeItem('rida_currentUser');
+        currentUser = null;
+        if (miningInterval) clearInterval(miningInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+        switchToAuth();
+        showToast('Logged out', 'success');
+    }
+
+    // Dashboard functions
+    function loadDashboard() {
+        if (!currentUser) return;
+        
+        document.getElementById('userEmail').innerText = currentUser.email;
+        updateBalanceUI(currentUser.balance);
+        document.getElementById('referralCodeDisplay').innerText = currentUser.referralCode;
+        
+        if (currentUser.role === 'admin') {
+            document.getElementById('userRoleBadge').innerText = '👑 Admin Access';
+            document.getElementById('adminTabBtn').style.display = 'block';
+            loadAdminData();
+        }
+        
+        loadReferrals();
+        loadWithdrawals();
+        loadTransactions();
+        checkMiningStatus();
+        loadAnnouncements();
+        
+        if (miningInterval) clearInterval(miningInterval);
+        miningInterval = setInterval(checkMiningStatus, 1000);
+    }
+
+    function loadReferrals() {
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const referrals = users.filter(u => u.referredBy === currentUser.uid);
+        document.getElementById('totalReferrals').innerText = referrals.length;
+        
+        const container = document.getElementById('referralsContainer');
+        if (referrals.length > 0) {
+            container.innerHTML = referrals.map(ref => 
+                `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <strong>${ref.email}</strong><br>
+                    <small>Joined: ${new Date(ref.createdAt).toLocaleDateString()}</small>
+                </div>`
+            ).join('');
+        } else {
+            container.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No referrals yet. Share your code!</p>';
         }
     }
 
-    window.adminUpdateBalance = async function(uid) {
-        const amount = document.getElementById(`balance_${uid}`).value;
-        try {
-            const result = await callAPI('UPDATE_USER', { uid, field: 'balance', value: amount, adminUid: currentUser.uid });
-            if (result.success) {
-                showToast('Balance updated', 'success');
-                loadAdminData();
-            } else {
-                showToast(result.error || 'Update failed', 'error');
+    function loadWithdrawals() {
+        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
+        const userWithdrawals = withdrawals.filter(w => w.uid === currentUser.uid);
+        const historyDiv = document.getElementById('withdrawalsHistory');
+        
+        if (userWithdrawals.length > 0) {
+            historyDiv.innerHTML = userWithdrawals.map(wd =>
+                `<div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                    <span>${wd.amount} RIDA</span>
+                    <span style="color: ${wd.status === 'approved' ? '#00ff88' : '#ffaa00'}">${wd.status}</span>
+                    <small>${new Date(wd.requestedAt).toLocaleDateString()}</small>
+                </div>`
+            ).join('');
+        } else {
+            historyDiv.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No withdrawal requests yet</p>';
+        }
+    }
+
+    function loadTransactions() {
+        const container = document.getElementById('transactionsHistory');
+        
+        if (currentUser.transactions && currentUser.transactions.length > 0) {
+            container.innerHTML = currentUser.transactions.map(tx => `
+                <div class="transaction-item">
+                    <div>
+                        <strong>${tx.type.replace('_', ' ')}</strong><br>
+                        <small>${new Date(tx.date).toLocaleString()}</small>
+                    </div>
+                    <div class="${tx.amount > 0 ? 'transaction-positive' : 'transaction-negative'}">
+                        ${tx.amount > 0 ? '+' : ''}${tx.amount.toFixed(4)} RIDA
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No transactions yet</p>';
+        }
+    }
+
+    function loadAdminData() {
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
+        
+        const activeMiners = users.filter(u => u.miningActive === true).length;
+        const totalMined = users.reduce((sum, u) => sum + (u.totalEarned || 0), 0);
+        const totalWithdrawn = withdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + w.amount, 0);
+        
+        document.getElementById('statTotalUsers').innerText = users.length;
+        document.getElementById('statActiveMiners').innerText = activeMiners;
+        document.getElementById('statTotalMined').innerText = totalMined.toFixed(2);
+        document.getElementById('statTotalWithdrawn').innerText = totalWithdrawn.toFixed(2);
+        
+        const container = document.getElementById('usersTableContainer');
+        container.innerHTML = `
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Email</th>
+                        <th style="padding: 12px; text-align: left;">Balance</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(user => `
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">${user.email}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <input type="number" id="balance_${user.uid}" value="${user.balance}" style="width:100px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:5px; border-radius:5px;">
+                            </td>
+                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <span style="color: ${user.status === 'active' ? '#00ff88' : '#ff4444'}">${user.status}</span>
+                            </td>
+                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <button onclick="adminUpdateBalance('${user.uid}')" style="background:#00d4ff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">Update</button>
+                                <button onclick="adminBanUser('${user.uid}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">${user.status === 'banned' ? 'Unban' : 'Ban'}</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        // Load pending withdrawals for admin
+        const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
+        if (pendingWithdrawals.length > 0) {
+            const withdrawalDiv = document.createElement('div');
+            withdrawalDiv.style.marginTop = '20px';
+            withdrawalDiv.innerHTML = '<h4>Pending Withdrawals</h4>';
+            pendingWithdrawals.forEach(w => {
+                const user = users.find(u => u.uid === w.uid);
+                withdrawalDiv.innerHTML += `
+                    <div style="padding: 10px; border: 1px solid rgba(255,255,255,0.1); margin: 5px 0; border-radius: 10px;">
+                        <strong>${user?.email}</strong><br>
+                        Amount: ${w.amount} RIDA<br>
+                        Wallet: ${w.walletAddress}<br>
+                        <button onclick="adminApproveWithdrawal('${w.id}')" style="background:#00ff88; border:none; padding:5px 15px; border-radius:5px; cursor:pointer; margin-top:5px;">Approve</button>
+                    </div>
+                `;
+            });
+            container.appendChild(withdrawalDiv);
+        }
+    }
+
+    window.adminUpdateBalance = function(uid) {
+        const amount = parseFloat(document.getElementById(`balance_${uid}`).value);
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const userIndex = users.findIndex(u => u.uid === uid);
+        
+        if (userIndex !== -1) {
+            const oldBalance = users[userIndex].balance;
+            users[userIndex].balance = amount;
+            localStorage.setItem('rida_users', JSON.stringify(users));
+            addTransaction(uid, 'ADMIN_UPDATE', amount - oldBalance, 'Admin balance adjustment');
+            showToast('Balance updated', 'success');
+            if (currentUser.uid === uid) {
+                currentUser = users[userIndex];
+                localStorage.setItem('rida_currentUser', JSON.stringify(currentUser));
+                updateBalanceUI(currentUser.balance);
             }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
+            loadAdminData();
         }
     };
-    
-    window.adminBanUser = async function(uid) {
-        try {
-            const result = await callAPI('BAN_USER', { uid, adminUid: currentUser.uid });
-            if (result.success) {
-                showToast(result.data.message, 'success');
-                loadAdminData();
-            } else {
-                showToast(result.error || 'Action failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
+
+    window.adminBanUser = function(uid) {
+        const users = JSON.parse(localStorage.getItem('rida_users'));
+        const userIndex = users.findIndex(u => u.uid === uid);
+        
+        if (userIndex !== -1) {
+            users[userIndex].status = users[userIndex].status === 'banned' ? 'active' : 'banned';
+            localStorage.setItem('rida_users', JSON.stringify(users));
+            showToast(`User ${users[userIndex].status === 'banned' ? 'banned' : 'unbanned'}`, 'success');
+            loadAdminData();
         }
     };
-    
-    async function requestWithdrawal() {
+
+    window.adminApproveWithdrawal = function(withdrawId) {
+        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
+        const withdrawalIndex = withdrawals.findIndex(w => w.id === withdrawId);
+        
+        if (withdrawalIndex !== -1) {
+            withdrawals[withdrawalIndex].status = 'approved';
+            withdrawals[withdrawalIndex].processedAt = new Date().toISOString();
+            localStorage.setItem('rida_withdrawals', JSON.stringify(withdrawals));
+            
+            addTransaction(withdrawals[withdrawalIndex].uid, 'WITHDRAWAL', -withdrawals[withdrawalIndex].amount, 'Withdrawal approved');
+            showToast('Withdrawal approved', 'success');
+            loadAdminData();
+        }
+    };
+
+    function requestWithdrawal() {
         const walletAddress = document.getElementById('walletAddress').value;
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
         
@@ -691,31 +903,34 @@
             showToast('Minimum withdrawal is 10 RIDA', 'error');
             return;
         }
-        
-        const btn = document.getElementById('requestWithdrawBtn');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
-        
-        try {
-            const result = await callAPI('REQUEST_WITHDRAWAL', { uid: currentUser.uid, walletAddress, amount });
-            if (result.success) {
-                showToast('Withdrawal request submitted', 'success');
-                document.getElementById('walletAddress').value = '';
-                document.getElementById('withdrawAmount').value = '';
-                loadDashboard();
-            } else {
-                showToast(result.error || 'Request failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
+        if (currentUser.balance < amount) {
+            showToast('Insufficient balance', 'error');
+            return;
         }
+        if (!walletAddress.match(/^(T|0x)/)) {
+            showToast('Please enter a valid wallet address (TRC20 or ERC20)', 'error');
+            return;
+        }
+        
+        const withdrawals = JSON.parse(localStorage.getItem('rida_withdrawals'));
+        withdrawals.push({
+            id: 'WD_' + Date.now(),
+            uid: currentUser.uid,
+            walletAddress: walletAddress,
+            amount: amount,
+            status: 'pending',
+            requestedAt: new Date().toISOString()
+        });
+        localStorage.setItem('rida_withdrawals', JSON.stringify(withdrawals));
+        
+        addTransaction(currentUser.uid, 'WITHDRAWAL_REQUEST', -amount, `Withdrawal request to ${walletAddress.substring(0, 10)}...`);
+        showToast('Withdrawal request submitted', 'success');
+        document.getElementById('walletAddress').value = '';
+        document.getElementById('withdrawAmount').value = '';
+        loadWithdrawals();
     }
-    
-    async function sendAnnouncement() {
+
+    function sendAnnouncement() {
         const title = document.getElementById('announcementTitle').value;
         const message = document.getElementById('announcementMessage').value;
         
@@ -724,122 +939,87 @@
             return;
         }
         
-        const btn = document.getElementById('sendAnnouncementBtn');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Sending...';
+        const announcements = JSON.parse(localStorage.getItem('rida_announcements'));
+        announcements.unshift({
+            id: Date.now(),
+            title: title,
+            message: message,
+            createdAt: new Date().toISOString(),
+            createdBy: currentUser.email
+        });
+        localStorage.setItem('rida_announcements', JSON.stringify(announcements));
         
-        try {
-            const result = await callAPI('SEND_ANNOUNCEMENT', { title, message, adminUid: currentUser.uid });
-            if (result.success) {
-                showToast('Announcement sent', 'success');
-                document.getElementById('announcementTitle').value = '';
-                document.getElementById('announcementMessage').value = '';
-            } else {
-                showToast(result.error || 'Failed to send', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
+        showToast('Announcement sent to all users', 'success');
+        document.getElementById('announcementTitle').value = '';
+      document.getElementById('announcementMessage').value = '';
+    }
+
+    function loadAnnouncements() {
+        const announcements = JSON.parse(localStorage.getItem('rida_announcements'));
+        if (announcements.length > 0) {
+            const latest = announcements[0];
+            showToast(`📢 ${latest.title}: ${latest.message}`, 'info');
         }
     }
-    
-    async function login() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        
-        if (!email || !password) {
-            showToast('Please enter email and password', 'error');
-            return;
+
+    function generateReferralCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        
-        const btn = document.getElementById('loginButton');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
-        
-        try {
-            const result = await callAPI('LOGIN', { email, password });
-            if (result.success) {
-                currentUser = result.data;
-                localStorage.setItem('ridaUser', JSON.stringify(currentUser));
-                showToast('Login successful!', 'success');
-                switchToDashboard();
-                loadDashboard();
-            } else {
-                showToast(result.error || 'Login failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
+        return code;
     }
-    
-    async function register() {
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        const referralCode = document.getElementById('regReferral').value;
-        
-        if (!email || !password) {
-            showToast('Please enter email and password', 'error');
-            return;
-        }
-        if (password.length < 6) {
-            showToast('Password must be at least 6 characters', 'error');
-            return;
-        }
-        
-        const btn = document.getElementById('registerButton');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Creating account...';
-        
-        try {
-            const result = await callAPI('REGISTER', { email, password, referralCode });
-            if (result.success) {
-                showToast('Registration successful! Please login.', 'success');
-                document.getElementById('showLoginBtn').click();
-                document.getElementById('regEmail').value = '';
-                document.getElementById('regPassword').value = '';
-                document.getElementById('regReferral').value = '';
-            } else {
-                showToast(result.error || 'Registration failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error: ' + error.message, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-    }
-    
-    function logout() {
-        localStorage.removeItem('ridaUser');
-        currentUser = null;
-        if (miningInterval) clearInterval(miningInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
-        switchToAuth();
-        showToast('Logged out', 'success');
-    }
-    
+
+    // Navigation
     function switchToDashboard() {
         document.getElementById('authPage').classList.remove('active');
         document.getElementById('dashboardPage').classList.add('active');
-        if (miningInterval) clearInterval(miningInterval);
-        miningInterval = setInterval(checkMiningStatus, 5000);
     }
-    
+
     function switchToAuth() {
         document.getElementById('authPage').classList.add('active');
         document.getElementById('dashboardPage').classList.remove('active');
-        if (miningInterval) clearInterval(miningInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
     }
+
+    // Initialize
+    initStorage();
     
+    // Check for existing session
+    const savedUser = localStorage.getItem('rida_currentUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        switchToDashboard();
+        loadDashboard();
+    }
+
+    // Event listeners
+    document.getElementById('showLoginBtn').addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('showLoginBtn').classList.add('active');
+        document.getElementById('showRegisterBtn').classList.remove('active');
+    });
+
+    document.getElementById('showRegisterBtn').addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('showRegisterBtn').classList.add('active');
+        document.getElementById('showLoginBtn').classList.remove('active');
+    });
+
+    document.getElementById('loginButton').addEventListener('click', login);
+    document.getElementById('registerButton').addEventListener('click', register);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('startMiningBtn').addEventListener('click', startMining);
+    document.getElementById('claimRewardBtn').addEventListener('click', claimReward);
+    document.getElementById('requestWithdrawBtn').addEventListener('click', requestWithdrawal);
+    document.getElementById('sendAnnouncementBtn').addEventListener('click', sendAnnouncement);
+    document.getElementById('copyReferralBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.getElementById('referralCodeDisplay').innerText);
+        showToast('Referral code copied!', 'success');
+    });
+
     // Tab switching
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -850,46 +1030,6 @@
             btn.classList.add('active');
         });
     });
-    
-    // Event listeners
-    document.getElementById('showLoginBtn').addEventListener('click', () => {
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('showLoginBtn').classList.add('active');
-        document.getElementById('showRegisterBtn').classList.remove('active');
-    });
-    
-    document.getElementById('showRegisterBtn').addEventListener('click', () => {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'block';
-        document.getElementById('showRegisterBtn').classList.add('active');
-        document.getElementById('showLoginBtn').classList.remove('active');
-    });
-    
-    document.getElementById('loginButton').addEventListener('click', login);
-    document.getElementById('registerButton').addEventListener('click', register);
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('startMiningBtn').addEventListener('click', startMining);
-    document.getElementById('claimRewardBtn').addEventListener('click', claimReward);
-    document.getElementById('requestWithdrawBtn').addEventListener('click', requestWithdrawal);
-    document.getElementById('sendAnnouncementBtn').addEventListener('click', sendAnnouncement);
-    document.getElementById('copyReferralBtn').addEventListener('click', () => {
-        const code = document.getElementById('referralCodeDisplay').innerText;
-        navigator.clipboard.writeText(code);
-        showToast('Referral code copied!', 'success');
-    });
-    
-    // Auto-login check
-    const savedUser = localStorage.getItem('ridaUser');
-    if (savedUser) {
-        try {
-            currentUser = JSON.parse(savedUser);
-            switchToDashboard();
-            loadDashboard();
-        } catch (e) {
-            console.error('Failed to parse saved user');
-        }
-    }
 </script>
 </body>
 </html>
