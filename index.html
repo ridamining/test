@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Network | Mining Dashboard</title>
+<title>Rida Network | Dashboard</title>
 
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* Glass crypto UI */
 body {
   background: linear-gradient(135deg,#0f172a,#020617);
   font-family: 'Inter', sans-serif;
@@ -31,12 +30,12 @@ button { cursor:pointer; }
 }
 </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
+<body class="min-h-screen flex flex-col items-center justify-start p-4">
 
-<div class="w-full max-w-4xl p-4">
+<div class="w-full max-w-6xl">
 
 <!-- LOGIN -->
-<div id="loginBox" class="card max-w-md mx-auto">
+<div id="loginBox" class="card max-w-md mx-auto mt-20">
   <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
   <input id="email" type="email" placeholder="Email" class="w-full p-3 rounded-lg mb-2 bg-gray-800 text-white">
   <input id="password" type="password" placeholder="Password" class="w-full p-3 rounded-lg mb-2 bg-gray-800 text-white">
@@ -45,7 +44,7 @@ button { cursor:pointer; }
 </div>
 
 <!-- REGISTER -->
-<div id="registerBox" class="card max-w-md mx-auto hidden">
+<div id="registerBox" class="card max-w-md mx-auto mt-20 hidden">
   <h2 class="text-2xl font-bold mb-4 text-center">Register</h2>
   <input id="rEmail" type="email" placeholder="Email" class="w-full p-3 rounded-lg mb-2 bg-gray-800 text-white">
   <input id="rPass" type="password" placeholder="Password" class="w-full p-3 rounded-lg mb-2 bg-gray-800 text-white">
@@ -55,9 +54,9 @@ button { cursor:pointer; }
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" class="hidden space-y-6">
+<div id="dashboard" class="hidden mt-8 space-y-6">
 
-  <!-- User Info -->
+  <!-- User Info Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div class="card text-center">
       <h3 class="font-bold">Balance</h3>
@@ -77,14 +76,14 @@ button { cursor:pointer; }
     </div>
   </div>
 
-  <!-- Withdraw -->
+  <!-- Withdraw Card -->
   <div class="card max-w-md mx-auto">
     <h3 class="font-bold mb-2">Withdraw</h3>
     <input id="amount" type="number" placeholder="Amount" class="w-full p-3 rounded-lg mb-2 bg-gray-800 text-white">
     <button onclick="withdraw()" class="w-full p-3 bg-red-500 font-bold rounded-lg hover:bg-red-400">Withdraw</button>
   </div>
 
-  <!-- KYC Form -->
+  <!-- KYC Submission -->
   <div class="card max-w-md mx-auto">
     <h3 class="font-bold mb-2">Submit KYC</h3>
     <input id="name" type="text" placeholder="Full Name" class="w-full p-3 rounded-lg mb-2 bg-gray-800 text-white">
@@ -92,9 +91,44 @@ button { cursor:pointer; }
     <button onclick="submitKYC()" class="w-full p-3 bg-green-500 font-bold rounded-lg hover:bg-green-400">Submit KYC</button>
   </div>
 
-  <!-- Admin Panel Button -->
-  <div class="text-center">
-    <button id="adminBtn" class="hidden bg-red-600 px-6 py-3 rounded-lg font-bold hover:bg-red-500" onclick="loadAdmin()">Admin Panel</button>
+  <!-- Admin Panel -->
+  <div id="adminPanel" class="hidden">
+    <h2 class="text-2xl font-bold mb-4 text-center">Admin Panel</h2>
+
+    <!-- Users Table -->
+    <div class="overflow-x-auto mb-6">
+      <h3 class="font-bold mb-2">Users</h3>
+      <table class="table-auto w-full bg-gray-800 rounded-xl text-white">
+        <thead>
+          <tr>
+            <th class="px-2 py-1">UserID</th>
+            <th class="px-2 py-1">Email</th>
+            <th class="px-2 py-1">Balance</th>
+            <th class="px-2 py-1">KYC</th>
+            <th class="px-2 py-1">Role</th>
+            <th class="px-2 py-1">Action</th>
+          </tr>
+        </thead>
+        <tbody id="adminUsers"></tbody>
+      </table>
+    </div>
+
+    <!-- Withdraws Table -->
+    <div class="overflow-x-auto mb-6">
+      <h3 class="font-bold mb-2">Pending Withdraws</h3>
+      <table class="table-auto w-full bg-gray-800 rounded-xl text-white">
+        <thead>
+          <tr>
+            <th class="px-2 py-1">TXID</th>
+            <th class="px-2 py-1">UserID</th>
+            <th class="px-2 py-1">Amount</th>
+            <th class="px-2 py-1">Status</th>
+            <th class="px-2 py-1">Action</th>
+          </tr>
+        </thead>
+        <tbody id="adminWithdraws"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="text-center mt-4">
@@ -102,121 +136,72 @@ button { cursor:pointer; }
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
 // Backend URL
 const API = "https://script.google.com/macros/s/AKfycbw3AR5966w3Va-VNWzbOTeFAx2UCIiYMuf6pGzrE7ji7qTlRI5L9Z8uAw_ehf5IeszX/exec";
-
-// Token storage
 let token = localStorage.getItem("token") || null;
 
-// Toast helper
-function toast(msg,color="#22c55e"){
-  const t = document.getElementById("toast");
-  t.innerText = msg; t.style.background=color; t.style.display="block";
-  setTimeout(()=>{t.style.display="none"},3000);
-}
+function toast(msg,color="#22c55e"){ const t=document.getElementById("toast"); t.innerText=msg; t.style.background=color; t.style.display="block"; setTimeout(()=>{t.style.display="none"},3000); }
+async function send(data){ if(token) data.token=token; const res=await fetch(API,{method:"POST",body:JSON.stringify(data)}); return await res.json(); }
 
-// Send API requests
-async function send(data){
-  if(token) data.token = token;
-  const res = await fetch(API,{method:"POST",body:JSON.stringify(data)});
-  return await res.json();
-}
+async function login(){ const email=document.getElementById("email").value; const password=document.getElementById("password").value;
+const res=await send({action:"login",email,password}); if(res.token){ token=res.token; localStorage.setItem("token",token); startApp(); } else toast(res.error||"Login failed","#ef4444"); }
+async function register(){ const email=document.getElementById("rEmail").value; const password=document.getElementById("rPass").value; const ref=document.getElementById("ref").value;
+const res=await send({action:"register",email,password,ref}); if(res.success){ toast("Registered! Login now"); showLogin(); } else toast(res.error||"Registration failed","#ef4444"); }
 
-// Login
-async function login(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const res = await send({action:"login",email,password});
-  if(res.token){ token=res.token; localStorage.setItem("token",token); startApp(); }
-  else toast(res.error||"Login failed","#ef4444");
-}
-
-// Register
-async function register(){
-  const email=document.getElementById("rEmail").value;
-  const password=document.getElementById("rPass").value;
-  const ref=document.getElementById("ref").value;
-  const res = await send({action:"register",email,password,ref});
-  if(res.success){ toast("Registered! Login now"); showLogin(); }
-  else toast(res.error||"Registration failed","#ef4444");
-}
-
-// Logout
 function logout(){ localStorage.removeItem("token"); token=null; location.reload(); }
-
-// Show/hide login/register
 function showRegister(){ document.getElementById("loginBox").classList.add("hidden"); document.getElementById("registerBox").classList.remove("hidden"); }
 function showLogin(){ document.getElementById("registerBox").classList.add("hidden"); document.getElementById("loginBox").classList.remove("hidden"); }
 
-// Start App
-async function startApp(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("registerBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-  await loadStatus();
-}
+async function startApp(){ document.getElementById("loginBox").style.display="none"; document.getElementById("registerBox").style.display="none"; document.getElementById("dashboard").style.display="block"; await loadStatus(); }
 
-// Load user status
 async function loadStatus(){
-  const res = await send({action:"getStatus"});
+  const res=await send({action:"getStatus"});
   if(res.error==="Unauthorized"){ toast("Session expired","#ef4444"); logout(); return; }
-  document.getElementById("bal").innerText = res.balance ?? 0;
-  document.getElementById("refCode").innerText = res.referralCode ?? "N/A";
-  document.getElementById("kyc").innerText = res.kycStatus ?? "Pending";
-  if(res.role==="admin") document.getElementById("adminBtn").classList.remove("hidden");
-  startTimer(res.remaining || 0);
+  document.getElementById("bal").innerText=res.balance??0;
+  document.getElementById("refCode").innerText=res.referralCode??"N/A";
+  document.getElementById("kyc").innerText=res.kycStatus??"Pending";
+  if(res.role==="admin") { document.getElementById("adminPanel").classList.remove("hidden"); loadAdmin(); }
+  startTimer(res.remaining||0);
 }
 
-// 24h Mining Timer
-function startTimer(ms){
-  const timerEl=document.getElementById("timer");
-  function update(){
-    if(ms<=0){ timerEl.innerText="Ready to Mine"; return; }
-    let h=Math.floor(ms/3600000);
-    let m=Math.floor((ms%3600000)/60000);
-    let s=Math.floor((ms%60000)/1000);
-    timerEl.innerText=`${h}h ${m}m ${s}s`;
-    ms-=1000; setTimeout(update,1000);
-  }
-  update();
-}
+function startTimer(ms){ const timerEl=document.getElementById("timer"); function update(){ if(ms<=0){ timerEl.innerText="Ready to Mine"; return; }
+let h=Math.floor(ms/3600000); let m=Math.floor((ms%3600000)/60000); let s=Math.floor((ms%60000)/1000);
+timerEl.innerText=`${h}h ${m}m ${s}s`; ms-=1000; setTimeout(update,1000); } update(); }
 
-// Claim Mining
-async function claim(){
-  const res=await send({action:"claim"});
-  if(res.error==="Unauthorized"){ toast("Session expired","#ef4444"); logout(); return; }
-  toast(res.success?"Mining reward added!":res.error);
-  loadStatus();
-}
+async function claim(){ const res=await send({action:"claim"}); if(res.error==="Unauthorized"){ toast("Session expired","#ef4444"); logout(); return; }
+toast(res.success?"Mining reward added!":res.error); loadStatus(); }
 
-// Withdraw
-async function withdraw(){
-  const amount=document.getElementById("amount").value;
-  const res=await send({action:"withdraw",amount});
-  if(res.error==="Unauthorized"){ toast("Session expired","#ef4444"); logout(); return; }
-  toast(res.success?"Withdraw requested":res.error);
-}
+async function withdraw(){ const amount=document.getElementById("amount").value; const res=await send({action:"withdraw",amount}); if(res.error==="Unauthorized"){ toast("Session expired","#ef4444"); logout(); return; }
+toast(res.success?"Withdraw requested":res.error); }
 
-// KYC
-async function submitKYC(){
-  const name=document.getElementById("name").value;
-  const cnic=document.getElementById("cnic").value;
-  const res=await send({action:"submitKYC",kyc:{name,cnic}});
-  toast(res.success?"KYC submitted":res.error);
-  loadStatus();
-}
+async function submitKYC(){ const name=document.getElementById("name").value; const cnic=document.getElementById("cnic").value;
+const res=await send({action:"submitKYC",kyc:{name,cnic}}); toast(res.success?"KYC submitted":res.error); loadStatus(); }
 
-// Copy Referral
 function copyReferral(){ navigator.clipboard.writeText(document.getElementById("refCode").innerText); toast("Referral copied!"); }
 
-// Admin panel loader
-async function loadAdmin(){ toast("Admin panel loaded in console"); console.log(await send({action:"getUsers"})); }
+// ADMIN FUNCTIONS
+async function loadAdmin(){
+  const users=await send({action:"getUsers"}); const tbody=document.getElementById("adminUsers"); tbody.innerHTML="";
+  users.forEach(u=>{
+    tbody.innerHTML+=`<tr><td class="px-2 py-1">${u.userId}</td><td class="px-2 py-1">${u.email}</td><td class="px-2 py-1">${u.balance}</td><td class="px-2 py-1">${u.kyc}</td><td class="px-2 py-1">${u.role}</td><td class="px-2 py-1"><button onclick="approveKYC('${u.userId}')">Approve</button></td></tr>`;
+  });
 
-// Auto-start
+  const withdraws=await send({action:"getWithdraws"}); const wtbody=document.getElementById("adminWithdraws"); wtbody.innerHTML="";
+  withdraws.forEach(w=>{
+    if(w.status==="pending"){
+      wtbody.innerHTML+=`<tr><td class="px-2 py-1">${w.txId}</td><td class="px-2 py-1">${w.userId}</td><td class="px-2 py-1">${w.amount}</td><td class="px-2 py-1">${w.status}</td><td class="px-2 py-1"><button onclick="approveWithdraw('${w.txId}')">Approve</button></td></tr>`;
+    }
+  });
+}
+
+// Admin Approve actions
+async function approveKYC(userId){ const res=await send({action:"approveKYC",userId}); toast(res.success?"KYC Approved":res.error); loadAdmin(); }
+async function approveWithdraw(txId){ const res=await send({action:"approveWithdraw",txId}); toast(res.success?"Withdraw Approved":res.error); loadAdmin(); }
+
+// Auto-start if token exists
 if(token) startApp();
 </script>
 
