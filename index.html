@@ -5,13 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rida Network | Crypto Dashboard</title>
 
-<!-- Tailwind -->
+<!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Chart.js CDN for analytics charts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-body { background: linear-gradient(135deg,#0f172a,#020617); font-family:'Inter',sans-serif; color:#fff; }
+body { background: linear-gradient(135deg,#0f172a,#020617); color:#fff; font-family: 'Inter', sans-serif; }
 .card { background: rgba(30,41,59,0.85); backdrop-filter: blur(15px); padding:20px; border-radius:15px; box-shadow:0 8px 25px rgba(0,0,0,0.5); transition:all 0.3s ease; }
 .card:hover { transform: scale(1.03); }
 button { cursor:pointer; }
@@ -124,7 +121,7 @@ button { cursor:pointer; }
 <div id="toast" class="toast"></div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbw3AR5966w3Va-VNWzbOTeFAx2UCIiYMuf6pGzrE7ji7qTlRI5L9Z8uAw_ehf5IeszX/exec";
+const API="https://script.google.com/macros/s/AKfycbybpOPoJHlA6yN-79osU05VzkXNVZnTUufdI3VqDT2lyT3N3PvY6jkjHPt90eYvBEww/exec";
 let token=localStorage.getItem("token")||null;
 
 function toast(msg,color="#22c55e"){ const t=document.getElementById("toast"); t.innerText=msg; t.style.background=color; t.style.display="block"; setTimeout(()=>{t.style.display="none"},3000);}
