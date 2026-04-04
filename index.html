@@ -9,55 +9,71 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
-    .card { background: linear-gradient(145deg, #1a1a1a, #111111); }
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
   <div id="app" class="min-h-screen"></div>
 
   <script>
-    // ================== CONFIG ==================
     const API_URL = "https://script.google.com/macros/s/AKfycbyMYNHXZ7g40fD6GVpSFMWCHFh6leDEqij-HeZ8i5RWUR5JFvXlTZc3XJ2DEa_LjAEF/exec";
     let currentToken = localStorage.getItem('ridaToken') || null;
     let currentUser = null;
 
-    // Tailwind Init
-    function initTailwind() {
-      if (typeof tailwind !== 'undefined') {
-        tailwind.config = { darkMode: 'class' };
-      }
-    }
-
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.style.cssText = `position:fixed;bottom:24px;right:24px;padding:16px 24px;border-radius:16px;color:white;z-index:9999;font-weight:500;${type==='success'?'background:#10b981':'background:#ef4444'}`;
-      toast.innerHTML = `<i class="fa-solid \( {type==='success'?'fa-check-circle':'fa-exclamation-circle'} mr-2"></i> \){message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 4500);
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.style.cssText = `position:fixed;bottom:24px;right:24px;padding:16px 24px;border-radius:16px;color:white;z-index:9999;${type==='success'?'background:#10b981':'background:#ef4444'}`;
+      t.innerHTML = `<i class="fa-solid \( {type==='success'?'fa-check-circle':'fa-exclamation-circle'} mr-2"></i> \){msg}`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4500);
     }
 
     async function apiCall(action, body = {}) {
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, token: currentToken, ...body })
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({action, token: currentToken, ...body})
         });
-
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          throw new Error('Invalid response from server');
-        }
-
-        if (!data.success) throw new Error(data.error || 'Request failed');
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed');
         return data;
       } catch (err) {
-        console.error('API Error:', err);
-        showToast(err.message || 'Connection failed. Try again.', 'error');
+        console.error(err);
+        showToast(err.message || 'Server connection failed', 'error');
         throw err;
+      }
+    }
+
+    function render(view = 'landing') {
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+
+      if (view === 'landing') {
+        app.innerHTML = `
+          <div class="min-h-screen bg-gradient-to-br from-zinc-950 to-black flex items-center justify-center px-6">
+            <div class="text-center">
+              <div class="text-8xl mb-8">⛏️</div>
+              <h1 class="text-6xl font-bold mb-6">Rida Network</h1>
+              <p class="text-2xl text-zinc-400 mb-12">Claim 5 Rida every 24 hours • Referral bonuses • Unlock at 150 coins</p>
+              <div class="flex gap-4 justify-center flex-wrap">
+                <button onclick="navigate('login')" class="px-10 py-4 border border-white/30 hover:bg-white/10 rounded-2xl text-lg">Login</button>
+                <button onclick="navigate('register')" class="px-12 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-lg font-semibold">Join Free</button>
+              </div>
+            </div>
+          </div>`;
+      } else if (view === 'register' || view === 'login') {
+        const isReg = view === 'register';
+        app.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center">
+            <div class="bg-zinc-900 p-10 rounded-3xl max-w-md w-full">
+              <h2 class="text-3xl font-bold text-center mb-8">${isReg ? 'Create Account' : 'Login'}</h2>
+              <input id="email" type="email" placeholder="Email" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-4">
+              <input id="password" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 mb-8">
+              <button onclick="\( {isReg ? 'handleRegister()' : 'handleLogin()'}" class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold"> \){isReg ? 'Register' : 'Login'}</button>
+            </div>
+          </div>`;
+      } else if (view === 'dashboard') {
+        app.innerHTML = `<div class="min-h-screen flex items-center justify-center"><div class="text-center"><p class="text-3xl">Dashboard Loading...</p><p class="text-emerald-400 mt-4">If stuck, check console (F12)</p></div></div>`;
       }
     }
 
@@ -65,192 +81,35 @@
       render(page);
     }
 
-    async function render(view = 'landing') {
-      const app = document.getElementById('app');
-      app.innerHTML = '';
-
-      if (!currentToken && !['landing', 'login', 'register'].includes(view)) {
-        view = 'landing';
-      }
-
-      // Landing Page
-      if (view === 'landing') {
-        app.innerHTML = `
-          <div class="min-h-screen bg-gradient-to-br from-zinc-950 via-black to-zinc-950 flex items-center justify-center px-6">
-            <div class="text-center max-w-lg">
-              <div class="text-8xl mb-8">⛏️</div>
-              <h1 class="text-6xl font-bold tracking-tight mb-6">Rida Network</h1>
-              <p class="text-2xl text-zinc-400 mb-12">Claim 5 Rida every 24 hours • Referral bonuses • Unlock at 150 coins</p>
-              <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="navigate('login')" class="px-10 py-4 border border-white/30 hover:bg-white/10 rounded-2xl text-lg font-medium transition">Login</button>
-                <button onclick="navigate('register')" class="px-12 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl text-lg font-semibold transition">Join Free</button>
-              </div>
-            </div>
-          </div>`;
-        return;
-      }
-
-      // Register Page
-      if (view === 'register') {
-        app.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center bg-zinc-950">
-            <div class="card w-full max-w-md p-10 rounded-3xl">
-              <h2 class="text-4xl font-bold text-center mb-8">Create Account</h2>
-              <input id="regEmail" type="email" placeholder="Email Address" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-4 focus:outline-none focus:border-emerald-500">
-              <input id="regPassword" type="password" placeholder="Password" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-8 focus:outline-none focus:border-emerald-500">
-              <button onclick="handleRegister()" class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold text-lg">Create Account</button>
-              <p class="text-center mt-6 text-zinc-400">Already have an account? <span onclick="navigate('login')" class="text-emerald-400 cursor-pointer">Login</span></p>
-            </div>
-          </div>`;
-        return;
-      }
-
-      // Login Page
-      if (view === 'login') {
-        app.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center bg-zinc-950">
-            <div class="card w-full max-w-md p-10 rounded-3xl">
-              <h2 class="text-4xl font-bold text-center mb-8">Welcome Back</h2>
-              <input id="loginEmail" type="email" placeholder="Email Address" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-4 focus:outline-none focus:border-emerald-500">
-              <input id="loginPassword" type="password" placeholder="Password" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 mb-8 focus:outline-none focus:border-emerald-500">
-              <button onclick="handleLogin()" class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-semibold text-lg">Login</button>
-              <p class="text-center mt-6 text-zinc-400">New here? <span onclick="navigate('register')" class="text-emerald-400 cursor-pointer">Register</span></p>
-            </div>
-          </div>`;
-        return;
-      }
-
-      // Dashboard
-      if (!currentUser) {
-        try {
-          currentUser = await apiCall('getDashboard');
-        } catch (e) {
-          logout();
-          return;
-        }
-      }
-
-      const lastClaim = currentUser.lastClaim ? new Date(currentUser.lastClaim) : new Date(0);
-      const hoursSince = (Date.now() - lastClaim) / (1000 * 60 * 60);
-      const canClaim = hoursSince >= 24;
-
-      app.innerHTML = `
-        <div class="flex h-screen overflow-hidden">
-          <!-- Sidebar -->
-          <div class="w-72 bg-zinc-900 border-r border-white/10 p-6 flex flex-col">
-            <div class="flex items-center gap-3 mb-12">
-              <i class="fa-solid fa-link text-4xl text-emerald-500"></i>
-              <span class="font-bold text-2xl">Rida Network</span>
-            </div>
-            <div class="flex-1 space-y-2">
-              <button onclick="navigate('dashboard')" class="w-full text-left px-6 py-4 rounded-2xl bg-emerald-500 font-medium">Dashboard</button>
-              <button onclick="navigate('referrals')" class="w-full text-left px-6 py-4 rounded-2xl hover:bg-white/10">Referrals</button>
-              <button onclick="navigate('kyc')" class="w-full text-left px-6 py-4 rounded-2xl hover:bg-white/10">KYC Status</button>
-              <button onclick="navigate('withdraw')" class="w-full text-left px-6 py-4 rounded-2xl hover:bg-white/10">Withdraw</button>
-            </div>
-            <button onclick="logout()" class="mt-auto w-full py-4 text-red-400 hover:bg-red-500/10 rounded-2xl flex items-center justify-center gap-2">
-              <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </button>
-          </div>
-
-          <!-- Main Content -->
-          <div class="flex-1 p-10 overflow-auto">
-            <h1 class="text-4xl font-bold mb-2">Dashboard</h1>
-            <p class="text-zinc-400 mb-10">Hello, ${currentUser.email || 'Miner'}</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="card p-8 rounded-3xl">
-                <div class="text-emerald-400 text-sm font-medium">CURRENT BALANCE</div>
-                <div class="text-7xl font-bold mt-4">${parseFloat(currentUser.balance || 0).toFixed(2)}</div>
-                <div class="text-2xl text-zinc-400">Rida Coins</div>
-              </div>
-
-              <div class="card p-8 rounded-3xl flex flex-col justify-between">
-                <div>
-                  <div class="text-emerald-400 text-sm font-medium">NEXT CLAIM</div>
-                  <div class="text-5xl font-mono mt-3">${canClaim ? 'Ready Now' : Math.floor(24 - hoursSince) + 'h left'}</div>
-                </div>
-                <button onclick="makeClaim()" id="claimBtn"
-                  class="mt-6 w-full py-6 text-xl font-bold rounded-3xl ${canClaim ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-zinc-700 cursor-not-allowed'}">
-                  ${canClaim ? 'CLAIM 5 RIDA NOW' : 'WAIT FOR NEXT CLAIM'}
-                </button>
-              </div>
-            </div>
-
-            <div class="mt-8 card p-8 rounded-3xl">
-              <div class="flex justify-between mb-4">
-                <span class="font-medium">Your Referral Link</span>
-                <button onclick="copyReferral()" class="text-emerald-400"><i class="fa-solid fa-copy"></i> Copy</button>
-              </div>
-              <input id="refLink" type="text" readonly 
-                value="https://ridamining.github.io/test/?ref=${currentUser.referralCode || ''}"
-                class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 text-sm">
-            </div>
-          </div>
-        </div>`;
-    }
-
     async function handleRegister() {
-      const email = document.getElementById('regEmail').value.trim();
-      const password = document.getElementById('regPassword').value.trim();
-      if (!email || !password) return showToast('Please fill all fields', 'error');
-
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!email || !password) return showToast('Fill all fields', 'error');
       try {
-        await apiCall('register', { email, password });
-        showToast('Account created successfully! Please login.', 'success');
+        await apiCall('register', {email, password});
+        showToast('Account created! Login now.', 'success');
         navigate('login');
-      } catch (e) {}
+      } catch(e){}
     }
 
     async function handleLogin() {
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
-      if (!email || !password) return showToast('Please fill all fields', 'error');
-
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!email || !password) return showToast('Fill all fields', 'error');
       try {
-        const data = await apiCall('login', { email, password });
+        const data = await apiCall('login', {email, password});
         currentToken = data.token;
         localStorage.setItem('ridaToken', currentToken);
         showToast('Login successful!', 'success');
         render('dashboard');
-      } catch (e) {}
+      } catch(e){}
     }
 
-    async function makeClaim() {
-      const btn = document.getElementById('claimBtn');
-      if (!btn || btn.disabled) return;
-      btn.disabled = true;
-      btn.textContent = 'Claiming...';
-
-      try {
-        const data = await apiCall('claim');
-        currentUser.balance = data.newBalance;
-        showToast(data.message || 'Claim successful!', 'success');
-        render('dashboard');
-      } catch (e) {
-        btn.disabled = false;
-      }
-    }
-
-    function copyReferral() {
-      const input = document.getElementById('refLink');
-      if (input) {
-        navigator.clipboard.writeText(input.value);
-        showToast('Referral link copied!', 'success');
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('ridaToken');
-      currentToken = null;
-      currentUser = null;
-      render('landing');
-    }
-
-    // Initialize App
+    // Start safely
     window.onload = () => {
-      initTailwind();
-      render(currentToken ? 'dashboard' : 'landing');
+      setTimeout(() => {
+        render(currentToken ? 'dashboard' : 'landing');
+      }, 500);
     };
   </script>
 </body>
