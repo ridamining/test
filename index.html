@@ -3,59 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Mining</title>
+<title>Rida Network</title>
 
 <style>
-body {
+body{
   margin:0;
-  font-family: Arial;
-  background:#0b0f1a;
-  color:white;
+  font-family: 'Segoe UI', sans-serif;
+  background:#0a0f1c;
+  color:#fff;
 }
 
-.container {
-  padding:20px;
+.header{
+  padding:15px;
+  font-size:20px;
+  font-weight:bold;
+  text-align:center;
+  background:#111827;
 }
 
-.card {
-  background:#121826;
+.container{
+  padding:15px;
+}
+
+.card{
+  background:linear-gradient(145deg,#111827,#1f2937);
   padding:20px;
-  border-radius:12px;
+  border-radius:16px;
   margin-bottom:15px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
-button {
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  margin-top:10px;
+  font-weight:bold;
+  background:linear-gradient(90deg,#00c853,#00e676);
+  color:black;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.03);
+}
+
+input{
   width:100%;
   padding:12px;
-  margin-top:10px;
+  border-radius:10px;
   border:none;
-  border-radius:8px;
-  background:#00c853;
-  color:white;
+  margin-top:10px;
+}
+
+.hidden{display:none;}
+
+.balance{
+  font-size:28px;
   font-weight:bold;
 }
 
-input {
-  width:100%;
-  padding:10px;
+.timer{
+  font-size:18px;
   margin-top:10px;
-  border-radius:8px;
-  border:none;
+  color:#00e676;
 }
 
-.hidden { display:none; }
+.admin{
+  background:linear-gradient(145deg,#3b0000,#7f1d1d);
+}
 
-.admin {
-  background:#ff1744;
+.glow{
+  animation:glow 1s infinite alternate;
+}
+
+@keyframes glow{
+  from{box-shadow:0 0 5px #00e676;}
+  to{box-shadow:0 0 20px #00e676;}
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">🚀 Rida Mining</div>
+
 <div class="container">
 
-<!-- LOGIN -->
+<!-- AUTH -->
 <div id="authBox" class="card">
   <h2>Login / Register</h2>
   <input id="email" placeholder="Email">
@@ -67,29 +104,35 @@ input {
 <!-- DASHBOARD -->
 <div id="dashboard" class="hidden">
 
-<div class="card">
-  <h3>Balance: <span id="balance">0</span> RIDA</h3>
-  <p>Referral Code: <span id="ref"></span></p>
-  <p>KYC: <span id="kyc"></span></p>
+<div class="card glow">
+  <div class="balance" id="balance">0</div>
+  <div>RIDA Balance</div>
 </div>
 
 <div class="card">
-  <h3>Mining</h3>
-  <p id="timer">Not started</p>
+  <p>Referral Code: <b id="ref"></b></p>
+  <p>KYC Status: <b id="kyc"></b></p>
+</div>
+
+<div class="card">
+  <h3>⛏ Mining</h3>
+  <div class="timer" id="timer">Loading...</div>
   <button onclick="startMining()">Start Mining</button>
   <button onclick="claimMining()">Claim Reward</button>
 </div>
 
 <div class="card">
-  <h3>Withdraw</h3>
+  <h3>💸 Withdraw</h3>
   <input id="amount" placeholder="Amount">
   <input id="wallet" placeholder="Wallet Address">
   <button onclick="withdraw()">Request Withdraw</button>
 </div>
 
-<div id="adminPanel" class="card hidden admin">
-  <h3>Admin Panel</h3>
-  <p>You are admin</p>
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="card admin hidden">
+  <h3>👑 Admin Panel</h3>
+  <button onclick="loadWithdraws()">Load Withdraw Requests</button>
+  <div id="withdrawList"></div>
 </div>
 
 <button onclick="logout()">Logout</button>
@@ -103,40 +146,24 @@ const API = "https://script.google.com/macros/s/AKfycbwP3T0zDznxDcoLyucOX8AM2NWZ
 
 let token = localStorage.getItem("token");
 
-// ------------------ AUTH ------------------
-
+// AUTH
 async function register(){
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"register",
-      email:email.value,
-      password:password.value
-    })
-  });
-  const data = await res.json();
-  alert(data.success ? "Registered!" : data.error);
+  let r = await fetch(API,{method:"POST",body:JSON.stringify({
+    action:"register",email:email.value,password:password.value
+  })});
+  let d = await r.json();
+  alert(d.success?"Registered!":d.error);
 }
 
 async function login(){
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"login",
-      email:email.value,
-      password:password.value
-    })
-  });
-
-  const data = await res.json();
-
-  if(data.error){
-    alert(data.error);
-  } else {
-    token = data.token;
-    localStorage.setItem("token", token);
-    loadDashboard();
-  }
+  let r = await fetch(API,{method:"POST",body:JSON.stringify({
+    action:"login",email:email.value,password:password.value
+  })});
+  let d = await r.json();
+  if(d.error) return alert(d.error);
+  token=d.token;
+  localStorage.setItem("token",token);
+  loadDashboard();
 }
 
 function logout(){
@@ -144,115 +171,84 @@ function logout(){
   location.reload();
 }
 
-// ------------------ DASHBOARD ------------------
-
+// DASHBOARD
 async function loadDashboard(){
   authBox.classList.add("hidden");
   dashboard.classList.remove("hidden");
 
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"getStatus",
-      token:token
-    })
-  });
+  let r = await fetch(API,{method:"POST",body:JSON.stringify({
+    action:"getStatus",token
+  })});
+  let d = await r.json();
 
-  const data = await res.json();
+  balance.innerText = d.balance;
+  ref.innerText = d.referralCode;
+  kyc.innerText = d.kycStatus;
 
-  if(data.error){
-    alert("Session expired");
-    logout();
-    return;
-  }
-
-  balance.innerText = data.balance;
-  ref.innerText = data.referralCode;
-  kyc.innerText = data.kycStatus;
-
-  if(data.role === "admin"){
+  if(d.role==="admin"){
     adminPanel.classList.remove("hidden");
   }
 
-  startTimer(data.lastMining);
+  startTimer(d.lastMining);
 }
 
-// ------------------ MINING ------------------
-
+// MINING
 async function startMining(){
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"startMining",
-      token:token
-    })
-  });
-
-  const data = await res.json();
-  alert(data.error || "Mining started");
+  let r = await fetch(API,{method:"POST",body:JSON.stringify({
+    action:"startMining",token
+  })});
+  let d = await r.json();
+  alert(d.error||"Mining Started");
   loadDashboard();
 }
 
 async function claimMining(){
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"claimMining",
-      token:token
-    })
-  });
-
-  const data = await res.json();
-
-  if(data.error){
-    alert(data.error);
-  } else {
-    alert("Reward claimed!");
-    balance.innerText = data.balance;
-  }
+  let r = await fetch(API,{method:"POST",body:JSON.stringify({
+    action:"claimMining",token
+  })});
+  let d = await r.json();
+  alert(d.error||"Reward Claimed");
+  if(d.balance) balance.innerText=d.balance;
 }
 
-// ------------------ TIMER ------------------
-
+// TIMER
 function startTimer(last){
   function update(){
-    const now = Date.now();
-    const diff = 86400000 - (now - last);
+    let now=Date.now();
+    let diff=86400000-(now-last);
 
-    if(diff <= 0){
-      timer.innerText = "Ready to claim";
+    if(diff<=0){
+      timer.innerText="✅ Ready to Claim";
       return;
     }
 
-    const h = Math.floor(diff/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
+    let h=Math.floor(diff/3600000);
+    let m=Math.floor((diff%3600000)/60000);
+    let s=Math.floor((diff%60000)/1000);
 
-    timer.innerText = `${h}h ${m}m ${s}s`;
+    timer.innerText=`${h}h ${m}m ${s}s`;
   }
-
   setInterval(update,1000);
 }
 
-// ------------------ WITHDRAW ------------------
-
+// WITHDRAW
 async function withdraw(){
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"withdraw",
-      token:token,
-      amount:amount.value,
-      wallet:wallet.value
-    })
-  });
-
-  const data = await res.json();
-  alert(data.error || "Withdraw requested");
+  let r = await fetch(API,{method:"POST",body:JSON.stringify({
+    action:"withdraw",
+    token,
+    amount:amount.value,
+    wallet:wallet.value
+  })});
+  let d = await r.json();
+  alert(d.error||"Requested");
 }
 
-// ------------------ AUTO LOGIN ------------------
+// ADMIN LOAD WITHDRAW (UI only)
+async function loadWithdraws(){
+  withdrawList.innerHTML="⚠️ Add backend API for listing withdrawals";
+}
 
+// AUTO LOGIN
 if(token){
   loadDashboard();
 }
