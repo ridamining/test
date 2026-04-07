@@ -2,77 +2,156 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RIDA NETWORK V3</title>
+<title>RIDA NETWORK V4</title>
 
 <style>
 body{
+  margin:0;
   font-family:sans-serif;
-  background:linear-gradient(135deg,#0a0f1f,#111a3a);
+  background:#0a0f1f;
   color:#fff;
+}
+
+/* HEADER */
+.header{
+  padding:15px;
+  font-size:20px;
+  font-weight:bold;
+  background:#111a3a;
   text-align:center;
 }
-input,button{
-  width:90%;
+
+/* NAV */
+.nav{
+  display:flex;
+  justify-content:space-around;
+  background:#111a3a;
+  position:fixed;
+  bottom:0;
+  width:100%;
+  padding:10px 0;
+}
+
+.nav button{
+  background:none;
+  color:#fff;
+  border:none;
+  font-size:16px;
+}
+
+/* CARD */
+.card{
+  background:linear-gradient(135deg,#111a3a,#0c1440);
+  margin:12px;
+  padding:15px;
+  border-radius:18px;
+  box-shadow:0 0 15px rgba(0,200,255,0.2);
+}
+
+/* INPUT */
+input{
+  width:100%;
   padding:12px;
-  margin:6px;
-  border-radius:12px;
+  margin:6px 0;
+  border-radius:10px;
   border:none;
 }
-button{
+
+button.action{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
   background:linear-gradient(90deg,#00c6ff,#0072ff);
   color:#fff;
   font-weight:bold;
 }
-.card{
-  background:#111a3a;
-  margin:10px;
-  padding:15px;
-  border-radius:15px;
-}
-#log{
-  font-size:12px;
-  color:#00ffcc;
-  text-align:left;
-  padding:10px;
+
+/* SCREENS */
+.screen{display:none;padding-bottom:70px;}
+.active{display:block;}
+
+.center{text-align:center;}
+
+.glow{
+  font-size:28px;
+  text-shadow:0 0 10px #00c6ff;
 }
 </style>
 </head>
 
 <body>
 
-<h2>⚡ RIDA NETWORK V3</h2>
+<div class="header">⚡ RIDA NETWORK</div>
 
-<div id="auth" class="card">
-<input id="email" placeholder="Email">
-<input id="password" placeholder="Password">
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
+<!-- AUTH -->
+<div id="auth" class="screen active">
+  <div class="card">
+    <input id="email" placeholder="Email">
+    <input id="password" placeholder="Password">
+    <button class="action" onclick="register()">Register</button>
+    <button class="action" onclick="login()">Login</button>
+  </div>
 </div>
 
-<div id="app" style="display:none;">
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="card center">
+    <div class="glow">💰 <span id="bal">0</span></div>
+    <p>Balance</p>
+  </div>
 
-<div class="card">
-<p>💰 Balance: <span id="bal">0</span></p>
-<button onclick="startMining()">⛏ Start Mining</button>
-<button onclick="claimMining()">🎁 Claim Reward</button>
+  <div class="card center">
+    <button class="action" onclick="startMining()">⛏ Start Mining</button>
+    <button class="action" onclick="claimMining()">🎁 Claim</button>
+  </div>
 </div>
 
-<div class="card">
-<h3>💸 Transfer</h3>
-<input id="uid" placeholder="Receiver UID">
-<input id="amt" placeholder="Amount">
-<button onclick="transfer()">Send</button>
+<!-- REFERRAL -->
+<div id="ref" class="screen">
+  <div class="card center">
+    <h3>👥 Referral System</h3>
+    <p>Your UID:</p>
+    <div id="uidBox"></div>
+    <p>Referrals: <span id="refCount">0</span></p>
+    <p>Earnings: <span id="refEarn">0</span></p>
+  </div>
 </div>
 
-<div class="card">
-<h3>💬 Chat</h3>
-<input id="msg" placeholder="Message">
-<button onclick="sendMsg()">Send</button>
-<div id="chatBox"></div>
+<!-- TRANSFER -->
+<div id="wallet" class="screen">
+  <div class="card">
+    <input id="toUID" placeholder="Receiver UID">
+    <input id="amount" placeholder="Amount">
+    <button class="action" onclick="transfer()">Send</button>
+  </div>
 </div>
 
-<div id="log"></div>
+<!-- CHAT -->
+<div id="chat" class="screen">
+  <div class="card">
+    <input id="msg">
+    <button class="action" onclick="sendMsg()">Send</button>
+    <div id="chatBox"></div>
+  </div>
+</div>
 
+<!-- ADMIN -->
+<div id="admin" class="screen">
+  <div class="card">
+    <h3>🛠 Admin Panel</h3>
+    <button class="action" onclick="loadUsers()">Load Users</button>
+    <div id="users"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="show('home')">🏠</button>
+  <button onclick="show('ref')">👥</button>
+  <button onclick="show('wallet')">💸</button>
+  <button onclick="show('chat')">💬</button>
+  <button onclick="show('admin')">⚙️</button>
 </div>
 
 <script>
@@ -81,38 +160,26 @@ const API="https://script.google.com/macros/s/AKfycbydx68s5bKYrYB2w66DcKCBNziLsU
 
 let token=localStorage.getItem("token");
 
-// DEBUG LOGGER
-function log(t){
-  document.getElementById("log").innerHTML += t+"<br>";
+// API
+async function api(p){
+  let url=API+"?"+new URLSearchParams(p);
+  let r=await fetch(url);
+  return await r.json();
 }
 
-// API CALL (FIXED)
-async function api(params){
-  try{
-    const url = API + "?" + new URLSearchParams(params);
-    log("➡️ "+url);
-
-    const res = await fetch(url);
-    const text = await res.text();
-
-    log("⬅️ "+text);
-
-    return JSON.parse(text);
-  }catch(e){
-    log("❌ ERROR: "+e);
-    return {success:false,error:e.toString()};
-  }
+// NAVIGATION
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
 // AUTH
 async function register(){
-  let r=await api({
+  alert(JSON.stringify(await api({
     action:"register",
     email:email.value,
     password:password.value
-  });
-
-  alert(JSON.stringify(r));
+  })));
 }
 
 async function login(){
@@ -125,27 +192,28 @@ async function login(){
   if(r.success){
     token=r.token;
     localStorage.setItem("token",token);
-    startApp();
+    start();
   }else alert(r.error);
 }
 
-// START
-function startApp(){
-  auth.style.display="none";
-  app.style.display="block";
+function start(){
+  show("home");
   load();
 }
 
-// LOAD DATA
+// LOAD
 async function load(){
   let r=await api({action:"getStatus",token});
-  if(r.success){
-    bal.innerText=r.balance;
-  }else{
-    alert("Session expired");
-    localStorage.removeItem("token");
-    location.reload();
+
+  bal.innerText=r.balance;
+  uidBox.innerText=r.userId;
+  refCount.innerText=r.refCount;
+  refEarn.innerText=r.refEarnings;
+
+  if(r.role!="admin"){
+    document.querySelector("button[onclick=\"show('admin')\"]").style.display="none";
   }
+
   loadChat();
 }
 
@@ -164,33 +232,31 @@ async function transfer(){
   alert(JSON.stringify(await api({
     action:"transfer",
     token,
-    toUID:uid.value,
-    amount:amt.value
+    toUID:toUID.value,
+    amount:amount.value
   })));
 }
 
 // CHAT
 async function sendMsg(){
-  await api({
-    action:"sendMessage",
-    token,
-    msg:msg.value
-  });
+  await api({action:"sendMessage",token,msg:msg.value});
   msg.value="";
   loadChat();
 }
 
 async function loadChat(){
   let r=await api({action:"getMessages",token});
-  if(r.success){
-    chatBox.innerHTML=r.messages.join("<br>");
-  }
+  chatBox.innerHTML=r.messages.join("<br>");
+}
+
+// ADMIN
+async function loadUsers(){
+  let r=await api({action:"getUsers",token});
+  users.innerHTML=JSON.stringify(r.users);
 }
 
 // AUTO LOGIN
-if(token){
-  startApp();
-}
+if(token) start();
 
 </script>
 
