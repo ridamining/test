@@ -13,83 +13,37 @@ body{
   color:#fff;
 }
 
-/* HEADER */
-.header{
-  padding:15px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
+.header{text-align:center;padding:15px;font-size:20px;font-weight:bold;}
 
-/* CARD */
 .card{
   margin:15px;
-  padding:18px;
-  border-radius:20px;
+  padding:15px;
+  border-radius:15px;
   background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,0.08);
 }
 
-/* MINING BUTTON */
-.mine-btn{
-  width:170px;
-  height:170px;
-  border-radius:50%;
-  border:none;
-  font-size:18px;
-  color:#fff;
-  background:radial-gradient(circle,#00f2ff,#0066ff);
-  margin:20px auto;
-  display:block;
-  animation:pulse 2s infinite;
-}
-
-@keyframes pulse{
-  0%{box-shadow:0 0 20px #00f2ff;}
-  50%{box-shadow:0 0 70px #00f2ff;}
-  100%{box-shadow:0 0 20px #00f2ff;}
-}
-
-.counter{text-align:center;font-size:18px;}
-
-/* NAV */
-.nav{
-  position:fixed;
-  bottom:0;
+input,button{
   width:100%;
-  display:flex;
-  background:#000;
-}
-
-.nav div{
-  flex:1;
-  text-align:center;
-  padding:12px;
-  color:#888;
-}
-
-.nav .active{color:#00f2ff;}
-
-.page{display:none;}
-.activePage{display:block;}
-
-input{
-  width:100%;
-  padding:12px;
+  padding:10px;
   margin:5px 0;
   border:none;
   border-radius:10px;
 }
 
-button{
-  width:100%;
-  padding:12px;
-  margin-top:5px;
-  border:none;
-  border-radius:10px;
-  background:#00c6ff;
-  color:#fff;
+button{background:#00c6ff;color:#fff;}
+
+.nav{
+  position:fixed;bottom:0;width:100%;display:flex;background:#000;
+}
+.nav div{flex:1;text-align:center;padding:10px;color:#888;}
+.nav .active{color:#00f2ff;}
+
+.page{display:none;}
+.activePage{display:block;}
+
+.mine-btn{
+  width:150px;height:150px;border-radius:50%;
+  background:#00f2ff;color:#000;font-size:18px;
 }
 </style>
 </head>
@@ -98,40 +52,37 @@ button{
 
 <div class="header">⚡ RIDA NETWORK</div>
 
+<!-- LOGIN -->
+<div id="auth" class="page activePage">
+  <div class="card">
+    <h3>Login</h3>
+    <input id="email" placeholder="Email">
+    <input id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <h3>Register</h3>
+    <button onclick="register()">Register</button>
+  </div>
+</div>
+
 <!-- HOME -->
-<div id="home" class="page activePage">
-
+<div id="home" class="page">
   <div class="card">
-    <h3>💰 Dashboard</h3>
     Balance: <b id="balance">0</b><br>
-    Referral Earnings: <b id="refEarn">0</b>
+    KYC: <b id="kyc"></b>
   </div>
 
   <div class="card">
-    <button id="mineBtn" class="mine-btn" onclick="startMining()">START</button>
-    <div class="counter" id="counter">Ready</div>
-    <button onclick="claim()">Claim Reward</button>
+    <button class="mine-btn" onclick="startMining()">Mine</button>
+    <button onclick="claim()">Claim</button>
   </div>
-
-  <div class="card">
-    <h3>👥 Referral</h3>
-    <p id="refLink"></p>
-    <button onclick="copyRef()">Copy Link</button>
-    Total Referrals: <span id="refCount">0</span>
-  </div>
-
-  <div class="card">
-    📢 <span id="broadcast"></span>
-  </div>
-
 </div>
 
 <!-- WALLET -->
 <div id="wallet" class="page">
   <div class="card">
-    <h3>💰 Transfer RIDA</h3>
     <input id="toUID" placeholder="Receiver UID">
-    <input id="amount" placeholder="Amount (min 10)">
+    <input id="amount" placeholder="Amount">
     <button onclick="transfer()">Send</button>
   </div>
 </div>
@@ -139,268 +90,132 @@ button{
 <!-- CHAT -->
 <div id="chat" class="page">
   <div class="card">
-    <h3>💬 Chat with Admin</h3>
     <div id="chatBox" style="height:200px;overflow:auto;"></div>
-    <input id="msg" placeholder="Message">
+    <input id="msg">
     <button onclick="sendMsg()">Send</button>
-  </div>
-</div>
-
-<!-- PROFILE -->
-<div id="profile" class="page">
-  <div class="card">
-    Email: <span id="pEmail"></span><br>
-    UID: <span id="pId"></span><br>
-    KYC: <span id="pKyc"></span>
   </div>
 </div>
 
 <!-- ADMIN -->
 <div id="admin" class="page">
   <div class="card">
-    <h3>📢 Broadcast</h3>
-    <input id="bcMsg" placeholder="Message">
-    <button onclick="sendBroadcast()">Send</button>
-  </div>
-
-  <div class="card">
-    <button onclick="loadUsers()">Load Users</button>
-    <div id="users"></div>
+    <input id="bcMsg">
+    <button onclick="broadcast()">Broadcast</button>
   </div>
 </div>
 
-<!-- NAV -->
 <div class="nav">
-  <div onclick="nav(this,'home')" class="active">🏠</div>
-  <div onclick="nav(this,'wallet')">💰</div>
-  <div onclick="nav(this,'chat')">💬</div>
-  <div onclick="nav(this,'profile')">👤</div>
-  <div onclick="nav(this,'admin')">👑</div>
+  <div onclick="nav('home')">🏠</div>
+  <div onclick="nav('wallet')">💰</div>
+  <div onclick="nav('chat')">💬</div>
+  <div onclick="nav('admin')">👑</div>
 </div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbz1_jhWWkoXiIbX8f8tS-fNCGnE4EXPrjr6W6OPLQ9sufhzjLcxeR695d_Yg2Bbmz0v/exec";
+const API="https://script.google.com/macros/s/AKfycbxjAOthC5PQwhL9mEB1Tq8PMB8nI6cXEah1kAhQmhpjgaf92RfbUy3_STMzee9zk8YI/exec";
 
 let token=localStorage.getItem("token");
-let mining=false;
+
+// API helper
+async function api(data){
+  let r=await fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
+  });
+  return await r.json();
+}
 
 // NAV
-function nav(el,page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("activePage"));
-  document.getElementById(page).classList.add("activePage");
+function nav(p){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("activePage"));
+  document.getElementById(p).classList.add("activePage");
+}
 
-  document.querySelectorAll(".nav div").forEach(n=>n.classList.remove("active"));
-  el.classList.add("active");
+// AUTH
+async function register(){
+  let d=await api({
+    action:"register",
+    email:email.value,
+    password:password.value
+  });
+
+  alert(JSON.stringify(d));
+}
+
+async function login(){
+  let d=await api({
+    action:"login",
+    email:email.value,
+    password:password.value
+  });
+
+  if(d.success){
+    token=d.token;
+    localStorage.setItem("token",token);
+    load();
+    nav("home");
+  }else alert(d.error);
 }
 
 // LOAD
 async function load(){
-  let r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"getStatus",token})
-  });
+  let d=await api({action:"getStatus",token});
 
-  let d=await r.json();
-
-  balance.innerText=d.balance||0;
-  refEarn.innerText=d.refEarnings||0;
-  refCount.innerText=d.refCount||0;
-  refLink.innerText=d.refLink||"";
-
-  broadcast.innerText=d.broadcast||"";
-
-  pEmail.innerText=d.email||"";
-  pId.innerText=d.userId||"";
-  pKyc.innerText=d.kycStatus||"";
-
-  if(Date.now()-d.lastMining<86400000){
-    mining=true;
-    mineBtn.innerText="MINING";
-    timer(d.lastMining);
-  }
-
-  if(d.role!=="admin"){
-    document.querySelector(".nav div:last-child").style.display="none";
-  }
+  balance.innerText=d.balance;
+  kyc.innerText=d.kycStatus;
 
   loadChat();
-}
-
-// TIMER
-function timer(last){
-  setInterval(()=>{
-    let t=86400000-(Date.now()-last);
-
-    if(t<=0){
-      counter.innerText="Ready to claim";
-      mining=false;
-      mineBtn.innerText="START";
-      return;
-    }
-
-    let h=Math.floor(t/3600000);
-    let m=Math.floor((t%3600000)/60000);
-    let s=Math.floor((t%60000)/1000);
-
-    counter.innerText=`${h}h ${m}m ${s}s`;
-  },1000);
 }
 
 // MINING
 async function startMining(){
-  if(mining){alert("Already active");return;}
-
-  let r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"startMining",token})
-  });
-
-  let d=await r.json();
-  if(d.success){
-    mining=true;
-    mineBtn.innerText="MINING";
-    timer(Date.now());
-  }
+  let d=await api({action:"startMining",token});
+  alert(JSON.stringify(d));
 }
 
-// CLAIM
 async function claim(){
-  if(mining){alert("Wait");return;}
-
-  let r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"claimMining",token})
-  });
-
-  let d=await r.json();
-  if(d.success){
-    balance.innerText=d.balance;
-  }
+  let d=await api({action:"claimMining",token});
+  alert(JSON.stringify(d));
+  load();
 }
 
 // TRANSFER
 async function transfer(){
-  if(pKyc.innerText!=="verified"){
-    alert("KYC required");
-    return;
-  }
-
-  let amt=parseFloat(amount.value);
-  if(amt<10){alert("Min 10");return;}
-
-  let r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"transfer",
-      token,
-      toUID:toUID.value,
-      amount:amt
-    })
+  let d=await api({
+    action:"transfer",
+    token,
+    toUID:toUID.value,
+    amount:amount.value
   });
 
-  let d=await r.json();
-  alert(d.success?"Success":d.error);
+  alert(JSON.stringify(d));
 }
 
 // CHAT
 async function sendMsg(){
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"sendMessage",
-      token,
-      msg:msg.value
-    })
-  });
-  msg.value="";
+  await api({action:"sendMessage",token,msg:msg.value});
   loadChat();
 }
 
 async function loadChat(){
-  let r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"getMessages",
-      token
-    })
-  });
-
-  let d=await r.json();
+  let d=await api({action:"getMessages",token});
   chatBox.innerHTML="";
-  d.messages.forEach(m=>{
-    chatBox.innerHTML+=`<div>${m}</div>`;
-  });
-}
-
-// BROADCAST
-async function sendBroadcast(){
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"broadcast",
-      token,
-      message:bcMsg.value
-    })
-  });
-  alert("Sent");
+  d.messages.forEach(m=>chatBox.innerHTML+=`<div>${m}</div>`);
 }
 
 // ADMIN
-async function loadUsers(){
-  let r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"getUsers",token})
-  });
-
-  let d=await r.json();
-
-  users.innerHTML="";
-  d.users.slice(1).forEach(u=>{
-    users.innerHTML+=`
-      <div class="card">
-        ${u[1]} | ${u[4]} | ${u[7]}
-        <button onclick="verify('${u[0]}')">Verify</button>
-        <button onclick="reject('${u[0]}')">Reject</button>
-      </div>
-    `;
-  });
+async function broadcast(){
+  let d=await api({action:"broadcast",token,message:bcMsg.value});
+  alert(JSON.stringify(d));
 }
 
-async function verify(id){
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"updateKYC",
-      token,
-      userId:id,
-      status:"verified"
-    })
-  });
-  loadUsers();
+// AUTO LOGIN
+if(token){
+  nav("home");
+  load();
 }
-
-async function reject(id){
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"updateKYC",
-      token,
-      userId:id,
-      status:"rejected"
-    })
-  });
-  loadUsers();
-}
-
-// COPY REF
-function copyRef(){
-  navigator.clipboard.writeText(refLink.innerText);
-  alert("Copied");
-}
-
-// INIT
-if(token){load();}
 
 </script>
 
