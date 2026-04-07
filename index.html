@@ -6,109 +6,20 @@
 <title>RIDA NETWORK</title>
 
 <style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#0a0f1f;
-  color:#fff;
-}
-
-/* HEADER */
-.header{
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-  background:#111;
-}
-
-.menu-btn{
-  font-size:20px;
-  cursor:pointer;
-}
-
-/* DRAWER */
-.drawer{
-  position:fixed;
-  top:0;
-  left:-250px;
-  width:250px;
-  height:100%;
-  background:#111827;
-  transition:0.3s;
-  padding:20px;
-}
-
-.drawer.active{
-  left:0;
-}
-
-.drawer div{
-  padding:15px;
-  border-bottom:1px solid #333;
-  cursor:pointer;
-}
-
-/* PAGE */
-.page{
-  display:none;
-  padding:15px;
-}
-
-.active-page{
-  display:block;
-}
-
-/* CARDS */
-.card{
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(10px);
-  padding:15px;
-  border-radius:15px;
-  margin-bottom:15px;
-}
-
-/* BUTTON */
-button{
-  padding:12px;
-  width:100%;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(45deg,#00f2ff,#0066ff);
-  color:white;
-  font-weight:bold;
-}
-
-/* MINING ANIMATION */
-.mining-circle{
-  width:150px;
-  height:150px;
-  border-radius:50%;
-  border:5px solid #00f2ff;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  animation:spin 5s linear infinite;
-}
-
-@keyframes spin{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
-
-.counter{
-  text-align:center;
-  font-size:22px;
-  margin-top:10px;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:8px;
-}
+body{margin:0;font-family:sans-serif;background:#0a0f1f;color:#fff}
+.header{display:flex;justify-content:space-between;padding:15px;background:#111}
+.menu-btn{font-size:20px;cursor:pointer}
+.drawer{position:fixed;top:0;left:-250px;width:250px;height:100%;background:#111827;transition:0.3s;padding:20px;z-index:1000}
+.drawer.active{left:0}
+.drawer div{padding:15px;border-bottom:1px solid #333;cursor:pointer}
+.page{display:none;padding:15px}
+.active-page{display:block}
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);padding:15px;border-radius:15px;margin-bottom:15px}
+button{padding:12px;width:100%;border:none;border-radius:10px;background:linear-gradient(45deg,#00f2ff,#0066ff);color:white;font-weight:bold;margin-top:5px}
+input{width:100%;padding:10px;margin:5px 0;border:none;border-radius:8px}
+.mining-circle{width:150px;height:150px;border-radius:50%;border:5px solid #00f2ff;margin:auto;display:flex;align-items:center;justify-content:center;animation:spin 5s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.counter{text-align:center;font-size:20px;margin-top:10px}
 </style>
 </head>
 
@@ -123,6 +34,7 @@ input{
   <div onclick="showPage('home')">🏠 Home</div>
   <div onclick="showPage('mining')">⛏ Mining</div>
   <div onclick="showPage('wallet')">💰 Wallet</div>
+  <div onclick="showPage('profile')">👤 Profile</div>
   <div onclick="showPage('admin')">👑 Admin</div>
 </div>
 
@@ -132,7 +44,6 @@ input{
     <h3>📢 Broadcast</h3>
     <p id="broadcast"></p>
   </div>
-
   <div class="card">
     <h2>Balance</h2>
     <h1 id="balance">0</h1>
@@ -142,14 +53,10 @@ input{
 <!-- MINING -->
 <div id="mining" class="page">
   <div class="card">
-    <div class="mining-circle">
-      ⚡
-    </div>
-
-    <div class="counter" id="counter">0.000</div>
-
-    <button onclick="startMining()">Start Mining</button>
-    <button onclick="claim()">Claim</button>
+    <div class="mining-circle">⚡</div>
+    <div class="counter" id="counter">Loading...</div>
+    <button id="mineBtn" onclick="startMining()">Start Mining</button>
+    <button onclick="claim()">Claim Reward</button>
   </div>
 </div>
 
@@ -162,17 +69,25 @@ input{
   </div>
 </div>
 
+<!-- PROFILE -->
+<div id="profile" class="page">
+  <div class="card">
+    <p><b>Email:</b> <span id="pEmail"></span></p>
+    <p><b>User ID:</b> <span id="pId"></span></p>
+    <p><b>KYC:</b> <span id="pKyc"></span></p>
+    <p><b>Referral Code:</b> <span id="pRef"></span></p>
+  </div>
+</div>
+
 <!-- ADMIN -->
 <div id="admin" class="page">
   <div class="card">
-    <h3>Users</h3>
     <button onclick="loadUsers()">Load Users</button>
     <div id="users"></div>
   </div>
-
   <div class="card">
-    <input id="broadcastMsg" placeholder="Message">
-    <button onclick="sendBroadcast()">Send</button>
+    <input id="broadcastMsg" placeholder="Broadcast message">
+    <button onclick="sendBroadcast()">Send Broadcast</button>
   </div>
 </div>
 
@@ -182,16 +97,15 @@ const API="https://script.google.com/macros/s/AKfycbzFwjQRnPDSlvqyHwYSiqFkqEZB73
 
 let token=localStorage.getItem("token");
 let miningActive=false;
-let counter=0;
 
 // DRAWER
 function toggleDrawer(){
   drawer.classList.toggle("active");
 }
 
-// PAGE SWITCH
+// NAVIGATION
 function showPage(p){
-  document.querySelectorAll(".page").forEach(el=>el.classList.remove("active-page"));
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active-page"));
   document.getElementById(p).classList.add("active-page");
 }
 
@@ -201,49 +115,102 @@ async function load(){
     method:"POST",
     body:JSON.stringify({action:"getStatus",token})
   });
+
   let d=await res.json();
 
   balance.innerText=d.balance;
   broadcast.innerText=d.broadcast;
+
+  pEmail.innerText=d.email;
+  pId.innerText=d.userId;
+  pKyc.innerText=d.kycStatus;
+  pRef.innerText=d.referralCode;
+
+  const now=Date.now();
+  const last=d.lastMining;
+
+  if(now-last<86400000){
+    miningActive=true;
+    mineBtn.innerText="Mining Active";
+    startTimer(last);
+  }else{
+    miningActive=false;
+    mineBtn.innerText="Start Mining";
+    counter.innerText="Ready to start";
+  }
 
   if(d.role!=="admin"){
     document.querySelector('[onclick="showPage(\'admin\')"]').style.display="none";
   }
 }
 
-// MINING COUNTER
-function startCounter(){
-  miningActive=true;
+// TIMER
+function startTimer(last){
   setInterval(()=>{
-    if(miningActive){
-      counter+=0.00001;
-      document.getElementById("counter").innerText=counter.toFixed(5);
+    const now=Date.now();
+    const remain=86400000-(now-last);
+
+    if(remain<=0){
+      counter.innerText="Ready to claim";
+      miningActive=false;
+      mineBtn.innerText="Start Mining";
+      return;
     }
+
+    let h=Math.floor(remain/3600000);
+    let m=Math.floor((remain%3600000)/60000);
+    let s=Math.floor((remain%60000)/1000);
+
+    counter.innerText=`${h}h ${m}m ${s}s`;
   },1000);
 }
 
-// API CALLS
+// START MINING
 async function startMining(){
-  await fetch(API,{
+  if(miningActive){
+    alert("Mining already active");
+    return;
+  }
+
+  let r=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"startMining",token})
   });
-  startCounter();
+
+  let d=await r.json();
+
+  if(d.success){
+    miningActive=true;
+    mineBtn.innerText="Mining Active";
+    startTimer(Date.now());
+  }else{
+    alert(d.error);
+  }
 }
 
+// CLAIM
 async function claim(){
+  if(miningActive){
+    alert("Not ready yet");
+    return;
+  }
+
   let r=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"claimMining",token})
   });
+
   let d=await r.json();
 
   if(d.success){
     balance.innerText=d.balance;
-    counter=0;
+    counter.innerText="Reward claimed";
+  }else{
+    alert(d.error);
   }
 }
 
+// WITHDRAW
 async function withdraw(){
   await fetch(API,{
     method:"POST",
@@ -263,14 +230,18 @@ async function loadUsers(){
     method:"POST",
     body:JSON.stringify({action:"getUsers",token})
   });
+
   let d=await r.json();
 
   users.innerHTML="";
   d.users.slice(1).forEach(u=>{
     users.innerHTML+=`
       <div class="card">
-        ${u[1]} | ${u[4]}
+        <b>${u[1]}</b><br>
+        Balance: ${u[4]}<br>
+        KYC: ${u[7]}<br>
         <button onclick="verify('${u[0]}')">Verify</button>
+        <button onclick="reject('${u[0]}')">Reject</button>
       </div>
     `;
   });
@@ -286,6 +257,20 @@ async function verify(id){
       status:"verified"
     })
   });
+  loadUsers();
+}
+
+async function reject(id){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"updateKYC",
+      token,
+      userId:id,
+      status:"rejected"
+    })
+  });
+  loadUsers();
 }
 
 async function sendBroadcast(){
@@ -297,6 +282,7 @@ async function sendBroadcast(){
       message:broadcastMsg.value
     })
   });
+  alert("Broadcast sent");
 }
 
 // AUTO LOAD
