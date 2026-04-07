@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RIDA NETWORK V4</title>
+<title>RIDA NETWORK</title>
 
 <style>
 body{
@@ -15,37 +15,21 @@ body{
 /* HEADER */
 .header{
   padding:15px;
-  font-size:20px;
-  font-weight:bold;
   background:#111a3a;
   text-align:center;
+  font-weight:bold;
 }
 
-/* NAV */
-.nav{
-  display:flex;
-  justify-content:space-around;
-  background:#111a3a;
-  position:fixed;
-  bottom:0;
-  width:100%;
-  padding:10px 0;
-}
-
-.nav button{
-  background:none;
-  color:#fff;
-  border:none;
-  font-size:16px;
-}
+/* SCREENS */
+.screen{display:none;padding-bottom:70px;}
+.active{display:block;}
 
 /* CARD */
 .card{
-  background:linear-gradient(135deg,#111a3a,#0c1440);
+  background:#111a3a;
   margin:12px;
   padding:15px;
-  border-radius:18px;
-  box-shadow:0 0 15px rgba(0,200,255,0.2);
+  border-radius:15px;
 }
 
 /* INPUT */
@@ -57,25 +41,32 @@ input{
   border:none;
 }
 
-button.action{
+/* BUTTON */
+button{
   width:100%;
   padding:12px;
   border:none;
-  border-radius:12px;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  border-radius:10px;
+  background:#00c6ff;
   color:#fff;
   font-weight:bold;
 }
 
-/* SCREENS */
-.screen{display:none;padding-bottom:70px;}
-.active{display:block;}
+/* NAV */
+.nav{
+  display:flex;
+  justify-content:space-around;
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#111a3a;
+  padding:10px 0;
+}
 
-.center{text-align:center;}
-
-.glow{
-  font-size:28px;
-  text-shadow:0 0 10px #00c6ff;
+.nav button{
+  background:none;
+  color:#fff;
+  font-size:14px;
 }
 </style>
 </head>
@@ -89,174 +80,170 @@ button.action{
   <div class="card">
     <input id="email" placeholder="Email">
     <input id="password" placeholder="Password">
-    <button class="action" onclick="register()">Register</button>
-    <button class="action" onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
   </div>
 </div>
 
-<!-- HOME -->
-<div id="home" class="screen">
-  <div class="card center">
-    <div class="glow">💰 <span id="bal">0</span></div>
-    <p>Balance</p>
+<!-- APP -->
+<div id="app" class="screen">
+
+  <div id="home" class="tab active">
+    <div class="card">
+      Balance: <span id="bal">0</span>
+    </div>
+    <div class="card">
+      <button onclick="startMining()">Start Mining</button>
+      <button onclick="claimMining()">Claim</button>
+    </div>
   </div>
 
-  <div class="card center">
-    <button class="action" onclick="startMining()">⛏ Start Mining</button>
-    <button class="action" onclick="claimMining()">🎁 Claim</button>
+  <div id="ref" class="tab">
+    <div class="card">
+      UID: <span id="uid"></span><br>
+      Referrals: <span id="refCount"></span><br>
+      Earnings: <span id="refEarn"></span>
+    </div>
   </div>
-</div>
 
-<!-- REFERRAL -->
-<div id="ref" class="screen">
-  <div class="card center">
-    <h3>👥 Referral System</h3>
-    <p>Your UID:</p>
-    <div id="uidBox"></div>
-    <p>Referrals: <span id="refCount">0</span></p>
-    <p>Earnings: <span id="refEarn">0</span></p>
+  <div id="wallet" class="tab">
+    <div class="card">
+      <input id="toUID" placeholder="Receiver UID">
+      <input id="amount" placeholder="Amount">
+      <button onclick="transfer()">Send</button>
+    </div>
   </div>
-</div>
 
-<!-- TRANSFER -->
-<div id="wallet" class="screen">
-  <div class="card">
-    <input id="toUID" placeholder="Receiver UID">
-    <input id="amount" placeholder="Amount">
-    <button class="action" onclick="transfer()">Send</button>
+  <div id="admin" class="tab">
+    <div class="card">
+      <button onclick="loadUsers()">Load Users</button>
+      <div id="users"></div>
+    </div>
   </div>
-</div>
 
-<!-- CHAT -->
-<div id="chat" class="screen">
-  <div class="card">
-    <input id="msg">
-    <button class="action" onclick="sendMsg()">Send</button>
-    <div id="chatBox"></div>
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div id="admin" class="screen">
-  <div class="card">
-    <h3>🛠 Admin Panel</h3>
-    <button class="action" onclick="loadUsers()">Load Users</button>
-    <div id="users"></div>
-  </div>
 </div>
 
 <!-- NAV -->
-<div class="nav">
-  <button onclick="show('home')">🏠</button>
-  <button onclick="show('ref')">👥</button>
-  <button onclick="show('wallet')">💸</button>
-  <button onclick="show('chat')">💬</button>
-  <button onclick="show('admin')">⚙️</button>
+<div class="nav" id="nav" style="display:none;">
+  <button onclick="showTab('home')">🏠</button>
+  <button onclick="showTab('ref')">👥</button>
+  <button onclick="showTab('wallet')">💸</button>
+  <button id="adminBtn" onclick="showTab('admin')">⚙️</button>
 </div>
 
 <script>
 
 const API="https://script.google.com/macros/s/AKfycbydx68s5bKYrYB2w66DcKCBNziLsUG9dFNoKT7w7Ln1VAaoUqwKu5V3BNCP7MfmHy4/exec";
 
-let token=localStorage.getItem("token");
+let state = {
+  token: localStorage.getItem("token"),
+  user: null
+};
 
 // API
-async function api(p){
-  let url=API+"?"+new URLSearchParams(p);
-  let r=await fetch(url);
-  return await r.json();
+async function api(params){
+  const url = API + "?" + new URLSearchParams(params);
+  const res = await fetch(url);
+  return await res.json();
 }
 
-// NAVIGATION
-function show(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+// SCREEN CONTROL
+function showApp(){
+  auth.classList.remove("active");
+  app.classList.add("active");
+  nav.style.display="flex";
+}
+
+function logout(){
+  localStorage.removeItem("token");
+  location.reload();
+}
+
+// TABS
+function showTab(id){
+  document.querySelectorAll(".tab").forEach(t=>t.style.display="none");
+  document.getElementById(id).style.display="block";
 }
 
 // AUTH
 async function register(){
-  alert(JSON.stringify(await api({
+  let r=await api({
     action:"register",
-    email:email.value,
-    password:password.value
-  })));
+    email:email.value.trim(),
+    password:password.value.trim()
+  });
+  alert(JSON.stringify(r));
 }
 
 async function login(){
   let r=await api({
     action:"login",
-    email:email.value,
-    password:password.value
+    email:email.value.trim(),
+    password:password.value.trim()
   });
 
   if(r.success){
-    token=r.token;
-    localStorage.setItem("token",token);
-    start();
-  }else alert(r.error);
+    state.token=r.token;
+    localStorage.setItem("token",r.token);
+    init();
+  }else{
+    alert(r.error);
+  }
 }
 
-function start(){
-  show("home");
-  load();
-}
+// INIT
+async function init(){
+  let r=await api({action:"getStatus",token:state.token});
 
-// LOAD
-async function load(){
-  let r=await api({action:"getStatus",token});
+  if(!r.success){
+    logout();
+    return;
+  }
+
+  state.user=r;
+
+  showApp();
 
   bal.innerText=r.balance;
-  uidBox.innerText=r.userId;
+  uid.innerText=r.userId;
   refCount.innerText=r.refCount;
   refEarn.innerText=r.refEarnings;
 
-  if(r.role!="admin"){
-    document.querySelector("button[onclick=\"show('admin')\"]").style.display="none";
+  // ADMIN PROTECTION
+  if(r.role !== "admin"){
+    adminBtn.style.display="none";
   }
-
-  loadChat();
 }
 
-// MINING
+// ACTIONS
 async function startMining(){
-  alert(JSON.stringify(await api({action:"startMining",token})));
+  alert(JSON.stringify(await api({action:"startMining",token:state.token})));
 }
 
 async function claimMining(){
-  alert(JSON.stringify(await api({action:"claimMining",token})));
-  load();
+  alert(JSON.stringify(await api({action:"claimMining",token:state.token})));
+  init();
 }
 
-// TRANSFER
 async function transfer(){
   alert(JSON.stringify(await api({
     action:"transfer",
-    token,
+    token:state.token,
     toUID:toUID.value,
     amount:amount.value
   })));
 }
 
-// CHAT
-async function sendMsg(){
-  await api({action:"sendMessage",token,msg:msg.value});
-  msg.value="";
-  loadChat();
-}
-
-async function loadChat(){
-  let r=await api({action:"getMessages",token});
-  chatBox.innerHTML=r.messages.join("<br>");
-}
-
 // ADMIN
 async function loadUsers(){
-  let r=await api({action:"getUsers",token});
-  users.innerHTML=JSON.stringify(r.users);
+  let r=await api({action:"getUsers",token:state.token});
+  users.innerText=JSON.stringify(r.users);
 }
 
 // AUTO LOGIN
-if(token) start();
+if(state.token){
+  init();
+}
 
 </script>
 
