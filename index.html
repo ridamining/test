@@ -6,53 +6,74 @@
 <title>RIDA NETWORK</title>
 
 <style>
+
 body{
   margin:0;
   font-family:sans-serif;
-  background:#0c0f1d;
+  background:linear-gradient(135deg,#0a0f1f,#05070f);
   color:#fff;
+  overflow-x:hidden;
 }
 
 /* HEADER */
 .header{
   padding:15px;
   text-align:center;
+  font-size:20px;
   font-weight:bold;
-  font-size:18px;
-  background:#111;
-}
-
-/* CARDS */
-.card{
-  margin:12px;
-  padding:15px;
-  border-radius:15px;
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(10px);
 }
 
+/* GLASS CARD */
+.card{
+  margin:15px;
+  padding:18px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 0 30px rgba(0,255,255,0.08);
+}
+
 /* BALANCE */
 .balance{
-  font-size:28px;
+  text-align:center;
+}
+.balance h2{
+  margin:5px 0;
+  font-size:32px;
+  color:#00f2ff;
+}
+
+/* MINING CORE */
+.mining-box{
   text-align:center;
 }
 
-/* MINING BUTTON */
 .mine-btn{
-  width:100%;
-  padding:15px;
+  width:180px;
+  height:180px;
+  border-radius:50%;
   border:none;
-  border-radius:50px;
   font-size:18px;
-  background:linear-gradient(45deg,#00f2ff,#0066ff);
   color:#fff;
+  background:radial-gradient(circle,#00f2ff,#0066ff);
+  margin:20px auto;
+  display:block;
+  box-shadow:0 0 40px #00f2ff;
+  animation:pulse 2s infinite;
 }
 
-/* COUNTER */
+@keyframes pulse{
+  0%{box-shadow:0 0 20px #00f2ff;}
+  50%{box-shadow:0 0 70px #00f2ff;}
+  100%{box-shadow:0 0 20px #00f2ff;}
+}
+
 .counter{
-  text-align:center;
-  font-size:20px;
-  margin:10px 0;
+  font-size:18px;
+  margin-top:10px;
 }
 
 /* NAVBAR */
@@ -61,59 +82,66 @@ body{
   bottom:0;
   width:100%;
   display:flex;
-  background:#111;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(10px);
 }
 
 .nav div{
   flex:1;
   text-align:center;
-  padding:10px;
-  cursor:pointer;
+  padding:12px;
+  font-size:18px;
+  color:#888;
+}
+
+.nav .active{
+  color:#00f2ff;
 }
 
 /* PAGES */
 .page{display:none;}
-.active{display:block;}
+.activePage{display:block;}
 
 input{
   width:100%;
-  padding:10px;
-  margin:5px 0;
+  padding:12px;
+  margin:6px 0;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
 }
 
 button{
   padding:12px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:#00c6ff;
   color:#fff;
   width:100%;
+  margin-top:5px;
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="header">RIDA NETWORK</div>
+<div class="header">⚡ RIDA NETWORK</div>
 
 <!-- HOME -->
-<div id="home" class="page active">
+<div id="home" class="page activePage">
 
   <div class="card">
-    <b>📢 Broadcast</b>
-    <p id="broadcast"></p>
+    📢 <span id="broadcast"></span>
   </div>
 
   <div class="card balance">
     <div>Balance</div>
-    <div id="balance">0</div>
+    <h2 id="balance">0</h2>
   </div>
 
-  <div class="card">
-    <div class="counter" id="counter">Loading...</div>
-    <button id="mineBtn" class="mine-btn" onclick="startMining()">Start Mining</button>
+  <div class="card mining-box">
+    <button id="mineBtn" class="mine-btn" onclick="startMining()">START</button>
+    <div class="counter" id="counter">Ready</div>
     <button onclick="claim()">Claim Reward</button>
   </div>
 
@@ -132,7 +160,7 @@ button{
 <div id="profile" class="page">
   <div class="card">
     <p>Email: <span id="pEmail"></span></p>
-    <p>User ID: <span id="pId"></span></p>
+    <p>ID: <span id="pId"></span></p>
     <p>KYC: <span id="pKyc"></span></p>
   </div>
 </div>
@@ -147,10 +175,10 @@ button{
 
 <!-- NAV -->
 <div class="nav">
-  <div onclick="showPage('home')">🏠</div>
-  <div onclick="showPage('wallet')">💰</div>
-  <div onclick="showPage('profile')">👤</div>
-  <div onclick="showPage('admin')">👑</div>
+  <div onclick="nav(this,'home')" class="active">🏠</div>
+  <div onclick="nav(this,'wallet')">💰</div>
+  <div onclick="nav(this,'profile')">👤</div>
+  <div onclick="nav(this,'admin')">👑</div>
 </div>
 
 <script>
@@ -158,20 +186,24 @@ button{
 const API="https://script.google.com/macros/s/AKfycbzFwjQRnPDSlvqyHwYSiqFkqEZB73YAEK7R5ToKpO9VRkx_x5ZkpCC0kM2GHilQ0tYS/exec";
 
 let token=localStorage.getItem("token");
-let miningActive=false;
+let mining=false;
 
-// NAVIGATION
-function showPage(p){
-  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-  document.getElementById(p).classList.add("active");
+// NAV
+function nav(el,page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("activePage"));
+  document.getElementById(page).classList.add("activePage");
+
+  document.querySelectorAll(".nav div").forEach(n=>n.classList.remove("active"));
+  el.classList.add("active");
 }
 
-// LOAD DATA
+// LOAD
 async function load(){
   let r=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"getStatus",token})
   });
+
   let d=await r.json();
 
   balance.innerText=d.balance;
@@ -181,37 +213,32 @@ async function load(){
   pId.innerText=d.userId;
   pKyc.innerText=d.kycStatus;
 
-  const now=Date.now();
-  const last=d.lastMining;
-
-  if(now-last<86400000){
-    miningActive=true;
-    mineBtn.innerText="Mining Active";
-    startTimer(last);
-  }else{
-    counter.innerText="Ready to start";
+  if(Date.now()-d.lastMining<86400000){
+    mining=true;
+    mineBtn.innerText="MINING";
+    timer(d.lastMining);
   }
 
   if(d.role!=="admin"){
-    document.querySelector('[onclick="showPage(\'admin\')"]').style.display="none";
+    document.querySelector(".nav div:last-child").style.display="none";
   }
 }
 
 // TIMER
-function startTimer(last){
+function timer(last){
   setInterval(()=>{
-    let remain=86400000-(Date.now()-last);
+    let t=86400000-(Date.now()-last);
 
-    if(remain<=0){
+    if(t<=0){
       counter.innerText="Ready to claim";
-      miningActive=false;
-      mineBtn.innerText="Start Mining";
+      mining=false;
+      mineBtn.innerText="START";
       return;
     }
 
-    let h=Math.floor(remain/3600000);
-    let m=Math.floor((remain%3600000)/60000);
-    let s=Math.floor((remain%60000)/1000);
+    let h=Math.floor(t/3600000);
+    let m=Math.floor((t%3600000)/60000);
+    let s=Math.floor((t%60000)/1000);
 
     counter.innerText=`${h}h ${m}m ${s}s`;
   },1000);
@@ -219,7 +246,7 @@ function startTimer(last){
 
 // MINING
 async function startMining(){
-  if(miningActive){alert("Already active");return;}
+  if(mining){alert("Already active");return;}
 
   let r=await fetch(API,{
     method:"POST",
@@ -229,15 +256,15 @@ async function startMining(){
   let d=await r.json();
 
   if(d.success){
-    miningActive=true;
-    mineBtn.innerText="Mining Active";
-    startTimer(Date.now());
+    mining=true;
+    mineBtn.innerText="MINING";
+    timer(Date.now());
   }
 }
 
 // CLAIM
 async function claim(){
-  if(miningActive){alert("Not ready");return;}
+  if(mining){alert("Wait");return;}
 
   let r=await fetch(API,{
     method:"POST",
