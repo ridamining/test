@@ -12,7 +12,6 @@ body{
   font-family:sans-serif;
   background:linear-gradient(135deg,#0a0f1f,#05070f);
   color:#fff;
-  overflow-x:hidden;
 }
 
 /* HEADER */
@@ -21,11 +20,9 @@ body{
   text-align:center;
   font-size:20px;
   font-weight:bold;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(10px);
 }
 
-/* GLASS CARD */
+/* CARD */
 .card{
   margin:15px;
   padding:18px;
@@ -36,21 +33,7 @@ body{
   box-shadow:0 0 30px rgba(0,255,255,0.08);
 }
 
-/* BALANCE */
-.balance{
-  text-align:center;
-}
-.balance h2{
-  margin:5px 0;
-  font-size:32px;
-  color:#00f2ff;
-}
-
-/* MINING CORE */
-.mining-box{
-  text-align:center;
-}
-
+/* MINING BUTTON */
 .mine-btn{
   width:180px;
   height:180px;
@@ -61,7 +44,6 @@ body{
   background:radial-gradient(circle,#00f2ff,#0066ff);
   margin:20px auto;
   display:block;
-  box-shadow:0 0 40px #00f2ff;
   animation:pulse 2s infinite;
 }
 
@@ -72,25 +54,23 @@ body{
 }
 
 .counter{
+  text-align:center;
   font-size:18px;
-  margin-top:10px;
 }
 
-/* NAVBAR */
+/* NAV */
 .nav{
   position:fixed;
   bottom:0;
   width:100%;
   display:flex;
-  background:rgba(0,0,0,0.8);
-  backdrop-filter:blur(10px);
+  background:#000;
 }
 
 .nav div{
   flex:1;
   text-align:center;
   padding:12px;
-  font-size:18px;
   color:#888;
 }
 
@@ -105,19 +85,19 @@ body{
 input{
   width:100%;
   padding:12px;
-  margin:6px 0;
+  margin:5px 0;
   border:none;
   border-radius:10px;
 }
 
 button{
+  width:100%;
   padding:12px;
+  margin-top:5px;
   border:none;
-  border-radius:12px;
+  border-radius:10px;
   background:#00c6ff;
   color:#fff;
-  width:100%;
-  margin-top:5px;
 }
 
 </style>
@@ -131,18 +111,26 @@ button{
 <div id="home" class="page activePage">
 
   <div class="card">
-    📢 <span id="broadcast"></span>
+    <h3>💰 Dashboard</h3>
+    Balance: <b id="balance">0</b><br>
+    Referral Earnings: <b id="refEarn">0</b>
   </div>
 
-  <div class="card balance">
-    <div>Balance</div>
-    <h2 id="balance">0</h2>
-  </div>
-
-  <div class="card mining-box">
+  <div class="card">
     <button id="mineBtn" class="mine-btn" onclick="startMining()">START</button>
     <div class="counter" id="counter">Ready</div>
     <button onclick="claim()">Claim Reward</button>
+  </div>
+
+  <div class="card">
+    <h3>👥 Referral</h3>
+    <p id="refLink">Loading...</p>
+    <button onclick="copyRef()">Copy Link</button>
+    Total Referrals: <span id="refCount">0</span>
+  </div>
+
+  <div class="card">
+    📢 <span id="broadcast"></span>
   </div>
 
 </div>
@@ -159,9 +147,9 @@ button{
 <!-- PROFILE -->
 <div id="profile" class="page">
   <div class="card">
-    <p>Email: <span id="pEmail"></span></p>
-    <p>ID: <span id="pId"></span></p>
-    <p>KYC: <span id="pKyc"></span></p>
+    Email: <span id="pEmail"></span><br>
+    ID: <span id="pId"></span><br>
+    KYC: <span id="pKyc"></span>
   </div>
 </div>
 
@@ -206,12 +194,16 @@ async function load(){
 
   let d=await r.json();
 
-  balance.innerText=d.balance;
-  broadcast.innerText=d.broadcast;
+  balance.innerText=d.balance || 0;
+  broadcast.innerText=d.broadcast || "";
 
-  pEmail.innerText=d.email;
-  pId.innerText=d.userId;
-  pKyc.innerText=d.kycStatus;
+  pEmail.innerText=d.email || "";
+  pId.innerText=d.userId || "";
+  pKyc.innerText=d.kycStatus || "";
+
+  refEarn.innerText=d.refEarnings || 0;
+  refCount.innerText=d.refCount || 0;
+  refLink.innerText=d.refLink || "Not available";
 
   if(Date.now()-d.lastMining<86400000){
     mining=true;
@@ -291,6 +283,12 @@ async function withdraw(){
   alert("Requested");
 }
 
+// REF COPY
+function copyRef(){
+  navigator.clipboard.writeText(refLink.innerText);
+  alert("Copied!");
+}
+
 // ADMIN
 async function loadUsers(){
   let r=await fetch(API,{
@@ -304,8 +302,11 @@ async function loadUsers(){
   d.users.slice(1).forEach(u=>{
     users.innerHTML+=`
       <div class="card">
-        ${u[1]} | ${u[4]} | ${u[7]}
-        <button onclick="verify('${u[0]}')">Verify</button>
+        <b>${u[1]}</b><br>
+        Balance: ${u[4]}<br>
+        KYC: ${u[7]}<br>
+        <button onclick="verify('${u[0]}')">✅ Verify</button>
+        <button onclick="reject('${u[0]}')">❌ Reject</button>
       </div>
     `;
   });
@@ -323,6 +324,28 @@ async function verify(id){
   });
   loadUsers();
 }
+
+async function reject(id){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"updateKYC",
+      token,
+      userId:id,
+      status:"rejected"
+    })
+  });
+  loadUsers();
+}
+
+// FAKE LIVE EARNING
+setInterval(()=>{
+  if(mining){
+    let val=parseFloat(balance.innerText);
+    val+=0.0001;
+    balance.innerText=val.toFixed(4);
+  }
+},1000);
 
 // INIT
 if(token){load();}
