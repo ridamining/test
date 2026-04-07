@@ -1,69 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Network</title>
+<title>RIDA NETWORK</title>
 
 <style>
 body{
   margin:0;
-  font-family:sans-serif;
-  background:#0a0f1c;
-  color:white;
+  font-family:Arial;
+  background:#0b0f1a;
+  color:#fff;
 }
 
-/* HEADER */
-.header{
-  display:flex;
-  justify-content:space-between;
+.container{
   padding:15px;
 }
 
-.balance{
-  font-size:28px;
-  font-weight:bold;
-}
-
-/* MINING CIRCLE */
-.circle{
-  width:260px;
-  height:260px;
-  border-radius:50%;
-  border:4px solid #5b6cff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:40px auto;
-  font-size:40px;
-}
-
-.active{
-  animation:rotate 3s linear infinite;
-}
-
-@keyframes rotate{
-  from{transform:rotate(0)}
-  to{transform:rotate(360deg)}
-}
-
-.timer{
-  text-align:center;
-  margin-top:20px;
-}
-
-/* BUTTON */
-.btn{
-  width:90%;
-  margin:20px auto;
-  display:block;
+.card{
+  background:#12182b;
   padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+  box-shadow:0 0 10px rgba(0,255,255,0.1);
+}
+
+button{
+  padding:12px;
   border:none;
   border-radius:10px;
-  background:#444;
+  background:linear-gradient(45deg,#00f2ff,#0066ff);
   color:white;
+  font-weight:bold;
+  width:100%;
 }
 
-/* BOTTOM NAV */
+input{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:none;
+}
+
+.hidden{display:none;}
+
 .nav{
   position:fixed;
   bottom:0;
@@ -76,137 +57,251 @@ body{
   flex:1;
   text-align:center;
   padding:10px;
+  cursor:pointer;
 }
 
-/* DRAWER */
-.drawer{
-  position:fixed;
-  left:-250px;
-  top:0;
-  width:250px;
-  height:100%;
-  background:#111;
-  transition:0.3s;
+.active{
+  background:#00f2ff;
+  color:#000;
 }
 
-.drawer.active{
-  left:0;
+.mining{
+  font-size:22px;
+  text-align:center;
+  margin:20px 0;
+}
+
+.admin-panel{
+  background:#1a1f35;
+  padding:10px;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <div onclick="toggleDrawer()">☰</div>
-  <div class="balance" id="balance">0</div>
+<div id="auth" class="container">
+  <h2>RIDA NETWORK</h2>
+
+  <div class="card">
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+  </div>
 </div>
 
-<!-- MINING -->
-<div id="home">
+<div id="app" class="hidden">
 
-<div class="circle" id="circle">0.00</div>
+<div class="container">
 
-<div class="timer" id="timer">Not Started</div>
+  <div class="card">
+    <h3>📢 Broadcast</h3>
+    <p id="broadcast"></p>
+  </div>
 
-<button class="btn" id="mineBtn" onclick="startMining()">Start Mining</button>
+  <div class="card">
+    <h3>Balance</h3>
+    <h1 id="balance">0</h1>
+  </div>
+
+  <div class="card">
+    <div class="mining" id="miningStatus">Idle</div>
+    <button onclick="startMining()">Start Mining</button>
+    <button onclick="claim()">Claim Reward</button>
+  </div>
+
+  <div class="card">
+    <h3>Withdraw</h3>
+    <input id="amount" placeholder="Amount">
+    <input id="wallet" placeholder="Wallet Address">
+    <button onclick="withdraw()">Withdraw</button>
+  </div>
+
+  <div class="card hidden" id="adminPanel">
+    <h3>👑 Admin Panel</h3>
+    <button onclick="loadUsers()">Load Users</button>
+    <div id="users"></div>
+
+    <input id="broadcastMsg" placeholder="Broadcast message">
+    <button onclick="sendBroadcast()">Send Broadcast</button>
+  </div>
 
 </div>
 
-<!-- DRAWER -->
-<div id="drawer" class="drawer">
-  <h3>Menu</h3>
-  <p onclick="showProfile()">Profile</p>
-  <p onclick="showWithdraw()">Withdraw</p>
-  <p onclick="logout()">Logout</p>
-</div>
-
-<!-- NAV -->
 <div class="nav">
-  <div onclick="showHome()">Home</div>
-  <div onclick="showProfile()">Profile</div>
-  <div onclick="showWithdraw()">Withdraw</div>
+  <div onclick="showPage('home')" class="active">Home</div>
+  <div onclick="showPage('admin')">Admin</div>
+</div>
+
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwP3T0zDznxDcoLyucOX8AM2NWZOHBFpp8CylTDeCQZ0biLwm2AC1wpxpdDSYYY2yHT/exec";
 
-let token=localStorage.getItem("token");
-let mining=false;
-let last=0;
+const API = "https://script.google.com/macros/s/AKfycbzFwjQRnPDSlvqyHwYSiqFkqEZB73YAEK7R5ToKpO9VRkx_x5ZkpCC0kM2GHilQ0tYS/exec";
 
-// LOAD
-async function load(){
-let r=await fetch(API,{method:"POST",body:JSON.stringify({action:"getStatus",token})});
-let d=await r.json();
+let token = localStorage.getItem("token");
 
-balance.innerText=d.balance;
-circle.innerText=d.balance;
+// ------------------ AUTH ------------------
 
-last=d.lastMining;
-
-if(Date.now()-last<86400000){
-  mining=true;
-  mineBtn.innerText="Mining Active";
-  circle.classList.add("active");
+async function register(){
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"register",
+      email:email.value,
+      password:password.value
+    })
+  });
+  let data = await res.json();
+  alert(JSON.stringify(data));
 }
 
-startTimer();
+async function login(){
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"login",
+      email:email.value,
+      password:password.value
+    })
+  });
+
+  let data = await res.json();
+
+  if(data.success){
+    localStorage.setItem("token",data.token);
+    token = data.token;
+    loadApp();
+  }else{
+    alert(data.error);
+  }
 }
 
-// START MINING
+// ------------------ APP ------------------
+
+async function loadApp(){
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"getStatus",
+      token
+    })
+  });
+
+  let data = await res.json();
+
+  balance.innerText = data.balance;
+  broadcast.innerText = data.broadcast;
+  miningStatus.innerText = "Last mining: " + new Date(data.lastMining).toLocaleString();
+
+  if(data.role === "admin"){
+    adminPanel.classList.remove("hidden");
+  }
+}
+
+// ------------------ MINING ------------------
+
 async function startMining(){
-if(mining) return;
-
-let r=await fetch(API,{method:"POST",body:JSON.stringify({action:"startMining",token})});
-let d=await r.json();
-
-if(!d.error){
- mining=true;
- mineBtn.innerText="Mining Active";
- circle.classList.add("active");
- last=Date.now();
-}
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"startMining",token})
+  });
+  let data = await res.json();
+  alert(JSON.stringify(data));
 }
 
-// TIMER
-function startTimer(){
-setInterval(()=>{
- if(!last) return;
+async function claim(){
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"claimMining",token})
+  });
+  let data = await res.json();
 
- let diff=86400000-(Date.now()-last);
+  if(data.success){
+    balance.innerText = data.balance;
+  }
 
- if(diff<=0){
-   timer.innerText="Ready to Claim";
-   mineBtn.innerText="Claim Reward";
-   mining=false;
-   return;
- }
-
- let h=Math.floor(diff/3600000);
- let m=Math.floor((diff%3600000)/60000);
- let s=Math.floor((diff%60000)/1000);
-
- timer.innerText=`${h}h ${m}m ${s}s`;
-},1000);
+  alert(JSON.stringify(data));
 }
 
-// DRAWER
-function toggleDrawer(){
- drawer.classList.toggle("active");
+// ------------------ WITHDRAW ------------------
+
+async function withdraw(){
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"withdraw",
+      token,
+      amount:parseFloat(amount.value),
+      wallet:wallet.value
+    })
+  });
+
+  let data = await res.json();
+  alert(JSON.stringify(data));
 }
 
-// NAV
-function showHome(){}
-function showProfile(){ alert("Profile UI next step"); }
-function showWithdraw(){ alert("Withdraw UI next step"); }
+// ------------------ ADMIN ------------------
 
-function logout(){
- localStorage.removeItem("token");
- location.reload();
+async function loadUsers(){
+  let res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getUsers",token})
+  });
+
+  let data = await res.json();
+
+  let html = "";
+  data.users.slice(1).forEach(u=>{
+    html += `
+      <div class="card">
+        ${u[1]} | ${u[4]} | ${u[7]}
+        <button onclick="verify('${u[0]}')">Verify KYC</button>
+      </div>
+    `;
+  });
+
+  users.innerHTML = html;
 }
 
-if(token) load();
+async function verify(id){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"updateKYC",
+      token,
+      userId:id,
+      status:"verified"
+    })
+  });
+
+  loadUsers();
+}
+
+async function sendBroadcast(){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"broadcast",
+      token,
+      message:broadcastMsg.value
+    })
+  });
+
+  alert("Sent");
+}
+
+// ------------------
+
+if(token){
+  loadApp();
+}
+
 </script>
 
 </body>
