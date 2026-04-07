@@ -1,220 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RIDA NETWORK</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIDA NETWORK V3</title>
 
 <style>
 body{
-  margin:0;
   font-family:sans-serif;
-  background:linear-gradient(135deg,#0a0f1f,#05070f);
+  background:linear-gradient(135deg,#0a0f1f,#111a3a);
   color:#fff;
+  text-align:center;
 }
-
-.header{text-align:center;padding:15px;font-size:20px;font-weight:bold;}
-
+input,button{
+  width:90%;
+  padding:12px;
+  margin:6px;
+  border-radius:12px;
+  border:none;
+}
+button{
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  font-weight:bold;
+}
 .card{
-  margin:15px;
+  background:#111a3a;
+  margin:10px;
   padding:15px;
   border-radius:15px;
-  background:rgba(255,255,255,0.05);
 }
-
-input,button{
-  width:100%;
+#log{
+  font-size:12px;
+  color:#00ffcc;
+  text-align:left;
   padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:10px;
-}
-
-button{background:#00c6ff;color:#fff;}
-
-.nav{
-  position:fixed;bottom:0;width:100%;display:flex;background:#000;
-}
-.nav div{flex:1;text-align:center;padding:10px;color:#888;}
-.nav .active{color:#00f2ff;}
-
-.page{display:none;}
-.activePage{display:block;}
-
-.mine-btn{
-  width:150px;height:150px;border-radius:50%;
-  background:#00f2ff;color:#000;font-size:18px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">⚡ RIDA NETWORK</div>
+<h2>⚡ RIDA NETWORK V3</h2>
 
-<!-- LOGIN -->
-<div id="auth" class="page activePage">
-  <div class="card">
-    <h3>Login</h3>
-    <input id="email" placeholder="Email">
-    <input id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-
-    <h3>Register</h3>
-    <button onclick="register()">Register</button>
-  </div>
+<div id="auth" class="card">
+<input id="email" placeholder="Email">
+<input id="password" placeholder="Password">
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
 </div>
 
-<!-- HOME -->
-<div id="home" class="page">
-  <div class="card">
-    Balance: <b id="balance">0</b><br>
-    KYC: <b id="kyc"></b>
-  </div>
+<div id="app" style="display:none;">
 
-  <div class="card">
-    <button class="mine-btn" onclick="startMining()">Mine</button>
-    <button onclick="claim()">Claim</button>
-  </div>
+<div class="card">
+<p>💰 Balance: <span id="bal">0</span></p>
+<button onclick="startMining()">⛏ Start Mining</button>
+<button onclick="claimMining()">🎁 Claim Reward</button>
 </div>
 
-<!-- WALLET -->
-<div id="wallet" class="page">
-  <div class="card">
-    <input id="toUID" placeholder="Receiver UID">
-    <input id="amount" placeholder="Amount">
-    <button onclick="transfer()">Send</button>
-  </div>
+<div class="card">
+<h3>💸 Transfer</h3>
+<input id="uid" placeholder="Receiver UID">
+<input id="amt" placeholder="Amount">
+<button onclick="transfer()">Send</button>
 </div>
 
-<!-- CHAT -->
-<div id="chat" class="page">
-  <div class="card">
-    <div id="chatBox" style="height:200px;overflow:auto;"></div>
-    <input id="msg">
-    <button onclick="sendMsg()">Send</button>
-  </div>
+<div class="card">
+<h3>💬 Chat</h3>
+<input id="msg" placeholder="Message">
+<button onclick="sendMsg()">Send</button>
+<div id="chatBox"></div>
 </div>
 
-<!-- ADMIN -->
-<div id="admin" class="page">
-  <div class="card">
-    <input id="bcMsg">
-    <button onclick="broadcast()">Broadcast</button>
-  </div>
-</div>
+<div id="log"></div>
 
-<div class="nav">
-  <div onclick="nav('home')">🏠</div>
-  <div onclick="nav('wallet')">💰</div>
-  <div onclick="nav('chat')">💬</div>
-  <div onclick="nav('admin')">👑</div>
 </div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbxjAOthC5PQwhL9mEB1Tq8PMB8nI6cXEah1kAhQmhpjgaf92RfbUy3_STMzee9zk8YI/exec";
+const API="https://script.google.com/macros/s/AKfycbydx68s5bKYrYB2w66DcKCBNziLsUG9dFNoKT7w7Ln1VAaoUqwKu5V3BNCP7MfmHy4/exec";
 
 let token=localStorage.getItem("token");
 
-// API helper
-async function api(data){
-  let r=await fetch(API,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
-  return await r.json();
+// DEBUG LOGGER
+function log(t){
+  document.getElementById("log").innerHTML += t+"<br>";
 }
 
-// NAV
-function nav(p){
-  document.querySelectorAll(".page").forEach(x=>x.classList.remove("activePage"));
-  document.getElementById(p).classList.add("activePage");
+// API CALL (FIXED)
+async function api(params){
+  try{
+    const url = API + "?" + new URLSearchParams(params);
+    log("➡️ "+url);
+
+    const res = await fetch(url);
+    const text = await res.text();
+
+    log("⬅️ "+text);
+
+    return JSON.parse(text);
+  }catch(e){
+    log("❌ ERROR: "+e);
+    return {success:false,error:e.toString()};
+  }
 }
 
 // AUTH
 async function register(){
-  let d=await api({
+  let r=await api({
     action:"register",
     email:email.value,
     password:password.value
   });
 
-  alert(JSON.stringify(d));
+  alert(JSON.stringify(r));
 }
 
 async function login(){
-  let d=await api({
+  let r=await api({
     action:"login",
     email:email.value,
     password:password.value
   });
 
-  if(d.success){
-    token=d.token;
+  if(r.success){
+    token=r.token;
     localStorage.setItem("token",token);
-    load();
-    nav("home");
-  }else alert(d.error);
+    startApp();
+  }else alert(r.error);
 }
 
-// LOAD
+// START
+function startApp(){
+  auth.style.display="none";
+  app.style.display="block";
+  load();
+}
+
+// LOAD DATA
 async function load(){
-  let d=await api({action:"getStatus",token});
-
-  balance.innerText=d.balance;
-  kyc.innerText=d.kycStatus;
-
+  let r=await api({action:"getStatus",token});
+  if(r.success){
+    bal.innerText=r.balance;
+  }else{
+    alert("Session expired");
+    localStorage.removeItem("token");
+    location.reload();
+  }
   loadChat();
 }
 
 // MINING
 async function startMining(){
-  let d=await api({action:"startMining",token});
-  alert(JSON.stringify(d));
+  alert(JSON.stringify(await api({action:"startMining",token})));
 }
 
-async function claim(){
-  let d=await api({action:"claimMining",token});
-  alert(JSON.stringify(d));
+async function claimMining(){
+  alert(JSON.stringify(await api({action:"claimMining",token})));
   load();
 }
 
 // TRANSFER
 async function transfer(){
-  let d=await api({
+  alert(JSON.stringify(await api({
     action:"transfer",
     token,
-    toUID:toUID.value,
-    amount:amount.value
-  });
-
-  alert(JSON.stringify(d));
+    toUID:uid.value,
+    amount:amt.value
+  })));
 }
 
 // CHAT
 async function sendMsg(){
-  await api({action:"sendMessage",token,msg:msg.value});
+  await api({
+    action:"sendMessage",
+    token,
+    msg:msg.value
+  });
+  msg.value="";
   loadChat();
 }
 
 async function loadChat(){
-  let d=await api({action:"getMessages",token});
-  chatBox.innerHTML="";
-  d.messages.forEach(m=>chatBox.innerHTML+=`<div>${m}</div>`);
-}
-
-// ADMIN
-async function broadcast(){
-  let d=await api({action:"broadcast",token,message:bcMsg.value});
-  alert(JSON.stringify(d));
+  let r=await api({action:"getMessages",token});
+  if(r.success){
+    chatBox.innerHTML=r.messages.join("<br>");
+  }
 }
 
 // AUTO LOGIN
 if(token){
-  nav("home");
-  load();
+  startApp();
 }
 
 </script>
