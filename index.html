@@ -6,7 +6,6 @@
 <title>RIDA NETWORK</title>
 
 <style>
-
 body{
   margin:0;
   font-family:sans-serif;
@@ -30,13 +29,12 @@ body{
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,0.08);
-  box-shadow:0 0 30px rgba(0,255,255,0.08);
 }
 
 /* MINING BUTTON */
 .mine-btn{
-  width:180px;
-  height:180px;
+  width:170px;
+  height:170px;
   border-radius:50%;
   border:none;
   font-size:18px;
@@ -53,10 +51,7 @@ body{
   100%{box-shadow:0 0 20px #00f2ff;}
 }
 
-.counter{
-  text-align:center;
-  font-size:18px;
-}
+.counter{text-align:center;font-size:18px;}
 
 /* NAV */
 .nav{
@@ -74,11 +69,8 @@ body{
   color:#888;
 }
 
-.nav .active{
-  color:#00f2ff;
-}
+.nav .active{color:#00f2ff;}
 
-/* PAGES */
 .page{display:none;}
 .activePage{display:block;}
 
@@ -99,7 +91,6 @@ button{
   background:#00c6ff;
   color:#fff;
 }
-
 </style>
 </head>
 
@@ -124,7 +115,7 @@ button{
 
   <div class="card">
     <h3>👥 Referral</h3>
-    <p id="refLink">Loading...</p>
+    <p id="refLink"></p>
     <button onclick="copyRef()">Copy Link</button>
     Total Referrals: <span id="refCount">0</span>
   </div>
@@ -138,9 +129,20 @@ button{
 <!-- WALLET -->
 <div id="wallet" class="page">
   <div class="card">
-    <input id="amount" placeholder="Amount">
-    <input id="walletAddr" placeholder="Wallet Address">
-    <button onclick="withdraw()">Withdraw</button>
+    <h3>💰 Transfer RIDA</h3>
+    <input id="toUID" placeholder="Receiver UID">
+    <input id="amount" placeholder="Amount (min 10)">
+    <button onclick="transfer()">Send</button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="page">
+  <div class="card">
+    <h3>💬 Chat with Admin</h3>
+    <div id="chatBox" style="height:200px;overflow:auto;"></div>
+    <input id="msg" placeholder="Message">
+    <button onclick="sendMsg()">Send</button>
   </div>
 </div>
 
@@ -148,13 +150,19 @@ button{
 <div id="profile" class="page">
   <div class="card">
     Email: <span id="pEmail"></span><br>
-    ID: <span id="pId"></span><br>
+    UID: <span id="pId"></span><br>
     KYC: <span id="pKyc"></span>
   </div>
 </div>
 
 <!-- ADMIN -->
 <div id="admin" class="page">
+  <div class="card">
+    <h3>📢 Broadcast</h3>
+    <input id="bcMsg" placeholder="Message">
+    <button onclick="sendBroadcast()">Send</button>
+  </div>
+
   <div class="card">
     <button onclick="loadUsers()">Load Users</button>
     <div id="users"></div>
@@ -165,13 +173,14 @@ button{
 <div class="nav">
   <div onclick="nav(this,'home')" class="active">🏠</div>
   <div onclick="nav(this,'wallet')">💰</div>
+  <div onclick="nav(this,'chat')">💬</div>
   <div onclick="nav(this,'profile')">👤</div>
   <div onclick="nav(this,'admin')">👑</div>
 </div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbzFwjQRnPDSlvqyHwYSiqFkqEZB73YAEK7R5ToKpO9VRkx_x5ZkpCC0kM2GHilQ0tYS/exec";
+const API="https://script.google.com/macros/s/AKfycbz1_jhWWkoXiIbX8f8tS-fNCGnE4EXPrjr6W6OPLQ9sufhzjLcxeR695d_Yg2Bbmz0v/exec";
 
 let token=localStorage.getItem("token");
 let mining=false;
@@ -194,16 +203,16 @@ async function load(){
 
   let d=await r.json();
 
-  balance.innerText=d.balance || 0;
-  broadcast.innerText=d.broadcast || "";
+  balance.innerText=d.balance||0;
+  refEarn.innerText=d.refEarnings||0;
+  refCount.innerText=d.refCount||0;
+  refLink.innerText=d.refLink||"";
 
-  pEmail.innerText=d.email || "";
-  pId.innerText=d.userId || "";
-  pKyc.innerText=d.kycStatus || "";
+  broadcast.innerText=d.broadcast||"";
 
-  refEarn.innerText=d.refEarnings || 0;
-  refCount.innerText=d.refCount || 0;
-  refLink.innerText=d.refLink || "Not available";
+  pEmail.innerText=d.email||"";
+  pId.innerText=d.userId||"";
+  pKyc.innerText=d.kycStatus||"";
 
   if(Date.now()-d.lastMining<86400000){
     mining=true;
@@ -214,6 +223,8 @@ async function load(){
   if(d.role!=="admin"){
     document.querySelector(".nav div:last-child").style.display="none";
   }
+
+  loadChat();
 }
 
 // TIMER
@@ -246,7 +257,6 @@ async function startMining(){
   });
 
   let d=await r.json();
-
   if(d.success){
     mining=true;
     mineBtn.innerText="MINING";
@@ -269,24 +279,71 @@ async function claim(){
   }
 }
 
-// WITHDRAW
-async function withdraw(){
+// TRANSFER
+async function transfer(){
+  if(pKyc.innerText!=="verified"){
+    alert("KYC required");
+    return;
+  }
+
+  let amt=parseFloat(amount.value);
+  if(amt<10){alert("Min 10");return;}
+
+  let r=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"transfer",
+      token,
+      toUID:toUID.value,
+      amount:amt
+    })
+  });
+
+  let d=await r.json();
+  alert(d.success?"Success":d.error);
+}
+
+// CHAT
+async function sendMsg(){
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"withdraw",
+      action:"sendMessage",
       token,
-      amount:parseFloat(amount.value),
-      wallet:walletAddr.value
+      msg:msg.value
     })
   });
-  alert("Requested");
+  msg.value="";
+  loadChat();
 }
 
-// REF COPY
-function copyRef(){
-  navigator.clipboard.writeText(refLink.innerText);
-  alert("Copied!");
+async function loadChat(){
+  let r=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"getMessages",
+      token
+    })
+  });
+
+  let d=await r.json();
+  chatBox.innerHTML="";
+  d.messages.forEach(m=>{
+    chatBox.innerHTML+=`<div>${m}</div>`;
+  });
+}
+
+// BROADCAST
+async function sendBroadcast(){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"broadcast",
+      token,
+      message:bcMsg.value
+    })
+  });
+  alert("Sent");
 }
 
 // ADMIN
@@ -302,11 +359,9 @@ async function loadUsers(){
   d.users.slice(1).forEach(u=>{
     users.innerHTML+=`
       <div class="card">
-        <b>${u[1]}</b><br>
-        Balance: ${u[4]}<br>
-        KYC: ${u[7]}<br>
-        <button onclick="verify('${u[0]}')">✅ Verify</button>
-        <button onclick="reject('${u[0]}')">❌ Reject</button>
+        ${u[1]} | ${u[4]} | ${u[7]}
+        <button onclick="verify('${u[0]}')">Verify</button>
+        <button onclick="reject('${u[0]}')">Reject</button>
       </div>
     `;
   });
@@ -338,14 +393,11 @@ async function reject(id){
   loadUsers();
 }
 
-// FAKE LIVE EARNING
-setInterval(()=>{
-  if(mining){
-    let val=parseFloat(balance.innerText);
-    val+=0.0001;
-    balance.innerText=val.toFixed(4);
-  }
-},1000);
+// COPY REF
+function copyRef(){
+  navigator.clipboard.writeText(refLink.innerText);
+  alert("Copied");
+}
 
 // INIT
 if(token){load();}
