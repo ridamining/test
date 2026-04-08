@@ -3,174 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Mining Pro</title>
+<title>Rida Mining</title>
+
 <style>
-body{margin:0;font-family:Arial;background:#0b0e1c;color:#fff;}
-.container{max-width:450px;margin:auto;padding:20px;}
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);padding:20px;border-radius:15px;margin-top:20px;}
-input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;}
-input{background:rgba(255,255,255,0.1);color:#fff;}
-button{background:#4cafef;color:#fff;font-weight:bold;cursor:pointer;}
-button:hover{opacity:0.8;}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:#fff;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:15px;
+}
+
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+input,button{
+  width:100%;
+  padding:12px;
+  margin:5px 0;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  background:#06b6d4;
+  color:#fff;
+  font-weight:bold;
+}
+
+h2{text-align:center;}
+
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  background:#020617;
+}
+
+.nav button{
+  flex:1;
+  background:none;
+  color:#fff;
+}
+
 .hidden{display:none;}
-.balance{font-size:30px;font-weight:bold;text-align:center;}
-.mining{text-align:center;margin-top:20px;}
-.countdown{font-size:16px;color:#0f0;text-align:center;margin-top:10px;}
-.referral{word-break:break-all;font-size:14px;color:#4cafef;margin-top:10px;}
+
+.mining{
+  text-align:center;
+  font-size:22px;
+  color:#22c55e;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0.5;}
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
-<h2 style="text-align:center;">⛏️ Rida Mining Pro</h2>
 
 <!-- LOGIN -->
-<div id="loginBox" class="card">
-<input id="email" placeholder="Email">
+<div id="auth">
+<h2>Rida Mining</h2>
 <input id="name" placeholder="Name">
-<button onclick="register()">Login / Register</button>
+<input id="email" placeholder="Email">
+<input id="ref" placeholder="Referral Code (optional)">
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
 </div>
 
 <!-- DASHBOARD -->
 <div id="app" class="hidden">
 
 <div class="card">
-<div class="balance" id="balance">0</div>
-<p style="text-align:center;">Balance</p>
-</div>
-
-<div class="card mining">
-<p id="status">Idle</p>
-<button id="mineBtn" onclick="startMining()">Start Mining</button>
-<div class="countdown" id="timer"></div>
+<h3>Welcome</h3>
+<p id="userEmail"></p>
+<p>Balance: <span id="balance">0</span></p>
+<p>Status: <span id="status"></span></p>
 </div>
 
 <div class="card">
-<p>Your referral link:</p>
-<div class="referral" id="referralLink"></div>
+<h3>Mining</h3>
+<div id="miningStatus">Inactive</div>
+<button onclick="startMining()">Start Mining</button>
 </div>
 
 <div class="card">
-<input id="tx" placeholder="Enter TX ID">
-<button onclick="submitTx()">Submit TX</button>
+<h3>Referral</h3>
+<p id="refLink"></p>
+</div>
+
+<div class="card">
+<h3>Broadcast</h3>
+<div id="broadcast"></div>
+</div>
+
+<div class="card">
+<h3>Chat</h3>
+<div id="chatBox" style="height:120px;overflow:auto;"></div>
+<input id="msg">
+<button onclick="sendMsg()">Send</button>
 </div>
 
 </div>
+
+</div>
+
+<div class="nav hidden" id="nav">
+<button onclick="show('home')">Home</button>
+<button onclick="logout()">Logout</button>
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbz3Gk44B1jk0CvUOLIiOGld0zJh379gyuf2CWysFvKQ24Akz1jn63KUxqisZGFxFTxLNg/exec";
-let user = null;
-let miningTimer = null;
+const API="https://script.google.com/macros/s/AKfycby7dnjsLTLx4o_IVTrmA3wg08xG8VVDmnEEOzNmDR64wiWHpodLPv_rYSMKG_gOXCuVzA/exec";
 
-// =======================
-// POST API
-// =======================
-async function post(data){
-  try{
-    const res = await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(data)});
-    let text = await res.text();
-    text = text.trim();
-    if(text.startsWith(")]}'")) text=text.substring(4);
-    return JSON.parse(text);
-  }catch(e){alert("Network error"); return {};}
+let user=null;
+
+// =====================
+// REGISTER
+// =====================
+function register(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"registerUser",
+name:name.value,
+email:email.value,
+ref:ref.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+alert(d.status);
+});
 }
 
-// =======================
-// REGISTER / LOGIN
-// =======================
-async function register(){
-  const email = document.getElementById("email").value;
-  const name = document.getElementById("name").value;
-  if(!email){alert("Enter email");return;}
-
-  await post({action:"registerUser", email, name});
-  const data = await post({action:"getUser", email});
-  if(data.status==="success"){
-    user = data.user;
-    localStorage.setItem("email",email);
-    document.getElementById("loginBox").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-    updateUI();
-    startMining(true); // instant mining
-  }else alert("Login failed");
+// =====================
+// LOGIN
+// =====================
+function login(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"getUser",
+email:email.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.status==="success"){
+user=d.user;
+localStorage.setItem("user",JSON.stringify(user));
+startApp();
+}else{
+alert("User not found");
+}
+});
 }
 
-// =======================
-// UPDATE UI
-// =======================
-function updateUI(){
-  document.getElementById("balance").innerText = user[4];
-  const referral = `https://yourdomain.com/?ref=${user[6]}`;
-  document.getElementById("referralLink").innerText = referral;
+// =====================
+// START APP
+// =====================
+function startApp(){
+document.getElementById("auth").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+document.getElementById("nav").classList.remove("hidden");
+
+user=JSON.parse(localStorage.getItem("user"));
+
+userEmail.innerText=user[1];
+balance.innerText=user[4];
+status.innerText=user[7];
+
+refLink.innerText=location.origin+"?ref="+user[6];
+
+loadBroadcast();
+loadChat();
+
+// AUTO mining
+startMining();
 }
 
-// =======================
-// START MINING
-// =======================
-async function startMining(auto=false){
-  if(!user){alert("Login first");return;}
+// =====================
+// MINING
+// =====================
+function startMining(){
+miningStatus.innerHTML='<div class="mining">Mining Active ⚡</div>';
 
-  document.getElementById("mineBtn").disabled = true;
-  document.getElementById("status").innerText = "Mining Active ⛏️";
-
-  const res = await post({action:"checkIn", userId:user[0]});
-
-  if(res.status==="success"){
-    user[4] = res.balance;
-    updateUI();
-    startCountdown();
-  }else if(res.status==="wait"){alert("Mining cooldown 24h");}
-  else if(res.status==="not_verified" && !auto){alert("Not verified");}
-  else if(res.status==="ended"){alert("Mining supply ended");}
-
-  if(!miningTimer) startCountdown();
+setInterval(()=>{
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"checkIn",
+userId:user[0]
+})
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.status==="success"){
+balance.innerText=d.balance;
+}
+});
+},5000);
 }
 
-// =======================
-// COUNTDOWN TIMER
-// =======================
-function startCountdown(){
-  const timerEl = document.getElementById("timer");
-  let end = new Date().getTime() + 24*60*60*1000; // 24h
-  miningTimer = setInterval(()=>{
-    let now = new Date().getTime();
-    let diff = end - now;
-    if(diff<=0){clearInterval(miningTimer);timerEl.innerText="Mine Again ⏳";document.getElementById("mineBtn").disabled=false;}
-    else{
-      let h=Math.floor(diff/3600000);
-      let m=Math.floor((diff%3600000)/60000);
-      let s=Math.floor((diff%60000)/1000);
-      timerEl.innerText=`Next mining in ${h}h ${m}m ${s}s`;
-    }
-  },1000);
+// =====================
+// BROADCAST
+// =====================
+function loadBroadcast(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({action:"getBroadcasts"})
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.status==="success"){
+broadcast.innerHTML=d.data.map(x=>`<p>${x[1]}</p>`).join("");
+}
+});
 }
 
-// =======================
-// SUBMIT TX
-// =======================
-async function submitTx(){
-  const tx = document.getElementById("tx").value;
-  if(!tx){alert("Enter TX ID"); return;}
-  const res = await post({action:"submitTx", userId:user[0], email:user[1], tx});
-  if(res.status==="submitted"){alert("TX Submitted");}else{alert("Error");}
+// =====================
+// CHAT
+// =====================
+function sendMsg(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"sendMessage",
+userId:user[0],
+msg:msg.value
+})
+});
+msg.value="";
 }
 
-// =======================
+function loadChat(){
+setInterval(()=>{
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"getMessages",
+userId:user[0]
+})
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.status==="success"){
+chatBox.innerHTML=d.data.map(x=>`<p>${x[3]}</p>`).join("");
+}
+});
+},3000);
+}
+
+// =====================
+// LOGOUT
+// =====================
+function logout(){
+localStorage.clear();
+location.reload();
+}
+
 // AUTO LOGIN
-// =======================
-window.onload = async ()=>{
-  const saved = localStorage.getItem("email");
-  if(saved){
-    const data = await post({action:"getUser", email:saved});
-    if(data.status==="success"){
-      user = data.user;
-      document.getElementById("loginBox").classList.add("hidden");
-      document.getElementById("app").classList.remove("hidden");
-      updateUI();
-      startMining(true); // auto start
-    }
-  }
+if(localStorage.getItem("user")){
+startApp();
 }
 </script>
 
