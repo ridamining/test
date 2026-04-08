@@ -3,68 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Network</title>
+<title>Rida Mining</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:linear-gradient(135deg,#020617,#0f172a);
+  background:#0c0f1c;
   color:#fff;
-  text-align:center;
 }
-
 .container{
-  max-width:420px;
+  max-width:400px;
   margin:auto;
   padding:20px;
 }
-
 .card{
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(12px);
-  border-radius:16px;
+  background:#151a2e;
   padding:20px;
+  border-radius:12px;
   margin-top:20px;
-  box-shadow:0 0 20px rgba(0,0,0,0.6);
 }
-
-input{
-  width:90%;
+input,button{
+  width:100%;
   padding:12px;
-  border:none;
-  border-radius:10px;
   margin-top:10px;
-}
-
-button{
-  padding:12px 20px;
   border:none;
-  border-radius:10px;
-  background:#22c55e;
+  border-radius:8px;
+}
+input{
+  background:#1f2642;
+  color:#fff;
+}
+button{
+  background:#4cafef;
   color:#fff;
   font-weight:bold;
-  margin-top:15px;
   cursor:pointer;
 }
-
-button:disabled{
-  background:#555;
+button:hover{
+  opacity:0.8;
 }
-
+.hidden{display:none}
+.balance{
+  font-size:28px;
+  font-weight:bold;
+  text-align:center;
+}
 .mining{
-  animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.1);}
-  100%{transform:scale(1);}
-}
-
-.small{
-  font-size:12px;
-  color:#aaa;
+  text-align:center;
+  margin-top:20px;
 }
 </style>
 </head>
@@ -73,37 +60,31 @@ button:disabled{
 
 <div class="container">
 
-<h1>🚀 Rida Network</h1>
+<h2 style="text-align:center;">⛏️ Rida Mining</h2>
 
 <!-- LOGIN -->
 <div id="loginBox" class="card">
-<input id="email" placeholder="Enter Email">
-<br>
-<button onclick="login()">Login</button>
+<input id="email" placeholder="Email">
+<input id="name" placeholder="Name">
+<button onclick="register()">Login / Register</button>
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" style="display:none">
+<div id="app" class="hidden">
 
 <div class="card">
-<h2 id="balance">0</h2>
-<p>RIDA Balance</p>
-<p id="status"></p>
+<div class="balance" id="balance">0</div>
+<p style="text-align:center;">Balance</p>
+</div>
+
+<div class="card mining">
+<p id="status">Idle</p>
+<button onclick="startMining()">Start Mining</button>
 </div>
 
 <div class="card">
-<button id="mineBtn" onclick="checkIn()">⛏️ Start Mining</button>
-<p id="timer" class="small"></p>
-</div>
-
-<div class="card">
-<input id="tx" placeholder="Enter TxID">
-<button onclick="submitTx()">Submit Verification</button>
-</div>
-
-<div class="card">
-<p>Your Referral Link:</p>
-<p id="refLink" class="small"></p>
+<input id="tx" placeholder="Enter TX ID">
+<button onclick="submitTx()">Submit TX</button>
 </div>
 
 </div>
@@ -111,170 +92,159 @@ button:disabled{
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzy-KlWcadejKr9qYlPOSiiE3I1LLlkvNf_0-xvWw3aOjykDiLTiYXDF1knGamSHULJKQ/exec";
+const API = "https://script.google.com/macros/s/AKfycbz3Gk44B1jk0CvUOLIiOGld0zJh379gyuf2CWysFvKQ24Akz1jn63KUxqisZGFxFTxLNg/exec";
 
 let user = null;
 
-// ✅ FIXED POST (NO CORS ISSUE)
+// =======================
+// API CALL
+// =======================
 async function post(data){
-  const res = await fetch(API,{
-    method:"POST",
-    redirect:"follow",
-    headers:{
-      "Content-Type":"text/plain;charset=utf-8"
-    },
-    body: JSON.stringify(data)
-  });
-
-  const text = await res.text();
-
   try{
+    const res = await fetch(API,{
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(data)
+    });
+
+    let text = await res.text();
+    text = text.trim();
+
+    if(text.startsWith(")]}'")){
+      text = text.substring(4);
+    }
+
     return JSON.parse(text);
+
   }catch(e){
-    console.error(text);
-    alert("Server error");
-    return {status:"error"};
+    alert("Network error");
+    return {};
   }
 }
 
-// 🔹 LOGIN
-async function login(){
-  let email = document.getElementById("email").value.trim();
-  if(!email) return alert("Enter email");
+// =======================
+// REGISTER / LOGIN
+// =======================
+async function register(){
+  const email = document.getElementById("email").value;
+  const name = document.getElementById("name").value;
 
-  await post({
-    action:"registerUser",
-    email,
-    name:"User",
-    pic:"",
-    ref: localStorage.getItem("ref") || ""
-  });
-
-  let res = await post({
-    action:"getUser",
-    email
-  });
-
-  if(res.status !== "success"){
-    alert("Login failed");
+  if(!email){
+    alert("Enter email");
     return;
   }
 
-  user = res.user;
+  let res = await post({
+    action:"registerUser",
+    email:email,
+    name:name
+  });
 
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
+  let data = await post({
+    action:"getUser",
+    email:email
+  });
 
-  updateUI();
+  if(data.status==="success"){
+    user = data.user;
+
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+
+    updateUI();
+  }else{
+    alert("Login failed");
+  }
 }
 
-// 🔹 UPDATE UI
+// =======================
+// UPDATE UI
+// =======================
 function updateUI(){
   document.getElementById("balance").innerText = user[4];
-
-  const status = user[7];
-  const mineBtn = document.getElementById("mineBtn");
-
-  if(status === "true"){
-    document.getElementById("status").innerText = "✅ Verified";
-    mineBtn.disabled = false;
-  }
-  else if(status === "pending"){
-    document.getElementById("status").innerText = "⏳ Pending Verification";
-    mineBtn.disabled = true;
-  }
-  else{
-    document.getElementById("status").innerText = "❌ Not Verified";
-    mineBtn.disabled = true;
-  }
-
-  // referral
-  document.getElementById("refLink").innerText =
-    location.origin + location.pathname + "?ref=" + user[6];
-
-  startTimer();
 }
 
-// 🔹 MINING
-async function checkIn(){
-  const btn = document.getElementById("mineBtn");
-  btn.classList.add("mining");
+// =======================
+// MINING
+// =======================
+async function startMining(){
+  if(!user){
+    alert("Login first");
+    return;
+  }
+
+  document.getElementById("status").innerText = "Mining...";
 
   let res = await post({
     action:"checkIn",
     userId:user[0]
   });
 
-  btn.classList.remove("mining");
-
-  if(res.status === "success"){
+  if(res.status==="success"){
     user[4] = res.balance;
-    user[9] = new Date();
-    alert("✅ Mining successful!");
+    updateUI();
+    alert("Reward Added");
   }
-  else if(res.status === "wait"){
-    alert("⏳ Wait 24 hours");
+  else if(res.status==="wait"){
+    alert("Come back tomorrow");
   }
-  else if(res.status === "not_verified"){
-    alert("❌ Verify first");
+  else if(res.status==="not_verified"){
+    alert("Account not verified");
   }
   else{
     alert("Mining stopped");
   }
 
-  updateUI();
+  document.getElementById("status").innerText = "Idle";
 }
 
-// 🔹 TIMER (24H COUNTDOWN)
-function startTimer(){
-  const el = document.getElementById("timer");
+// =======================
+// SUBMIT TX
+// =======================
+async function submitTx(){
+  const tx = document.getElementById("tx").value;
 
-  if(!user[9]){
-    el.innerText = "Ready to mine";
+  if(!tx){
+    alert("Enter TX ID");
     return;
   }
 
-  setInterval(()=>{
-    const last = new Date(user[9]);
-    const now = new Date();
-    const diff = 86400000 - (now - last);
-
-    if(diff <= 0){
-      el.innerText = "Ready to mine";
-      return;
-    }
-
-    const h = Math.floor(diff/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-
-    el.innerText = `Next in ${h}h ${m}m ${s}s`;
-  },1000);
-}
-
-// 🔹 SUBMIT TX
-async function submitTx(){
-  const tx = document.getElementById("tx").value.trim();
-  if(!tx) return alert("Enter TxID");
-
-  await post({
+  let res = await post({
     action:"submitTx",
     userId:user[0],
     email:user[1],
-    tx
+    tx:tx
   });
 
-  alert("Submitted for verification");
+  if(res.status==="submitted"){
+    alert("Submitted");
+  }else{
+    alert("Error");
+  }
 }
 
-// 🔹 REF TRACK
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get("ref");
-  if(ref){
-    localStorage.setItem("ref", ref);
+// =======================
+// AUTO LOGIN
+// =======================
+window.onload = async ()=>{
+  const saved = localStorage.getItem("email");
+
+  if(saved){
+    let data = await post({
+      action:"getUser",
+      email:saved
+    });
+
+    if(data.status==="success"){
+      user = data.user;
+
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+
+      updateUI();
+    }
   }
-})();
+}
 </script>
 
 </body>
