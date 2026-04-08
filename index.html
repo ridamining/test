@@ -3,64 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Mining</title>
-
+<title>Rida Mining Pro</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0c0f1c;
-  color:#fff;
-}
-.container{
-  max-width:400px;
-  margin:auto;
-  padding:20px;
-}
-.card{
-  background:#151a2e;
-  padding:20px;
-  border-radius:12px;
-  margin-top:20px;
-}
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-}
-input{
-  background:#1f2642;
-  color:#fff;
-}
-button{
-  background:#4cafef;
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:hover{
-  opacity:0.8;
-}
-.hidden{display:none}
-.balance{
-  font-size:28px;
-  font-weight:bold;
-  text-align:center;
-}
-.mining{
-  text-align:center;
-  margin-top:20px;
-}
+body{margin:0;font-family:Arial;background:#0b0e1c;color:#fff;}
+.container{max-width:450px;margin:auto;padding:20px;}
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);padding:20px;border-radius:15px;margin-top:20px;}
+input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;}
+input{background:rgba(255,255,255,0.1);color:#fff;}
+button{background:#4cafef;color:#fff;font-weight:bold;cursor:pointer;}
+button:hover{opacity:0.8;}
+.hidden{display:none;}
+.balance{font-size:30px;font-weight:bold;text-align:center;}
+.mining{text-align:center;margin-top:20px;}
+.countdown{font-size:16px;color:#0f0;text-align:center;margin-top:10px;}
+.referral{word-break:break-all;font-size:14px;color:#4cafef;margin-top:10px;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
-<h2 style="text-align:center;">⛏️ Rida Mining</h2>
+<h2 style="text-align:center;">⛏️ Rida Mining Pro</h2>
 
 <!-- LOGIN -->
 <div id="loginBox" class="card">
@@ -79,7 +41,13 @@ button:hover{
 
 <div class="card mining">
 <p id="status">Idle</p>
-<button onclick="startMining()">Start Mining</button>
+<button id="mineBtn" onclick="startMining()">Start Mining</button>
+<div class="countdown" id="timer"></div>
+</div>
+
+<div class="card">
+<p>Your referral link:</p>
+<div class="referral" id="referralLink"></div>
 </div>
 
 <div class="card">
@@ -88,38 +56,24 @@ button:hover{
 </div>
 
 </div>
-
 </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbz3Gk44B1jk0CvUOLIiOGld0zJh379gyuf2CWysFvKQ24Akz1jn63KUxqisZGFxFTxLNg/exec";
-
 let user = null;
+let miningTimer = null;
 
 // =======================
-// API CALL
+// POST API
 // =======================
 async function post(data){
   try{
-    const res = await fetch(API,{
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify(data)
-    });
-
+    const res = await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(data)});
     let text = await res.text();
     text = text.trim();
-
-    if(text.startsWith(")]}'")){
-      text = text.substring(4);
-    }
-
+    if(text.startsWith(")]}'")) text=text.substring(4);
     return JSON.parse(text);
-
-  }catch(e){
-    alert("Network error");
-    return {};
-  }
+  }catch(e){alert("Network error"); return {};}
 }
 
 // =======================
@@ -128,33 +82,18 @@ async function post(data){
 async function register(){
   const email = document.getElementById("email").value;
   const name = document.getElementById("name").value;
+  if(!email){alert("Enter email");return;}
 
-  if(!email){
-    alert("Enter email");
-    return;
-  }
-
-  let res = await post({
-    action:"registerUser",
-    email:email,
-    name:name
-  });
-
-  let data = await post({
-    action:"getUser",
-    email:email
-  });
-
+  await post({action:"registerUser", email, name});
+  const data = await post({action:"getUser", email});
   if(data.status==="success"){
     user = data.user;
-
+    localStorage.setItem("email",email);
     document.getElementById("loginBox").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
-
     updateUI();
-  }else{
-    alert("Login failed");
-  }
+    startMining(true); // instant mining
+  }else alert("Login failed");
 }
 
 // =======================
@@ -162,40 +101,49 @@ async function register(){
 // =======================
 function updateUI(){
   document.getElementById("balance").innerText = user[4];
+  const referral = `https://yourdomain.com/?ref=${user[6]}`;
+  document.getElementById("referralLink").innerText = referral;
 }
 
 // =======================
-// MINING
+// START MINING
 // =======================
-async function startMining(){
-  if(!user){
-    alert("Login first");
-    return;
-  }
+async function startMining(auto=false){
+  if(!user){alert("Login first");return;}
 
-  document.getElementById("status").innerText = "Mining...";
+  document.getElementById("mineBtn").disabled = true;
+  document.getElementById("status").innerText = "Mining Active ⛏️";
 
-  let res = await post({
-    action:"checkIn",
-    userId:user[0]
-  });
+  const res = await post({action:"checkIn", userId:user[0]});
 
   if(res.status==="success"){
     user[4] = res.balance;
     updateUI();
-    alert("Reward Added");
-  }
-  else if(res.status==="wait"){
-    alert("Come back tomorrow");
-  }
-  else if(res.status==="not_verified"){
-    alert("Account not verified");
-  }
-  else{
-    alert("Mining stopped");
-  }
+    startCountdown();
+  }else if(res.status==="wait"){alert("Mining cooldown 24h");}
+  else if(res.status==="not_verified" && !auto){alert("Not verified");}
+  else if(res.status==="ended"){alert("Mining supply ended");}
 
-  document.getElementById("status").innerText = "Idle";
+  if(!miningTimer) startCountdown();
+}
+
+// =======================
+// COUNTDOWN TIMER
+// =======================
+function startCountdown(){
+  const timerEl = document.getElementById("timer");
+  let end = new Date().getTime() + 24*60*60*1000; // 24h
+  miningTimer = setInterval(()=>{
+    let now = new Date().getTime();
+    let diff = end - now;
+    if(diff<=0){clearInterval(miningTimer);timerEl.innerText="Mine Again ⏳";document.getElementById("mineBtn").disabled=false;}
+    else{
+      let h=Math.floor(diff/3600000);
+      let m=Math.floor((diff%3600000)/60000);
+      let s=Math.floor((diff%60000)/1000);
+      timerEl.innerText=`Next mining in ${h}h ${m}m ${s}s`;
+    }
+  },1000);
 }
 
 // =======================
@@ -203,24 +151,9 @@ async function startMining(){
 // =======================
 async function submitTx(){
   const tx = document.getElementById("tx").value;
-
-  if(!tx){
-    alert("Enter TX ID");
-    return;
-  }
-
-  let res = await post({
-    action:"submitTx",
-    userId:user[0],
-    email:user[1],
-    tx:tx
-  });
-
-  if(res.status==="submitted"){
-    alert("Submitted");
-  }else{
-    alert("Error");
-  }
+  if(!tx){alert("Enter TX ID"); return;}
+  const res = await post({action:"submitTx", userId:user[0], email:user[1], tx});
+  if(res.status==="submitted"){alert("TX Submitted");}else{alert("Error");}
 }
 
 // =======================
@@ -228,20 +161,14 @@ async function submitTx(){
 // =======================
 window.onload = async ()=>{
   const saved = localStorage.getItem("email");
-
   if(saved){
-    let data = await post({
-      action:"getUser",
-      email:saved
-    });
-
+    const data = await post({action:"getUser", email:saved});
     if(data.status==="success"){
       user = data.user;
-
       document.getElementById("loginBox").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
-
       updateUI();
+      startMining(true); // auto start
     }
   }
 }
