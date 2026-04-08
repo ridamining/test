@@ -3,45 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rida Mining</title>
+<title>Rida Mining Pro</title>
 
 <style>
 body{
   margin:0;
-  font-family:Arial;
-  background:#0f172a;
+  font-family:system-ui;
+  background:linear-gradient(135deg,#020617,#0f172a);
   color:#fff;
 }
 
-.container{
-  max-width:500px;
-  margin:auto;
-  padding:15px;
-}
-
+/* GLASS UI */
 .card{
-  background:#1e293b;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  border-radius:16px;
   padding:15px;
-  border-radius:12px;
   margin-bottom:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
+/* INPUT */
 input,button{
   width:100%;
   padding:12px;
-  margin:5px 0;
+  margin:6px 0;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
 }
 
 button{
-  background:#06b6d4;
+  background:linear-gradient(45deg,#06b6d4,#3b82f6);
   color:#fff;
   font-weight:bold;
 }
 
-h2{text-align:center;}
-
+/* NAV */
 .nav{
   position:fixed;
   bottom:0;
@@ -56,17 +53,30 @@ h2{text-align:center;}
   color:#fff;
 }
 
-.hidden{display:none;}
-
+/* MINING ANIMATION */
 .mining{
   text-align:center;
-  font-size:22px;
+  font-size:20px;
   color:#22c55e;
-  animation:blink 1s infinite;
+  animation:pulse 1s infinite;
 }
 
-@keyframes blink{
-  50%{opacity:0.5;}
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
+}
+
+.hidden{display:none;}
+.container{padding:15px; max-width:500px; margin:auto;}
+h2{text-align:center;}
+
+.chat{
+  height:150px;
+  overflow:auto;
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
 }
 </style>
 </head>
@@ -75,56 +85,85 @@ h2{text-align:center;}
 
 <div class="container">
 
-<!-- LOGIN -->
+<!-- AUTH -->
 <div id="auth">
 <h2>Rida Mining</h2>
 <input id="name" placeholder="Name">
 <input id="email" placeholder="Email">
-<input id="ref" placeholder="Referral Code (optional)">
+<input id="ref" placeholder="Referral Code">
 <button onclick="register()">Register</button>
 <button onclick="login()">Login</button>
 </div>
 
-<!-- DASHBOARD -->
+<!-- APP -->
 <div id="app" class="hidden">
 
+<!-- HOME -->
+<div id="home">
 <div class="card">
-<h3>Welcome</h3>
-<p id="userEmail"></p>
-<p>Balance: <span id="balance">0</span></p>
+<h3 id="userEmail"></h3>
+<p>Balance: <b id="balance">0</b></p>
 <p>Status: <span id="status"></span></p>
 </div>
 
 <div class="card">
 <h3>Mining</h3>
 <div id="miningStatus">Inactive</div>
-<button onclick="startMining()">Start Mining</button>
-</div>
-
-<div class="card">
-<h3>Referral</h3>
-<p id="refLink"></p>
 </div>
 
 <div class="card">
 <h3>Broadcast</h3>
 <div id="broadcast"></div>
 </div>
+</div>
 
+<!-- REFERRAL -->
+<div id="refPage" class="hidden">
 <div class="card">
-<h3>Chat</h3>
-<div id="chatBox" style="height:120px;overflow:auto;"></div>
+<h3>Your Referral</h3>
+<p id="refLink"></p>
+</div>
+</div>
+
+<!-- CHAT -->
+<div id="chatPage" class="hidden">
+<div class="card">
+<h3>Support Chat</h3>
+<div class="chat" id="chatBox"></div>
 <input id="msg">
 <button onclick="sendMsg()">Send</button>
 </div>
+</div>
 
+<!-- ADMIN -->
+<div id="adminPage" class="hidden">
+<div class="card">
+<h3>Admin Panel</h3>
+
+<input id="adminKey" placeholder="Admin Key">
+<button onclick="loadUsers()">Load Users</button>
+
+<div id="users"></div>
+
+<hr>
+
+<input id="broadcastMsg" placeholder="Broadcast Message">
+<button onclick="sendBroadcast()">Send Broadcast</button>
+
+</div>
 </div>
 
 </div>
 
+</div>
+
+<!-- NAV -->
 <div class="nav hidden" id="nav">
-<button onclick="show('home')">Home</button>
-<button onclick="logout()">Logout</button>
+<button onclick="navTo('home')">Home</button>
+<button onclick="navTo('refPage')">Referral</button>
+<button onclick="navTo('chatPage')">Chat</button>
+<button onclick="navTo('adminPage')">Admin</button>
+<button onclick="logout()">Exit</button>
 </div>
 
 <script>
@@ -132,9 +171,13 @@ const API="https://script.google.com/macros/s/AKfycby7dnjsLTLx4o_IVTrmA3wg08xG8V
 
 let user=null;
 
-// =====================
+// REF FROM URL
+const urlParams=new URLSearchParams(window.location.search);
+if(urlParams.get("ref")){
+localStorage.setItem("ref",urlParams.get("ref"));
+}
+
 // REGISTER
-// =====================
 function register(){
 fetch(API,{
 method:"POST",
@@ -142,18 +185,12 @@ body:JSON.stringify({
 action:"registerUser",
 name:name.value,
 email:email.value,
-ref:ref.value
+ref:localStorage.getItem("ref")||ref.value
 })
-})
-.then(r=>r.json())
-.then(d=>{
-alert(d.status);
-});
+}).then(r=>r.json()).then(d=>alert(d.status));
 }
 
-// =====================
 // LOGIN
-// =====================
 function login(){
 fetch(API,{
 method:"POST",
@@ -161,22 +198,16 @@ body:JSON.stringify({
 action:"getUser",
 email:email.value
 })
-})
-.then(r=>r.json())
-.then(d=>{
+}).then(r=>r.json()).then(d=>{
 if(d.status==="success"){
 user=d.user;
 localStorage.setItem("user",JSON.stringify(user));
 startApp();
-}else{
-alert("User not found");
-}
+}else alert("User not found");
 });
 }
 
-// =====================
 // START APP
-// =====================
 function startApp(){
 document.getElementById("auth").classList.add("hidden");
 document.getElementById("app").classList.remove("hidden");
@@ -187,19 +218,22 @@ user=JSON.parse(localStorage.getItem("user"));
 userEmail.innerText=user[1];
 balance.innerText=user[4];
 status.innerText=user[7];
-
 refLink.innerText=location.origin+"?ref="+user[6];
 
+startMining();
 loadBroadcast();
 loadChat();
-
-// AUTO mining
-startMining();
 }
 
-// =====================
+// NAVIGATION
+function navTo(p){
+["home","refPage","chatPage","adminPage"].forEach(id=>{
+document.getElementById(id).classList.add("hidden");
+});
+document.getElementById(p).classList.remove("hidden");
+}
+
 // MINING
-// =====================
 function startMining(){
 miningStatus.innerHTML='<div class="mining">Mining Active ⚡</div>';
 
@@ -220,9 +254,7 @@ balance.innerText=d.balance;
 },5000);
 }
 
-// =====================
 // BROADCAST
-// =====================
 function loadBroadcast(){
 fetch(API,{
 method:"POST",
@@ -231,14 +263,12 @@ body:JSON.stringify({action:"getBroadcasts"})
 .then(r=>r.json())
 .then(d=>{
 if(d.status==="success"){
-broadcast.innerHTML=d.data.map(x=>`<p>${x[1]}</p>`).join("");
+broadcast.innerHTML=d.data.map(x=>`<p>📢 ${x[1]}</p>`).join("");
 }
 });
 }
 
-// =====================
 // CHAT
-// =====================
 function sendMsg(){
 fetch(API,{
 method:"POST",
@@ -269,18 +299,60 @@ chatBox.innerHTML=d.data.map(x=>`<p>${x[3]}</p>`).join("");
 },3000);
 }
 
-// =====================
+// ADMIN
+function loadUsers(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"getAllUsers",
+key:adminKey.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.status==="success"){
+users.innerHTML=d.data.map(x=>`
+<div class="card">
+${x[1]} - ${x[7]}
+<button onclick="verify('${x[0]}','true')">Approve</button>
+<button onclick="verify('${x[0]}','rejected')">Reject</button>
+</div>
+`).join("");
+}
+});
+}
+
+function verify(id,status){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"verifyUser",
+key:adminKey.value,
+userId:id,
+status:status
+})
+}).then(()=>loadUsers());
+}
+
+function sendBroadcast(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"addBroadcast",
+key:adminKey.value,
+msg:broadcastMsg.value
+})
+}).then(()=>alert("Sent"));
+}
+
 // LOGOUT
-// =====================
 function logout(){
 localStorage.clear();
 location.reload();
 }
 
 // AUTO LOGIN
-if(localStorage.getItem("user")){
-startApp();
-}
+if(localStorage.getItem("user")) startApp();
 </script>
 
 </body>
