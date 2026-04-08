@@ -1,271 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RIDA NETWORK V6</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rida Network</title>
 
 <style>
 body{
   margin:0;
-  font-family:sans-serif;
-  background:linear-gradient(135deg,#0a0f1f,#0f1c3f);
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f172a,#020617);
   color:#fff;
-}
-
-/* HEADER */
-.header{
-  padding:15px;
   text-align:center;
-  font-size:20px;
-  background:#111a3a;
 }
 
-/* SCREEN */
-.screen{display:none;padding-bottom:70px;}
-.active{display:block;}
+.container{
+  max-width:400px;
+  margin:auto;
+  padding:20px;
+}
 
-/* CARD */
 .card{
-  background:#111a3a;
-  margin:12px;
-  padding:15px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  padding:20px;
+  margin-top:20px;
   border-radius:15px;
-  box-shadow:0 0 10px rgba(0,200,255,0.2);
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
-/* INPUT */
 input{
-  width:100%;
+  width:90%;
   padding:12px;
-  margin:6px 0;
-  border-radius:10px;
   border:none;
+  border-radius:10px;
+  margin-top:10px;
 }
 
-/* BUTTON */
 button{
-  width:100%;
-  padding:12px;
+  margin-top:15px;
+  padding:12px 20px;
   border:none;
   border-radius:10px;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  background:#22c55e;
   color:#fff;
   font-weight:bold;
+  cursor:pointer;
 }
 
-/* NAV */
-.nav{
-  display:flex;
-  justify-content:space-around;
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:#111a3a;
-  padding:10px 0;
+button:disabled{
+  background:#555;
 }
 
-.nav button{
-  background:none;
-  color:#fff;
+h1{
+  margin-top:30px;
 }
 
-/* BALANCE */
-.balance{
-  font-size:28px;
-  text-align:center;
-  text-shadow:0 0 10px #00c6ff;
+.small{
+  font-size:12px;
+  color:#aaa;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">⚡ RIDA NETWORK</div>
+<div class="container">
 
-<!-- AUTH -->
-<div id="auth" class="screen active">
-  <div class="card">
-    <input id="email" placeholder="Email">
-    <input id="password" placeholder="Password">
-    <input id="ref" placeholder="Referral UID (optional)">
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
-  </div>
+<h1>🚀 Rida Network</h1>
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+<input id="email" placeholder="Enter Email">
+<br>
+<button onclick="login()">Login</button>
 </div>
 
-<!-- APP -->
-<div id="app" class="screen">
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
 
-  <!-- HOME -->
-  <div id="home" class="tab active">
-    <div class="card">
-      <div class="balance">💰 <span id="bal">0</span></div>
-    </div>
+<div class="card">
+<h2 id="balance">0</h2>
+<p>RIDA Balance</p>
+<p id="status"></p>
+</div>
 
-    <div class="card">
-      ⛏ Mining Time: <span id="timer">0</span>s
-      <button onclick="startMining()">Start Mining</button>
-      <button onclick="claimMining()">Claim</button>
-    </div>
-  </div>
+<div class="card">
+<button id="mineBtn" onclick="checkIn()">⛏️ Daily Check-In</button>
+<p id="timer" class="small"></p>
+</div>
 
-  <!-- REF -->
-  <div id="refTab" class="tab">
-    <div class="card">
-      UID: <span id="uid"></span><br>
-      Referrals: <span id="refCount"></span><br>
-      Earnings: <span id="refEarn"></span>
-    </div>
-  </div>
-
-  <!-- WALLET -->
-  <div id="wallet" class="tab">
-    <div class="card">
-      <input id="toUID" placeholder="Receiver UID">
-      <input id="amount" placeholder="Amount">
-      <button onclick="transfer()">Send</button>
-    </div>
-  </div>
-
-  <!-- ADMIN -->
-  <div id="admin" class="tab">
-    <div class="card">
-      <button onclick="loadUsers()">Load Users</button>
-      <div id="users"></div>
-    </div>
-  </div>
+<div class="card">
+<input id="tx" placeholder="Enter TxID">
+<button onclick="submitTx()">Submit Verification</button>
+</div>
 
 </div>
 
-<!-- NAV -->
-<div class="nav" id="nav" style="display:none;">
-  <button onclick="showTab('home')">🏠</button>
-  <button onclick="showTab('refTab')">👥</button>
-  <button onclick="showTab('wallet')">💸</button>
-  <button id="adminBtn" onclick="showTab('admin')">⚙️</button>
 </div>
 
 <script>
+const API = "https://script.google.com/macros/s/AKfycbzCmSR2bmM1KmPBIq2Sc_1lc4rOi5-ihpRhQi7WuWKd3TLVZi_ksUbGsyb1CJRS1YCQlQ/exec";
 
-const API="https://script.google.com/macros/s/AKfycbxhiHRlpAh-fxwSnFTHlo3aNp0W_Z--0VzYKhVuN3n45q-yoMt6wMxV7uUYadjN9-Dp/exec";
+let user = null;
 
-let state={
-  token:localStorage.getItem("token"),
-  user:null,
-  timerInterval:null
-};
-
-// API CALL
-async function api(p){
-  const url=API+"?"+new URLSearchParams(p);
-  const res=await fetch(url);
+// 🔹 POST HELPER (IMPORTANT FIX)
+async function post(data){
+  const res = await fetch(API,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify(data)
+  });
   return await res.json();
 }
 
-// AUTH
-async function register(){
-  let r=await api({
-    action:"register",
-    email:email.value.trim(),
-    password:password.value.trim(),
-    ref:ref.value.trim()
-  });
-  alert(JSON.stringify(r));
-}
-
+// 🔹 LOGIN
 async function login(){
-  let r=await api({
-    action:"login",
-    email:email.value.trim(),
-    password:password.value.trim()
+  let email = document.getElementById("email").value.trim();
+  if(!email) return alert("Enter email");
+
+  // register
+  await post({
+    action:"registerUser",
+    email:email,
+    name:"User",
+    pic:"",
+    ref:localStorage.getItem("ref") || ""
   });
 
-  if(r.success){
-    localStorage.setItem("token",r.token);
-    state.token=r.token;
-    init();
-  }else alert(r.error);
-}
+  // get user
+  let res = await post({
+    action:"getUser",
+    email:email
+  });
 
-// INIT
-async function init(){
-  let r=await api({action:"getStatus",token:state.token});
-
-  if(!r.success){
-    localStorage.removeItem("token");
-    location.reload();
+  if(res.status !== "success"){
+    alert("Login failed");
     return;
   }
 
-  state.user=r;
+  user = res.user;
 
-  auth.classList.remove("active");
-  app.classList.add("active");
-  nav.style.display="flex";
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
 
-  bal.innerText=r.balance;
-  uid.innerText=r.userId;
-  refCount.innerText=r.refCount;
-  refEarn.innerText=r.refEarnings;
+  updateUI();
+}
 
-  // ADMIN HIDE
-  if(r.role!=="admin"){
-    adminBtn.style.display="none";
+// 🔹 UPDATE UI
+function updateUI(){
+  document.getElementById("balance").innerText = user[4];
+
+  let status = user[7];
+
+  if(status === "true"){
+    document.getElementById("status").innerText = "✅ Verified";
+    document.getElementById("mineBtn").disabled = false;
+  } 
+  else if(status === "pending"){
+    document.getElementById("status").innerText = "⏳ Pending Verification";
+    document.getElementById("mineBtn").disabled = true;
+  } 
+  else{
+    document.getElementById("status").innerText = "❌ Not Verified";
+    document.getElementById("mineBtn").disabled = true;
+  }
+}
+
+// 🔹 CHECK-IN
+async function checkIn(){
+  let res = await post({
+    action:"checkIn",
+    userId:user[0]
+  });
+
+  if(res.status === "success"){
+    alert("Mining successful!");
+    user[4] = res.balance;
+  }
+  else if(res.status === "wait"){
+    alert("⏳ Come back after 24 hours");
+  }
+  else if(res.status === "not_verified"){
+    alert("❌ Verify account first");
+  }
+  else{
+    alert("Mining ended");
   }
 
-  // LIVE MINING TIMER
-  startTimer(r.miningTime);
+  updateUI();
 }
 
-// TIMER
-function startTimer(t){
-  clearInterval(state.timerInterval);
+// 🔹 SUBMIT TX
+async function submitTx(){
+  let tx = document.getElementById("tx").value.trim();
+  if(!tx) return alert("Enter TxID");
 
-  let time=parseInt(t||0);
-
-  state.timerInterval=setInterval(()=>{
-    time++;
-    timer.innerText=time;
-  },1000);
-}
-
-// NAV
-function showTab(id){
-  document.querySelectorAll(".tab").forEach(t=>t.style.display="none");
-  document.getElementById(id).style.display="block";
-}
-
-// ACTIONS
-async function startMining(){
-  await api({action:"startMining",token:state.token});
-}
-
-async function claimMining(){
-  await api({action:"claimMining",token:state.token});
-  init();
-}
-
-async function transfer(){
-  let r=await api({
-    action:"transfer",
-    token:state.token,
-    toUID:toUID.value,
-    amount:amount.value
+  await post({
+    action:"submitTx",
+    userId:user[0],
+    email:user[1],
+    tx:tx
   });
-  alert(JSON.stringify(r));
+
+  alert("Submitted for verification");
 }
 
-// ADMIN
-async function loadUsers(){
-  let r=await api({action:"getUsers",token:state.token});
-  users.innerText=JSON.stringify(r.users,null,2);
-}
-
-// AUTO LOGIN
-if(state.token){
-  init();
-}
-
+// 🔹 REFERRAL TRACK
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("ref");
+  if(ref){
+    localStorage.setItem("ref", ref);
+  }
+})();
 </script>
 
 </body>
