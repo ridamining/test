@@ -9,24 +9,24 @@
 body{
   margin:0;
   font-family:Arial;
-  background:linear-gradient(135deg,#0f172a,#020617);
+  background:linear-gradient(135deg,#020617,#0f172a);
   color:#fff;
   text-align:center;
 }
 
 .container{
-  max-width:400px;
+  max-width:420px;
   margin:auto;
   padding:20px;
 }
 
 .card{
   background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(10px);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
   padding:20px;
   margin-top:20px;
-  border-radius:15px;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  box-shadow:0 0 20px rgba(0,0,0,0.6);
 }
 
 input{
@@ -38,13 +38,13 @@ input{
 }
 
 button{
-  margin-top:15px;
   padding:12px 20px;
   border:none;
   border-radius:10px;
   background:#22c55e;
   color:#fff;
   font-weight:bold;
+  margin-top:15px;
   cursor:pointer;
 }
 
@@ -52,8 +52,14 @@ button:disabled{
   background:#555;
 }
 
-h1{
-  margin-top:30px;
+.mining{
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.1);}
+  100%{transform:scale(1);}
 }
 
 .small{
@@ -70,7 +76,7 @@ h1{
 <h1>🚀 Rida Network</h1>
 
 <!-- LOGIN -->
-<div class="card" id="loginBox">
+<div id="loginBox" class="card">
 <input id="email" placeholder="Enter Email">
 <br>
 <button onclick="login()">Login</button>
@@ -86,7 +92,7 @@ h1{
 </div>
 
 <div class="card">
-<button id="mineBtn" onclick="checkIn()">⛏️ Daily Check-In</button>
+<button id="mineBtn" onclick="checkIn()">⛏️ Start Mining</button>
 <p id="timer" class="small"></p>
 </div>
 
@@ -95,25 +101,40 @@ h1{
 <button onclick="submitTx()">Submit Verification</button>
 </div>
 
+<div class="card">
+<p>Your Referral Link:</p>
+<p id="refLink" class="small"></p>
+</div>
+
 </div>
 
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzCmSR2bmM1KmPBIq2Sc_1lc4rOi5-ihpRhQi7WuWKd3TLVZi_ksUbGsyb1CJRS1YCQlQ/exec";
+const API = "https://script.google.com/macros/s/AKfycbzy-KlWcadejKr9qYlPOSiiE3I1LLlkvNf_0-xvWw3aOjykDiLTiYXDF1knGamSHULJKQ/exec";
 
 let user = null;
 
-// 🔹 POST HELPER (IMPORTANT FIX)
+// ✅ FIXED POST (NO CORS ISSUE)
 async function post(data){
   const res = await fetch(API,{
     method:"POST",
+    redirect:"follow",
     headers:{
-      "Content-Type":"application/json"
+      "Content-Type":"text/plain;charset=utf-8"
     },
-    body:JSON.stringify(data)
+    body: JSON.stringify(data)
   });
-  return await res.json();
+
+  const text = await res.text();
+
+  try{
+    return JSON.parse(text);
+  }catch(e){
+    console.error(text);
+    alert("Server error");
+    return {status:"error"};
+  }
 }
 
 // 🔹 LOGIN
@@ -121,19 +142,17 @@ async function login(){
   let email = document.getElementById("email").value.trim();
   if(!email) return alert("Enter email");
 
-  // register
   await post({
     action:"registerUser",
-    email:email,
+    email,
     name:"User",
     pic:"",
-    ref:localStorage.getItem("ref") || ""
+    ref: localStorage.getItem("ref") || ""
   });
 
-  // get user
   let res = await post({
     action:"getUser",
-    email:email
+    email
   });
 
   if(res.status !== "success"){
@@ -153,62 +172,102 @@ async function login(){
 function updateUI(){
   document.getElementById("balance").innerText = user[4];
 
-  let status = user[7];
+  const status = user[7];
+  const mineBtn = document.getElementById("mineBtn");
 
   if(status === "true"){
     document.getElementById("status").innerText = "✅ Verified";
-    document.getElementById("mineBtn").disabled = false;
-  } 
+    mineBtn.disabled = false;
+  }
   else if(status === "pending"){
     document.getElementById("status").innerText = "⏳ Pending Verification";
-    document.getElementById("mineBtn").disabled = true;
-  } 
+    mineBtn.disabled = true;
+  }
   else{
     document.getElementById("status").innerText = "❌ Not Verified";
-    document.getElementById("mineBtn").disabled = true;
+    mineBtn.disabled = true;
   }
+
+  // referral
+  document.getElementById("refLink").innerText =
+    location.origin + location.pathname + "?ref=" + user[6];
+
+  startTimer();
 }
 
-// 🔹 CHECK-IN
+// 🔹 MINING
 async function checkIn(){
+  const btn = document.getElementById("mineBtn");
+  btn.classList.add("mining");
+
   let res = await post({
     action:"checkIn",
     userId:user[0]
   });
 
+  btn.classList.remove("mining");
+
   if(res.status === "success"){
-    alert("Mining successful!");
     user[4] = res.balance;
+    user[9] = new Date();
+    alert("✅ Mining successful!");
   }
   else if(res.status === "wait"){
-    alert("⏳ Come back after 24 hours");
+    alert("⏳ Wait 24 hours");
   }
   else if(res.status === "not_verified"){
-    alert("❌ Verify account first");
+    alert("❌ Verify first");
   }
   else{
-    alert("Mining ended");
+    alert("Mining stopped");
   }
 
   updateUI();
 }
 
+// 🔹 TIMER (24H COUNTDOWN)
+function startTimer(){
+  const el = document.getElementById("timer");
+
+  if(!user[9]){
+    el.innerText = "Ready to mine";
+    return;
+  }
+
+  setInterval(()=>{
+    const last = new Date(user[9]);
+    const now = new Date();
+    const diff = 86400000 - (now - last);
+
+    if(diff <= 0){
+      el.innerText = "Ready to mine";
+      return;
+    }
+
+    const h = Math.floor(diff/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+
+    el.innerText = `Next in ${h}h ${m}m ${s}s`;
+  },1000);
+}
+
 // 🔹 SUBMIT TX
 async function submitTx(){
-  let tx = document.getElementById("tx").value.trim();
+  const tx = document.getElementById("tx").value.trim();
   if(!tx) return alert("Enter TxID");
 
   await post({
     action:"submitTx",
     userId:user[0],
     email:user[1],
-    tx:tx
+    tx
   });
 
   alert("Submitted for verification");
 }
 
-// 🔹 REFERRAL TRACK
+// 🔹 REF TRACK
 (function(){
   const params = new URLSearchParams(window.location.search);
   const ref = params.get("ref");
